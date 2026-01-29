@@ -9,19 +9,19 @@ public class RandomSpriteAI : MonoBehaviour
     public Vector2 zoneMax;                 // Limite haut-droite de la zone
     public float waitTime = 2f;             // Temps d’attente entre les déplacements
 
-    [Header("Animation")]
-    public Sprite[] walkSprites;            // Tes sprites de marche (2-3 images)
-    public Sprite idleSprite;               // Sprite quand il ne bouge pas
-    public float frameRate = 0.2f;          // Temps entre frames
+    
 
     private SpriteRenderer sr;
     private Vector3 targetPos;
     private bool isMoving = false;
 
+
+
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
         StartCoroutine(BehaviourLoop());
+        OnDrawGizmos();
     }
 
     IEnumerator BehaviourLoop()
@@ -37,7 +37,7 @@ public class RandomSpriteAI : MonoBehaviour
 
             // Bouger vers la cible
             isMoving = true;
-            StartCoroutine(PlayWalkAnimation());
+
 
             while (Vector3.Distance(transform.position, targetPos) > 0.1f)
             {
@@ -47,21 +47,26 @@ public class RandomSpriteAI : MonoBehaviour
 
             // Arrêt
             isMoving = false;
-            sr.sprite = idleSprite;
+   
 
             // Attente avant prochain mouvement
             yield return new WaitForSeconds(waitTime);
         }
     }
 
-    IEnumerator PlayWalkAnimation()
+    void OnDrawGizmos()
     {
-        int index = 0;
-        while (isMoving)
-        {
-            sr.sprite = walkSprites[index];
-            index = (index + 1) % walkSprites.Length;
-            yield return new WaitForSeconds(frameRate);
-        }
+        // Quatre coins
+        Vector3 bottomLeft = new Vector3(zoneMin.x, zoneMin.y, 0f);
+        Vector3 bottomRight = new Vector3(zoneMax.x, zoneMin.y, 0f);
+        Vector3 topRight = new Vector3(zoneMax.x, zoneMax.y, 0f);
+        Vector3 topLeft = new Vector3(zoneMin.x, zoneMax.y, 0f);
+
+        // Tracer le rectangle
+        Debug.DrawLine(bottomLeft, bottomRight, Color.green);
+        Debug.DrawLine(bottomRight, topRight, Color.green);
+        Debug.DrawLine(topRight, topLeft, Color.green);
+        Debug.DrawLine(topLeft, bottomLeft, Color.green);
     }
+
 }
