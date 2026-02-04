@@ -6,6 +6,8 @@ public class Entity_Behavior : MonoBehaviour
     [Header("References")]
     public Transform player;
     public SpriteRenderer spriteRenderer;
+    public RandomMovementAI ai;
+
 
     [Header("Animation Settings")]
     public float updateRate = 0.1f; // temps entre chaque changement de sprite
@@ -23,16 +25,28 @@ public class Entity_Behavior : MonoBehaviour
     public Sprite left;
     public Sprite frontLeft;
 
+    [Header("Movement Stretch")]
+    public float stretchAmount = 0.15f;     // intensité du stretch
+    public float stretchSpeed = 8f;          // vitesse de l'oscillation
+    private Vector3 baseScale;
+
+    private void Start()
+    {
+        baseScale = spriteRenderer.transform.localScale;
+    }
+
     void LateUpdate()
     {
         if (player == null) return;
 
-        timer += Time.deltaTime;
-        UpdateSpriteDirection();
+        FaceCamera();
+        
 
+        timer += Time.deltaTime;
         if (timer >= updateRate)
         {
-            FaceCamera();
+            ApplyMovementStretch();
+            UpdateSpriteDirection();
             timer = 0f;
         }
 
@@ -45,7 +59,11 @@ public class Entity_Behavior : MonoBehaviour
         toPlayer.y = 0f;
         toPlayer.Normalize();
 
-        float angle = Mathf.Atan2(toPlayer.x, toPlayer.z) * Mathf.Rad2Deg;
+        Vector3 moveDir = ai.FacingDirection;
+        moveDir.y = 0f;
+        moveDir.Normalize();
+
+        float angle = Vector3.SignedAngle(moveDir, toPlayer, Vector3.up);
         angle = (angle + 360f) % 360f;
 
         spriteRenderer.sprite = GetSpriteFromAngle(angle);
@@ -53,22 +71,64 @@ public class Entity_Behavior : MonoBehaviour
 
     Sprite GetSpriteFromAngle(float angle)
     {
-        if (angle < 22.5f || angle >= 337.5f)
+        // FRONT (large)
+        if (angle < 30f || angle >= 330f)
             return front;
-        else if (angle < 67.5f)
+
+        // FRONT RIGHT (réduit)
+        else if (angle < 60f)
             return frontRight;
-        else if (angle < 112.5f)
+
+        // RIGHT (large)
+        else if (angle < 120f)
             return right;
-        else if (angle < 157.5f)
+
+        // BACK RIGHT (réduit)
+        else if (angle < 150f)
             return backRight;
-        else if (angle < 202.5f)
+
+        // BACK (large)
+        else if (angle < 210f)
             return back;
-        else if (angle < 247.5f)
+
+        // BACK LEFT (réduit)
+        else if (angle < 240f)
             return backLeft;
-        else if (angle < 292.5f)
+
+        // LEFT (large)
+        else if (angle < 300f)
             return left;
+
+        // FRONT LEFT (réduit)
         else
             return frontLeft;
+    }
+
+    void ApplyMovementStretch()
+    {
+        if (ai == null) return;
+
+        if (ai.isMoving)
+        {
+            float t = Time.time * stretchSpeed;
+            float stretch = Mathf.Sin(t) * stretchAmount;
+
+            // Stretch vertical / squash horizontal
+            spriteRenderer.transform.localScale = new Vector3(
+                baseScale.x - stretch,
+                baseScale.y + stretch,
+                baseScale.z
+            );
+        }
+        else
+        {
+            // Retour progressif à la taille normale
+            spriteRenderer.transform.localScale = Vector3.Lerp(
+                spriteRenderer.transform.localScale,
+                baseScale,
+                Time.deltaTime * 10f
+            );
+        }
     }
 
     void FaceCamera()

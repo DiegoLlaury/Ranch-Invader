@@ -1,55 +1,62 @@
 using UnityEngine;
 using System.Collections;
 
-public class RandomSpriteAI : MonoBehaviour
+public class RandomMovementAI : MonoBehaviour
 {
     [Header("Mouvement")]
-    public float moveSpeed = 2f;            // Vitesse de déplacement
-    public Vector2 zoneMin;                 // Limite bas-gauche de la zone
-    public Vector2 zoneMax;                 // Limite haut-droite de la zone
-    public float waitTime = 2f;             // Temps d’attente entre les déplacements
+    public float moveSpeed = 2f;
+    public float rotationSpeed = 360f; // degrés par seconde
+    public Vector2 zoneMin;
+    public Vector2 zoneMax;
+    public float waitTime = 2f;          // Temps d’attente entre les déplacements
 
-    
+
 
     private SpriteRenderer sr;
     private Vector3 targetPos;
-    private bool isMoving = false;
+    public bool isMoving = false;
+
+    public Vector3 FacingDirection { get; private set; }
+    public Transform player;
 
 
 
     void Start()
     {
-        sr = GetComponent<SpriteRenderer>();
+        //sr = GetComponent<SpriteRenderer>();
         StartCoroutine(BehaviourLoop());
-        OnDrawGizmos();
     }
 
     IEnumerator BehaviourLoop()
     {
         while (true)
         {
-            // Choisir une position aléatoire dans la zone
+            // Position aléatoire dans la zone
             targetPos = new Vector3(
                 Random.Range(zoneMin.x, zoneMax.x),
-                transform.position.y, // on garde la même hauteur
+                transform.position.y,
                 Random.Range(zoneMin.y, zoneMax.y)
             );
 
-            // Bouger vers la cible
             isMoving = true;
 
+            // Direction vers la cible
+            Vector3 moveDir = (targetPos - transform.position);
+            moveDir.y = 0f;
+            moveDir.Normalize();
+            FacingDirection = moveDir;
 
+            transform.rotation = Quaternion.LookRotation(moveDir);
+
+            // Déplacement
             while (Vector3.Distance(transform.position, targetPos) > 0.1f)
             {
-                transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+                transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime); ;
                 yield return null;
             }
 
-            // Arrêt
             isMoving = false;
-   
 
-            // Attente avant prochain mouvement
             yield return new WaitForSeconds(waitTime);
         }
     }

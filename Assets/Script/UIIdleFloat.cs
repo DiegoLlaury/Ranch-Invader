@@ -1,3 +1,4 @@
+using StarterAssets;
 using UnityEngine;
 
 public class UIIdleFloat : MonoBehaviour
