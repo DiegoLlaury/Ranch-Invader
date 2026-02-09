@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb67ab5f5cd6feb469a226b41dd383f2, type: 3}
+  m_Name: PitchforkData
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponData
+  weaponName: Pitchfork
+  weaponType: 3
+  damage: 12
+  range: 20
+  attackCooldown: 0.8
+  maxAmmo: 5
+  currentAmmo: 5
+  reloadTime: 2
+  maxDurability: 100
+  currentDurability: 100
+  durabilityLossPerHit: 10
+  idleSprite: {fileID: 0}
+  attackSprite: {fileID: 0}
+  weaponIconSprite: {fileID: 0}
+  attackAnimationTrigger: Attack
+  animationDuration: 0.4
+  hitEffectPrefab: {fileID: 0}
+  muzzleFlashPrefab: {fileID: 0}

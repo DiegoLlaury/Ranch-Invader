@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb67ab5f5cd6feb469a226b41dd383f2, type: 3}
+  m_Name: FistData
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponData
+  weaponName: Fist
+  weaponType: 0
+  damage: 5
+  range: 1.5
+  attackCooldown: 0.3
+  maxAmmo: 0
+  currentAmmo: 0
+  reloadTime: 0
+  maxDurability: 0
+  currentDurability: 0
+  durabilityLossPerHit: 0
+  idleSprite: {fileID: 21300000, guid: d0d45af2e91224246a28c6594213f0f9, type: 3}
+  attackSprite: {fileID: 21300000, guid: 9c5520ebb3f445c4e916b615c1b1c4bc, type: 3}
+  weaponIconSprite: {fileID: 0}
+  attackAnimationTrigger: Attack
+  animationDuration: 0.3
+  hitEffectPrefab: {fileID: 0}
+  muzzleFlashPrefab: {fileID: 0}
