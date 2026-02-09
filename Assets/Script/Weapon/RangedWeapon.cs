@@ -9,6 +9,13 @@ public class RangedWeapon : BaseWeapon
     public Camera playerCamera;
 
     private bool isReloading;
+    private WeaponUIController cachedUIController;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        cachedUIController = Object.FindFirstObjectByType<WeaponUIController>();
+    }
 
     public override void Attack()
     {
@@ -70,6 +77,17 @@ public class RangedWeapon : BaseWeapon
     private IEnumerator ReloadCoroutine()
     {
         isReloading = true;
+
+        if (cachedUIController == null)
+        {
+            cachedUIController = Object.FindFirstObjectByType<WeaponUIController>();
+        }
+
+        if (cachedUIController != null)
+        {
+            cachedUIController.PlayReloadAnimation();
+        }
+
         yield return new WaitForSeconds(weaponData.reloadTime);
 
         weaponData.currentAmmo = weaponData.maxAmmo;

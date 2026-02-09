@@ -23,9 +23,41 @@ MonoBehaviour:
   maxDurability: 100
   currentDurability: 100
   durabilityLossPerHit: 10
-  idleSprite: {fileID: 21300000, guid: 7d0e33982ebc364448d554cf5c4012c9, type: 3}
-  attackSprite: {fileID: 21300000, guid: b271e54c2a97cdb42b8d416c1c6e4453, type: 3}
+  idleSprite: {fileID: 21300000, guid: 4538e5379265cb544ac350d555abc756, type: 3}
+  attackSprite: {fileID: 21300000, guid: d3a10062d289deb428fbf2e4477b2ffe, type: 3}
   weaponIconSprite: {fileID: 0}
+  attackAnimation:
+  - sprite: {fileID: 21300000, guid: d3a10062d289deb428fbf2e4477b2ffe, type: 3}
+    positionOffset: {x: 0, y: 60}
+    rotationAngle: -5
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    duration: 0.2
+    curveType: 2
+  - sprite: {fileID: 21300000, guid: 4538e5379265cb544ac350d555abc756, type: 3}
+    positionOffset: {x: 0, y: -20}
+    rotationAngle: 3
+    scaleMultiplier: {x: 0.95, y: 0.95, z: 1}
+    duration: 0.3
+    curveType: 4
+  reloadAnimation:
+  - sprite: {fileID: 21300000, guid: babbb55c2d6559f49abf976b911320eb, type: 3}
+    positionOffset: {x: 0, y: 200}
+    rotationAngle: 15
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    duration: 0.3
+    curveType: 2
+  - sprite: {fileID: 21300000, guid: babbb55c2d6559f49abf976b911320eb, type: 3}
+    positionOffset: {x: 0, y: 200}
+    rotationAngle: 15
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    duration: 0.8
+    curveType: 0
+  - sprite: {fileID: 21300000, guid: 4538e5379265cb544ac350d555abc756, type: 3}
+    positionOffset: {x: 0, y: 50}
+    rotationAngle: 0
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    duration: 0.4
+    curveType: 1
   attackAnimationTrigger: Attack
   animationDuration: 0.3
   hitEffectPrefab: {fileID: 0}

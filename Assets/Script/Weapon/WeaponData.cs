@@ -22,12 +22,19 @@ public class WeaponData : ScriptableObject
     public float currentDurability = 100f;
     public float durabilityLossPerHit = 10f;
 
-    [Header("Sprites UI")]
+    [Header("Sprites UI (Legacy - gardé pour compatibilité)")]
     public Sprite idleSprite;
     public Sprite attackSprite;
     public Sprite weaponIconSprite;
 
-    [Header("Animation")]
+    [Header("Animation Multi-Frame")]
+    [Tooltip("Animation jouée lors de l'attaque")]
+    public WeaponAnimationFrame[] attackAnimation;
+
+    [Tooltip("Animation jouée lors du rechargement (fusil, fourche)")]
+    public WeaponAnimationFrame[] reloadAnimation;
+
+    [Header("Animation (Legacy)")]
     public string attackAnimationTrigger = "Attack";
     public float animationDuration = 0.3f;
 
@@ -35,4 +42,3 @@ public class WeaponData : ScriptableObject
     public GameObject hitEffectPrefab;
     public GameObject muzzleFlashPrefab;
 }
-

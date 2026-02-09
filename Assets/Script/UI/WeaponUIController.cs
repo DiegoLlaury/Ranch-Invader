@@ -2,16 +2,17 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using StarterAssets;
 
 public class WeaponUIController : MonoBehaviour
 {
     [Header("Références")]
     public WeaponController weaponController;
+    public FirstPersonController playerController;
 
     [Header("Affichage de l'arme")]
     public RectTransform weaponVisualRoot;
     public Image weaponSprite;
-    public Animator weaponAnimator;
 
     [Header("Affichage des poings (alternance)")]
     public RectTransform leftFistRoot;
@@ -28,6 +29,14 @@ public class WeaponUIController : MonoBehaviour
     public float fistRotateAngle = 6f;
     public RectTransform fistTargetCenter;
 
+    [Header("Animation Idle Flottante")]
+    public float idlePositionAmplitude = 5f;
+    public float idlePositionSpeed = 2f;
+    public float idleScaleAmplitude = 0.03f;
+    public float idleScaleSpeed = 2f;
+    public float speedMultiplier = 0.5f;
+    public float updateRate = 0f;
+
     [Header("Munitions/Durabilité")]
     public GameObject ammoPanel;
     public TextMeshProUGUI ammoText;
@@ -42,32 +51,35 @@ public class WeaponUIController : MonoBehaviour
     public Color selectedColor = Color.white;
     public Color unselectedColor = Color.gray;
 
-    [Header("Animation UI armes classiques")]
-    public float attackMoveDistance = 50f;
-    public float attackDuration = 0.2f;
-    public float returnDuration = 0.25f;
-
-    private Vector2 idlePosition;
+    private Vector2 weaponIdlePosition;
     private Vector2 leftFistIdlePos;
     private Vector2 rightFistIdlePos;
+    private Vector3 weaponStartScale;
+    private Vector3 leftFistStartScale;
+    private Vector3 rightFistStartScale;
+
     private bool isAnimating;
     private FistWeapon currentFistWeapon;
+    private float updateTimer = 0f;
 
     private void Start()
     {
         if (weaponVisualRoot != null)
         {
-            idlePosition = weaponVisualRoot.anchoredPosition;
+            weaponIdlePosition = weaponVisualRoot.anchoredPosition;
+            weaponStartScale = weaponVisualRoot.localScale;
         }
 
         if (leftFistRoot != null)
         {
             leftFistIdlePos = leftFistRoot.anchoredPosition;
+            leftFistStartScale = leftFistRoot.localScale;
         }
 
         if (rightFistRoot != null)
         {
             rightFistIdlePos = rightFistRoot.anchoredPosition;
+            rightFistStartScale = rightFistRoot.localScale;
         }
 
         SetupFistIdle();
@@ -85,6 +97,67 @@ public class WeaponUIController : MonoBehaviour
         }
 
         UpdateWeaponDisplay(weaponController.GetCurrentWeaponType());
+    }
+
+    private void Update()
+    {
+        if (!isAnimating)
+        {
+            ApplyIdleAnimation();
+        }
+    }
+
+    private void ApplyIdleAnimation()
+    {
+        float currentPlayerSpeed = 0f;
+        if (playerController != null)
+        {
+            CharacterController controller = playerController.GetComponent<CharacterController>();
+            if (controller != null)
+            {
+                currentPlayerSpeed = controller.velocity.magnitude;
+            }
+        }
+
+        float speedFactor = 1f + (currentPlayerSpeed * speedMultiplier);
+        float t = Time.time;
+        updateTimer += Time.deltaTime;
+
+        float yOffset = Mathf.Sin(t * idlePositionSpeed * speedFactor) * idlePositionAmplitude;
+        float scaleOffset = Mathf.Sin(t * idleScaleSpeed * speedFactor) * idleScaleAmplitude;
+
+        if (updateRate == 0f || updateTimer >= updateRate)
+        {
+            WeaponType currentType = weaponController.GetCurrentWeaponType();
+
+            if (currentType == WeaponType.Fist)
+            {
+                if (leftFistRoot != null)
+                {
+                    leftFistRoot.anchoredPosition = leftFistIdlePos + Vector2.up * yOffset;
+                    leftFistRoot.localScale = leftFistStartScale + Vector3.one * scaleOffset;
+                }
+
+                if (rightFistRoot != null)
+                {
+                    rightFistRoot.anchoredPosition = rightFistIdlePos + Vector2.up * yOffset;
+                    rightFistRoot.localScale = rightFistStartScale + Vector3.one * scaleOffset;
+                }
+            }
+            else
+            {
+                if (weaponVisualRoot != null)
+                {
+                    weaponVisualRoot.anchoredPosition = weaponIdlePosition + Vector2.up * yOffset;
+                    weaponVisualRoot.localScale = weaponStartScale + Vector3.one * scaleOffset;
+                }
+            }
+
+            if (updateRate > 0f)
+            {
+                updateTimer = 0f;
+            }
+        }
     }
 
     private void SetupFistIdle()
@@ -133,8 +206,16 @@ public class WeaponUIController : MonoBehaviour
             }
             else
             {
-                StartCoroutine(PlayAttackAnimation());
+                StartCoroutine(PlayMultiFrameAnimation(AnimationType.Attack));
             }
+        }
+    }
+
+    public void PlayReloadAnimation()
+    {
+        if (!isAnimating)
+        {
+            StartCoroutine(PlayMultiFrameAnimation(AnimationType.Reload));
         }
     }
 
@@ -207,6 +288,123 @@ public class WeaponUIController : MonoBehaviour
         }
     }
 
+    private IEnumerator PlayMultiFrameAnimation(AnimationType animType)
+    {
+        isAnimating = true;
+
+        WeaponData currentData = weaponController.GetWeaponData(weaponController.GetCurrentWeaponType());
+        if (currentData == null || weaponVisualRoot == null || weaponSprite == null)
+        {
+            isAnimating = false;
+            yield break;
+        }
+
+        WeaponAnimationFrame[] frames = animType == AnimationType.Attack ? currentData.attackAnimation : currentData.reloadAnimation;
+
+        if (frames == null || frames.Length == 0)
+        {
+            isAnimating = false;
+            yield break;
+        }
+
+        Vector2 currentPosition = weaponIdlePosition;
+        Quaternion currentRotation = Quaternion.identity;
+        Vector3 currentScale = weaponStartScale;
+
+        foreach (WeaponAnimationFrame frame in frames)
+        {
+            Vector2 targetPosition = weaponIdlePosition + frame.positionOffset;
+            Quaternion targetRotation = Quaternion.Euler(0, 0, frame.rotationAngle);
+            Vector3 targetScale = Vector3.Scale(weaponStartScale, frame.scaleMultiplier);
+
+            if (frame.sprite != null)
+            {
+                weaponSprite.sprite = frame.sprite;
+            }
+
+            yield return AnimateToFrame(
+                currentPosition, targetPosition,
+                currentRotation, targetRotation,
+                currentScale, targetScale,
+                frame.duration,
+                frame.curveType
+            );
+
+            currentPosition = targetPosition;
+            currentRotation = targetRotation;
+            currentScale = targetScale;
+        }
+
+        yield return AnimateToFrame(
+            currentPosition, weaponIdlePosition,
+            currentRotation, Quaternion.identity,
+            currentScale, weaponStartScale,
+            0.2f,
+            AnimationCurveType.EaseOut
+        );
+
+        weaponSprite.sprite = currentData.idleSprite;
+
+        isAnimating = false;
+    }
+
+    private IEnumerator AnimateToFrame(
+        Vector2 startPos, Vector2 endPos,
+        Quaternion startRot, Quaternion endRot,
+        Vector3 startScale, Vector3 endScale,
+        float duration,
+        AnimationCurveType curveType)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            t = ApplyCurve(t, curveType);
+
+            if (weaponVisualRoot != null)
+            {
+                weaponVisualRoot.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
+                weaponVisualRoot.localRotation = Quaternion.Lerp(startRot, endRot, t);
+                weaponVisualRoot.localScale = Vector3.Lerp(startScale, endScale, t);
+            }
+
+            yield return null;
+        }
+
+        if (weaponVisualRoot != null)
+        {
+            weaponVisualRoot.anchoredPosition = endPos;
+            weaponVisualRoot.localRotation = endRot;
+            weaponVisualRoot.localScale = endScale;
+        }
+    }
+
+    private float ApplyCurve(float t, AnimationCurveType curveType)
+    {
+        switch (curveType)
+        {
+            case AnimationCurveType.Linear:
+                return t;
+
+            case AnimationCurveType.EaseIn:
+                return t * t;
+
+            case AnimationCurveType.EaseOut:
+                return 1f - (1f - t) * (1f - t);
+
+            case AnimationCurveType.EaseInOut:
+                return t < 0.5f ? 2f * t * t : 1f - Mathf.Pow(-2f * t + 2f, 2f) / 2f;
+
+            case AnimationCurveType.Bounce:
+                return Mathf.Sin(t * Mathf.PI);
+
+            default:
+                return t;
+        }
+    }
+
     private IEnumerator PlayFistPunchAnimation()
     {
         isAnimating = true;
@@ -217,6 +415,7 @@ public class WeaponUIController : MonoBehaviour
         Image idleSprite = useLeft ? leftFistIdleSprite : rightFistIdleSprite;
         Image punchSprite = useLeft ? leftFistPunchSprite : rightFistPunchSprite;
         Vector2 fistIdlePos = useLeft ? leftFistIdlePos : rightFistIdlePos;
+        Vector3 fistStartScale = useLeft ? leftFistStartScale : rightFistStartScale;
 
         if (fistRoot == null || idleSprite == null || punchSprite == null)
         {
@@ -237,9 +436,8 @@ public class WeaponUIController : MonoBehaviour
         idleSprite.enabled = false;
         punchSprite.enabled = true;
 
-        yield return MoveFist(fistRoot, fistIdlePos, punchPos, fistPunchDuration, useLeft);
-
-        yield return MoveFist(fistRoot, punchPos, fistIdlePos, fistReturnDuration, useLeft);
+        yield return MoveFist(fistRoot, fistIdlePos, punchPos, fistStartScale, fistPunchDuration, useLeft);
+        yield return MoveFist(fistRoot, punchPos, fistIdlePos, fistStartScale, fistReturnDuration, useLeft);
 
         punchSprite.enabled = false;
         idleSprite.enabled = true;
@@ -247,7 +445,7 @@ public class WeaponUIController : MonoBehaviour
         isAnimating = false;
     }
 
-    private IEnumerator MoveFist(RectTransform fist, Vector2 from, Vector2 to, float duration, bool isLeft)
+    private IEnumerator MoveFist(RectTransform fist, Vector2 from, Vector2 to, Vector3 startScale, float duration, bool isLeft)
     {
         float elapsed = 0f;
 
@@ -270,59 +468,7 @@ public class WeaponUIController : MonoBehaviour
         {
             fist.localRotation = Quaternion.identity;
             fist.anchoredPosition = to;
-        }
-    }
-
-    private IEnumerator PlayAttackAnimation()
-    {
-        isAnimating = true;
-
-        WeaponData currentData = weaponController.GetWeaponData(weaponController.GetCurrentWeaponType());
-
-        if (currentData != null && currentData.attackSprite != null && weaponSprite != null)
-        {
-            weaponSprite.sprite = currentData.attackSprite;
-        }
-
-        if (weaponAnimator != null && currentData != null)
-        {
-            weaponAnimator.SetTrigger(currentData.attackAnimationTrigger);
-        }
-
-        Vector2 targetPosition = idlePosition + Vector2.up * attackMoveDistance;
-        yield return MoveWeapon(idlePosition, targetPosition, attackDuration);
-
-        yield return MoveWeapon(targetPosition, idlePosition, returnDuration);
-
-        if (currentData != null && currentData.idleSprite != null && weaponSprite != null)
-        {
-            weaponSprite.sprite = currentData.idleSprite;
-        }
-
-        isAnimating = false;
-    }
-
-    private IEnumerator MoveWeapon(Vector2 from, Vector2 to, float duration)
-    {
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            t = Mathf.Sin(t * Mathf.PI * 0.5f);
-
-            if (weaponVisualRoot != null)
-            {
-                weaponVisualRoot.anchoredPosition = Vector2.Lerp(from, to, t);
-            }
-
-            yield return null;
-        }
-
-        if (weaponVisualRoot != null)
-        {
-            weaponVisualRoot.anchoredPosition = to;
+            fist.localScale = startScale;
         }
     }
 
@@ -369,4 +515,10 @@ public class WeaponUIController : MonoBehaviour
             }
         }
     }
+}
+
+public enum AnimationType
+{
+    Attack,
+    Reload
 }

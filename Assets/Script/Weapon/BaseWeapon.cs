@@ -13,6 +13,10 @@ public abstract class BaseWeapon : MonoBehaviour
     protected float lastAttackTime;
     protected bool isAttacking;
 
+    protected virtual void Awake()
+    {
+    }
+
     public bool CanAttack()
     {
         return Time.time >= lastAttackTime + weaponData.attackCooldown && !isAttacking;

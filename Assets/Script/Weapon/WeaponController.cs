@@ -5,10 +5,10 @@ using System.Collections.Generic;
 
 public class WeaponController : MonoBehaviour
 {
-    [Header("Armes disponibles")]
+    [Header("Configuration des armes")]
     public List<WeaponData> availableWeapons = new List<WeaponData>();
 
-    [Header("Armes GameObjects")]
+    [Header("GameObjects des armes")]
     public GameObject fistWeaponObject;
     public GameObject shovelWeaponObject;
     public GameObject shotgunWeaponObject;
@@ -21,6 +21,53 @@ public class WeaponController : MonoBehaviour
     public event Action<WeaponType> OnWeaponChanged;
     public event Action OnAttackTriggered;
 
+    private PlayerInput playerInput;
+    private InputAction weapon1Action;
+    private InputAction weapon2Action;
+    private InputAction weapon3Action;
+    private InputAction weapon4Action;
+    private InputAction attackAction;
+    private InputAction nextWeaponAction;
+    private InputAction previousWeaponAction;
+
+    private void Awake()
+    {
+        playerInput = GetComponent<PlayerInput>();
+
+        if (playerInput != null)
+        {
+            weapon1Action = playerInput.actions["Weapon1"];
+            weapon2Action = playerInput.actions["Weapon2"];
+            weapon3Action = playerInput.actions["Weapon3"];
+            weapon4Action = playerInput.actions["Weapon4"];
+            attackAction = playerInput.actions["Attack"];
+            nextWeaponAction = playerInput.actions["NextWeapon"];
+            previousWeaponAction = playerInput.actions["PreviousWeapon"];
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (weapon1Action != null) weapon1Action.performed += OnWeapon1Performed;
+        if (weapon2Action != null) weapon2Action.performed += OnWeapon2Performed;
+        if (weapon3Action != null) weapon3Action.performed += OnWeapon3Performed;
+        if (weapon4Action != null) weapon4Action.performed += OnWeapon4Performed;
+        if (attackAction != null) attackAction.performed += OnAttackPerformed;
+        if (nextWeaponAction != null) nextWeaponAction.performed += OnNextWeaponPerformed;
+        if (previousWeaponAction != null) previousWeaponAction.performed += OnPreviousWeaponPerformed;
+    }
+
+    private void OnDisable()
+    {
+        if (weapon1Action != null) weapon1Action.performed -= OnWeapon1Performed;
+        if (weapon2Action != null) weapon2Action.performed -= OnWeapon2Performed;
+        if (weapon3Action != null) weapon3Action.performed -= OnWeapon3Performed;
+        if (weapon4Action != null) weapon4Action.performed -= OnWeapon4Performed;
+        if (attackAction != null) attackAction.performed -= OnAttackPerformed;
+        if (nextWeaponAction != null) nextWeaponAction.performed -= OnNextWeaponPerformed;
+        if (previousWeaponAction != null) previousWeaponAction.performed -= OnPreviousWeaponPerformed;
+    }
+
     private void Start()
     {
         InitializeWeapons();
@@ -31,42 +78,62 @@ public class WeaponController : MonoBehaviour
     {
         if (fistWeaponObject != null)
         {
-            BaseWeapon fist = fistWeaponObject.GetComponent<BaseWeapon>();
-            if (fist != null) weaponInstances[WeaponType.Fist] = fist;
+            BaseWeapon weapon = fistWeaponObject.GetComponent<BaseWeapon>();
+            if (weapon != null)
+            {
+                weaponInstances[WeaponType.Fist] = weapon;
+                RegisterWeaponEvents(weapon);
+            }
         }
 
         if (shovelWeaponObject != null)
         {
-            BaseWeapon shovel = shovelWeaponObject.GetComponent<BaseWeapon>();
-            if (shovel != null) weaponInstances[WeaponType.Shovel] = shovel;
+            BaseWeapon weapon = shovelWeaponObject.GetComponent<BaseWeapon>();
+            if (weapon != null)
+            {
+                weaponInstances[WeaponType.Shovel] = weapon;
+                RegisterWeaponEvents(weapon);
+            }
         }
 
         if (shotgunWeaponObject != null)
         {
-            BaseWeapon shotgun = shotgunWeaponObject.GetComponent<BaseWeapon>();
-            if (shotgun != null) weaponInstances[WeaponType.Shotgun] = shotgun;
+            BaseWeapon weapon = shotgunWeaponObject.GetComponent<BaseWeapon>();
+            if (weapon != null)
+            {
+                weaponInstances[WeaponType.Shotgun] = weapon;
+                RegisterWeaponEvents(weapon);
+            }
         }
 
         if (pitchforkWeaponObject != null)
         {
-            BaseWeapon pitchfork = pitchforkWeaponObject.GetComponent<BaseWeapon>();
-            if (pitchfork != null) weaponInstances[WeaponType.Pitchfork] = pitchfork;
-        }
-
-        foreach (var weapon in weaponInstances.Values)
-        {
+            BaseWeapon weapon = pitchforkWeaponObject.GetComponent<BaseWeapon>();
             if (weapon != null)
             {
-                weapon.gameObject.SetActive(false);
-                weapon.OnAttackPerformed += HandleAttackPerformed;
+                weaponInstances[WeaponType.Pitchfork] = weapon;
+                RegisterWeaponEvents(weapon);
             }
         }
     }
 
+    private void RegisterWeaponEvents(BaseWeapon weapon)
+    {
+        weapon.OnAttackPerformed += HandleWeaponAttackPerformed;
+    }
+
+    private void HandleWeaponAttackPerformed()
+    {
+        OnAttackTriggered?.Invoke();
+    }
+
     public void SwitchWeapon(WeaponType newWeaponType)
     {
-        if (newWeaponType == currentWeaponType)
+        if (!weaponInstances.ContainsKey(newWeaponType))
+        {
+            Debug.LogWarning($"Arme {newWeaponType} non trouvée !");
             return;
+        }
 
         if (currentWeapon != null)
         {
@@ -75,29 +142,15 @@ public class WeaponController : MonoBehaviour
         }
 
         currentWeaponType = newWeaponType;
+        currentWeapon = weaponInstances[newWeaponType];
 
-        if (weaponInstances.ContainsKey(newWeaponType))
+        if (currentWeapon != null)
         {
-            currentWeapon = weaponInstances[newWeaponType];
             currentWeapon.gameObject.SetActive(true);
             currentWeapon.OnEquip();
-
-            OnWeaponChanged?.Invoke(newWeaponType);
         }
-    }
 
-    public void NextWeapon()
-    {
-        int nextIndex = ((int)currentWeaponType + 1) % System.Enum.GetValues(typeof(WeaponType)).Length;
-        SwitchWeapon((WeaponType)nextIndex);
-    }
-
-    public void PreviousWeapon()
-    {
-        int prevIndex = ((int)currentWeaponType - 1);
-        if (prevIndex < 0)
-            prevIndex = System.Enum.GetValues(typeof(WeaponType)).Length - 1;
-        SwitchWeapon((WeaponType)prevIndex);
+        OnWeaponChanged?.Invoke(newWeaponType);
     }
 
     public void Attack()
@@ -108,14 +161,54 @@ public class WeaponController : MonoBehaviour
         }
     }
 
-    private void HandleAttackPerformed()
+    public void NextWeapon()
     {
-        OnAttackTriggered?.Invoke();
+        int currentIndex = (int)currentWeaponType;
+        int nextIndex = (currentIndex + 1) % 4;
+        SwitchWeapon((WeaponType)nextIndex);
     }
 
-    public BaseWeapon GetCurrentWeapon()
+    public void PreviousWeapon()
     {
-        return currentWeapon;
+        int currentIndex = (int)currentWeaponType;
+        int previousIndex = currentIndex - 1;
+        if (previousIndex < 0) previousIndex = 3;
+        SwitchWeapon((WeaponType)previousIndex);
+    }
+
+    private void OnWeapon1Performed(InputAction.CallbackContext context)
+    {
+        SwitchWeapon(WeaponType.Fist);
+    }
+
+    private void OnWeapon2Performed(InputAction.CallbackContext context)
+    {
+        SwitchWeapon(WeaponType.Shovel);
+    }
+
+    private void OnWeapon3Performed(InputAction.CallbackContext context)
+    {
+        SwitchWeapon(WeaponType.Shotgun);
+    }
+
+    private void OnWeapon4Performed(InputAction.CallbackContext context)
+    {
+        SwitchWeapon(WeaponType.Pitchfork);
+    }
+
+    private void OnAttackPerformed(InputAction.CallbackContext context)
+    {
+        Attack();
+    }
+
+    private void OnNextWeaponPerformed(InputAction.CallbackContext context)
+    {
+        NextWeapon();
+    }
+
+    private void OnPreviousWeaponPerformed(InputAction.CallbackContext context)
+    {
+        PreviousWeapon();
     }
 
     public WeaponType GetCurrentWeaponType()
@@ -123,59 +216,17 @@ public class WeaponController : MonoBehaviour
         return currentWeaponType;
     }
 
-    public WeaponData GetWeaponData(WeaponType type)
+    public BaseWeapon GetCurrentWeapon()
     {
-        foreach (var data in availableWeapons)
+        return currentWeapon;
+    }
+
+    public WeaponData GetWeaponData(WeaponType weaponType)
+    {
+        if (weaponInstances.ContainsKey(weaponType))
         {
-            if (data.weaponType == type)
-                return data;
+            return weaponInstances[weaponType].weaponData;
         }
         return null;
-    }
-
-    public void OnWeapon1(InputAction.CallbackContext context)
-    {
-        if (context.performed) SwitchWeapon(WeaponType.Fist);
-    }
-
-    public void OnWeapon2(InputAction.CallbackContext context)
-    {
-        if (context.performed) SwitchWeapon(WeaponType.Shovel);
-    }
-
-    public void OnWeapon3(InputAction.CallbackContext context)
-    {
-        if (context.performed) SwitchWeapon(WeaponType.Shotgun);
-    }
-
-    public void OnWeapon4(InputAction.CallbackContext context)
-    {
-        if (context.performed) SwitchWeapon(WeaponType.Pitchfork);
-    }
-
-    public void OnAttackInput(InputAction.CallbackContext context)
-    {
-        if (context.performed) Attack();
-    }
-
-    public void OnNextWeaponInput(InputAction.CallbackContext context)
-    {
-        if (context.performed) NextWeapon();
-    }
-
-    public void OnPreviousWeaponInput(InputAction.CallbackContext context)
-    {
-        if (context.performed) PreviousWeapon();
-    }
-
-    private void OnDestroy()
-    {
-        foreach (var weapon in weaponInstances.Values)
-        {
-            if (weapon != null)
-            {
-                weapon.OnAttackPerformed -= HandleAttackPerformed;
-            }
-        }
     }
 }

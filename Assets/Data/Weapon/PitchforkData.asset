@@ -18,14 +18,34 @@ MonoBehaviour:
   range: 20
   attackCooldown: 0.8
   maxAmmo: 5
-  currentAmmo: 5
+  currentAmmo: 3
   reloadTime: 2
   maxDurability: 100
   currentDurability: 100
   durabilityLossPerHit: 10
-  idleSprite: {fileID: 0}
-  attackSprite: {fileID: 0}
+  idleSprite: {fileID: 21300000, guid: 98aea57a8d9f17d408c3ff7d54d7d34a, type: 3}
+  attackSprite: {fileID: 21300000, guid: 4dab66428b5be684fa037b6b8256c412, type: 3}
   weaponIconSprite: {fileID: 0}
+  attackAnimation:
+  - sprite: {fileID: 21300000, guid: 4dab66428b5be684fa037b6b8256c412, type: 3}
+    positionOffset: {x: -150, y: 500}
+    rotationAngle: 25
+    scaleMultiplier: {x: 1, y: 1, z: 1}
+    duration: 0.4
+    curveType: 1
+  - sprite: {fileID: 21300000, guid: 4dab66428b5be684fa037b6b8256c412, type: 3}
+    positionOffset: {x: 0, y: 400}
+    rotationAngle: 30
+    scaleMultiplier: {x: 1.1, y: 1.1, z: 1}
+    duration: 0.1
+    curveType: 0
+  - sprite: {fileID: 21300000, guid: 98aea57a8d9f17d408c3ff7d54d7d34a, type: 3}
+    positionOffset: {x: 100, y: -50}
+    rotationAngle: -20
+    scaleMultiplier: {x: 0.9, y: 0.9, z: 1}
+    duration: 0.2
+    curveType: 2
+  reloadAnimation: []
   attackAnimationTrigger: Attack
   animationDuration: 0.4
   hitEffectPrefab: {fileID: 0}

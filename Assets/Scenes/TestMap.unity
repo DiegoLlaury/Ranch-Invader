@@ -448,20 +448,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponUIController
   weaponController: {fileID: 1600062364}
+  playerController: {fileID: 1600062368}
   weaponVisualRoot: {fileID: 344054105}
   weaponSprite: {fileID: 955173061}
-  weaponAnimator: {fileID: 0}
   leftFistRoot: {fileID: 1426648346}
   rightFistRoot: {fileID: 953793028}
   leftFistIdleSprite: {fileID: 2058599702}
   leftFistPunchSprite: {fileID: 1854078154}
   rightFistIdleSprite: {fileID: 43782425}
   rightFistPunchSprite: {fileID: 418471826}
-  fistPunchDistance: 120
+  fistPunchDistance: -150
   fistPunchDuration: 0.12
   fistReturnDuration: 0.15
-  fistRotateAngle: 6
+  fistRotateAngle: -6
   fistTargetCenter: {fileID: 1329410202}
+  idlePositionAmplitude: 5
+  idlePositionSpeed: 2
+  idleScaleAmplitude: 0.03
+  idleScaleSpeed: 1.2
+  speedMultiplier: 0.5
+  updateRate: 0.2
   ammoPanel: {fileID: 746423847}
   ammoText: {fileID: 979892196}
   durabilityPanel: {fileID: 0}
@@ -472,9 +478,6 @@ MonoBehaviour:
   weapon4Slot: {fileID: 192280474}
   selectedColor: {r: 1, g: 1, b: 1, a: 1}
   unselectedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  attackMoveDistance: 50
-  attackDuration: 0.2
-  returnDuration: 0.25
 --- !u!1 &327483832
 GameObject:
   m_ObjectHideFlags: 0
@@ -565,7 +568,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &344054105
 RectTransform:
   m_ObjectHideFlags: 0
@@ -583,7 +586,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -204}
+  m_AnchoredPosition: {x: 297, y: -430}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &372460256
@@ -1405,8 +1408,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 800, y: 800}
+  m_AnchoredPosition: {x: 164, y: 0}
+  m_SizeDelta: {x: 1000, y: 1000}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &955173061
 MonoBehaviour:
@@ -2264,6 +2267,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db669b6bb0f1a5b45ac137506904a2de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponController
+--- !u!114 &1600062368 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8616685848737228371, guid: c5efc39a8aaf6e64ea40e9ad573e9b47, type: 3}
+  m_PrefabInstance: {fileID: 1600062363}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55919ac34a26952479f3fc91f777b2fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1613666925 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4748263070963973026, guid: fb997d7fdb627f14791ca33c294b11f3, type: 3}
