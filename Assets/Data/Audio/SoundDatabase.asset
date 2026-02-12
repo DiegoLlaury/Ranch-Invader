@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9235af2e23bc882419ba898a01219a48, type: 3}
+  m_Name: SoundDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::SoundDatabase
+  sounds:
+  - soundName: Cow_Hurt
+    clips:
+    - {fileID: 8300000, guid: 9835e6b07f3e64c428bb2b78d0fc2863, type: 3}
+    - {fileID: 8300000, guid: 1b3a127d06a135240a03819238c237c1, type: 3}
+    volume: 0.25
+    pitch: 1
+    pitchVariation: 0.25
+    is3D: 1
+    minDistance: 0
+    maxDistance: 80
+    loop: 0
+    cooldown: 0.05
+  - soundName: Cow_Death
+    clips:
+    - {fileID: 8300000, guid: 37bfeaf3521eddd41805bc60a4845c8a, type: 3}
+    volume: 0.12
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 1
+    minDistance: 0
+    maxDistance: 80
+    loop: 0
+    cooldown: 0.05

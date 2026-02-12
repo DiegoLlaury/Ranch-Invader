@@ -6,8 +6,8 @@ AudioContainerElement:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: S_HurtOofPlaceholder_{911224405792498205}
-  m_AudioClip: {fileID: 8300000, guid: 97d32e01b3108cf4db3e1b989b36b794, type: 3}
+  m_Name: S_MooCow_{911224405792498205}
+  m_AudioClip: {fileID: 8300000, guid: 9835e6b07f3e64c428bb2b78d0fc2863, type: 3}
   m_Volume: 0
   m_Enabled: 1
 --- !u!1233149941 &3337954090623400594
