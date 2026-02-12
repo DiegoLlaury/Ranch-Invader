@@ -10,6 +10,15 @@ public class ThrowableWeapon : BaseWeapon
 
     public Camera playerCamera;
 
+    private bool isReloading;
+    private WeaponUIController cachedUIController;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        cachedUIController = Object.FindFirstObjectByType<WeaponUIController>();
+    }
+
     public override void Attack()
     {
         if (weaponData.currentAmmo <= 0)
@@ -18,7 +27,7 @@ public class ThrowableWeapon : BaseWeapon
             return;
         }
 
-        if (!CanAttack())
+        if (!CanAttack() || isReloading)
             return;
 
         base.Attack();
@@ -59,13 +68,31 @@ public class ThrowableWeapon : BaseWeapon
 
     public void Reload()
     {
+        if (isReloading || weaponData.currentAmmo == weaponData.maxAmmo)
+            return;
+
+        CancelInvoke(nameof(Reload));
         StartCoroutine(ReloadCoroutine());
     }
 
     private IEnumerator ReloadCoroutine()
     {
+        isReloading = true;
+
+        if (cachedUIController == null)
+        {
+            cachedUIController = Object.FindFirstObjectByType<WeaponUIController>();
+        }
+
+        if (cachedUIController != null)
+        {
+            cachedUIController.PlayReloadAnimation();
+        }
+
         yield return new WaitForSeconds(weaponData.reloadTime);
+
         weaponData.currentAmmo = weaponData.maxAmmo;
         RaiseAmmoChanged(weaponData.currentAmmo);
+        isReloading = false;
     }
 }

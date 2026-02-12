@@ -71,6 +71,7 @@ public class RangedWeapon : BaseWeapon
         if (isReloading || weaponData.currentAmmo == weaponData.maxAmmo)
             return;
 
+        CancelInvoke(nameof(Reload));
         StartCoroutine(ReloadCoroutine());
     }
 
@@ -95,3 +96,4 @@ public class RangedWeapon : BaseWeapon
         isReloading = false;
     }
 }
+
