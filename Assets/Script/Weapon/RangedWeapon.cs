@@ -46,7 +46,8 @@ public class RangedWeapon : BaseWeapon
             IDamageable damageable = hit.collider.GetComponent<IDamageable>();
             if (damageable != null)
             {
-                damageable.TakeDamage(weaponData.damage);
+                float finalDamage = GetFinalDamage();
+                damageable.TakeDamage(finalDamage);
             }
 
             if (weaponData.hitEffectPrefab != null)

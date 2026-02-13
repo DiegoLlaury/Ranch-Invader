@@ -21,8 +21,8 @@ MonoBehaviour:
     pitch: 1
     pitchVariation: 0.25
     is3D: 1
-    minDistance: 1
-    maxDistance: 50
+    minDistance: 0.1
+    maxDistance: 25
     loop: 0
     cooldown: 0.05
   - soundName: Cow_Death
@@ -32,7 +32,7 @@ MonoBehaviour:
     pitch: 1
     pitchVariation: 0.1
     is3D: 1
-    minDistance: 1
-    maxDistance: 50
+    minDistance: 0.1
+    maxDistance: 20
     loop: 0
     cooldown: 0.05

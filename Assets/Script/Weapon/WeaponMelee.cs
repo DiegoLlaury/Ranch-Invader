@@ -30,7 +30,13 @@ public class MeleeWeapon : BaseWeapon
         IDamageable damageable = target.GetComponent<IDamageable>();
         if (damageable != null)
         {
-            damageable.TakeDamage(weaponData.damage);
+            float finalDamage = GetFinalDamage();
+            damageable.TakeDamage(finalDamage);
+
+            if (drunkEffect != null && drunkEffect.IsDrunk())
+            {
+                Debug.Log($"Dégâts avec bonus bourré ! Dégâts de base: {weaponData.damage}, Dégâts finaux: {finalDamage}");
+            }
         }
 
         if (weaponData.hitEffectPrefab != null)

@@ -12,14 +12,29 @@ public abstract class BaseWeapon : MonoBehaviour
 
     protected float lastAttackTime;
     protected bool isAttacking;
+    protected DrunkEffect drunkEffect;
 
     protected virtual void Awake()
     {
+        drunkEffect = GetComponentInParent<DrunkEffect>();
     }
 
     public bool CanAttack()
     {
         return Time.time >= lastAttackTime + weaponData.attackCooldown && !isAttacking;
+    }
+
+    protected float GetFinalDamage()
+    {
+        float baseDamage = weaponData.damage;
+
+        if (drunkEffect != null && drunkEffect.IsDrunk())
+        {
+            float bonus = drunkEffect.GetDamageBoost();
+            return baseDamage + bonus;
+        }
+
+        return baseDamage;
     }
 
     public virtual void Attack()

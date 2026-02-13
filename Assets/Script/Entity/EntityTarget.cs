@@ -17,6 +17,7 @@ public class EntityTarget : MonoBehaviour, IDamageable
         if (health <= 0)
         {
             SoundManager.Instance.PlaySoundAtTransform("Cow_Death", transform);
+            
             Destroy(gameObject);
             return;
         }

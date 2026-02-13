@@ -16,7 +16,7 @@ public class PixelArtCamera : MonoBehaviour
         UpdateRenderTexture();
     }
 
-    private void UpdateRenderTexture()
+    public void UpdateRenderTexture()
     {
         if (_renderTexture != null)
         {
