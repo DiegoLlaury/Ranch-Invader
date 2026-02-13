@@ -108,7 +108,7 @@ public class Entity_Behavior : MonoBehaviour
     {
         if (ai == null) return;
 
-        if (ai.isMoving)
+        if (ai.IsMoving)
         {
             float t = Time.time * stretchSpeed;
             float stretch = Mathf.Sin(t) * stretchAmount;

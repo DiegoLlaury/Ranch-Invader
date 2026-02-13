@@ -89,11 +89,20 @@ public class SoundManager : MonoBehaviour
         GameObject audioObject = new GameObject($"AudioSource_{audioSourcePool.Count}");
         audioObject.transform.SetParent(transform);
         AudioSource audioSource = audioObject.AddComponent<AudioSource>();
+
         audioSource.playOnAwake = false;
         audioSource.spatialBlend = 1f;
+        audioSource.rolloffMode = AudioRolloffMode.Linear;
+        audioSource.minDistance = 1f;
+        audioSource.maxDistance = 50f;
+        audioSource.dopplerLevel = 0f;
+        audioSource.spread = 0f;
+        audioSource.priority = 128;
+
         audioSourcePool.Enqueue(audioSource);
         return audioSource;
     }
+
 
     private AudioSource GetAudioSource()
     {
@@ -199,9 +208,16 @@ public class SoundManager : MonoBehaviour
         if (sound.is3D)
         {
             audioSource.spatialBlend = 1f;
-            audioSource.minDistance = sound.minDistance;
-            audioSource.maxDistance = sound.maxDistance;
+
+            float minDist = Mathf.Max(sound.minDistance, 0.1f);
+            float maxDist = Mathf.Max(sound.maxDistance, minDist + 1f);
+
+            audioSource.minDistance = minDist;
+            audioSource.maxDistance = maxDist;
             audioSource.rolloffMode = AudioRolloffMode.Linear;
+
+            audioSource.dopplerLevel = 0f;
+            audioSource.spread = 0f;
         }
         else
         {
@@ -213,6 +229,7 @@ public class SoundManager : MonoBehaviour
 
         return audioSource;
     }
+
 
     public AudioSource PlaySound2D(string soundName)
     {

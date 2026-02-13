@@ -188,11 +188,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RandomSpriteAI
   moveSpeed: 2
   rotationSpeed: 360
-  zoneMin: {x: 0, y: 0}
-  zoneMax: {x: 4, y: 4}
-  waitTime: 2
-  isMoving: 0
-  player: {fileID: 0}
+  zoneCenter: {x: 0, y: 0, z: 0}
+  zoneSize: {x: 15, y: 15}
+  waitTimeMin: 1
+  waitTimeMax: 3
+  maxAttempts: 10
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 9
+  obstacleDetectionDistance: 1
+  validationRadius: 0.5
+  showDebugGizmos: 1
+  zoneColor: {r: 0, g: 1, b: 0, a: 0.3}
+  targetColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!114 &1576390876189280822
 MonoBehaviour:
   m_ObjectHideFlags: 0

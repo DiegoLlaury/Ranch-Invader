@@ -17,22 +17,22 @@ MonoBehaviour:
     clips:
     - {fileID: 8300000, guid: 9835e6b07f3e64c428bb2b78d0fc2863, type: 3}
     - {fileID: 8300000, guid: 1b3a127d06a135240a03819238c237c1, type: 3}
-    volume: 0.25
+    volume: 0.1
     pitch: 1
     pitchVariation: 0.25
     is3D: 1
-    minDistance: 0
-    maxDistance: 80
+    minDistance: 1
+    maxDistance: 50
     loop: 0
     cooldown: 0.05
   - soundName: Cow_Death
     clips:
     - {fileID: 8300000, guid: 37bfeaf3521eddd41805bc60a4845c8a, type: 3}
-    volume: 0.12
+    volume: 0.05
     pitch: 1
     pitchVariation: 0.1
     is3D: 1
-    minDistance: 0
-    maxDistance: 80
+    minDistance: 1
+    maxDistance: 50
     loop: 0
     cooldown: 0.05
