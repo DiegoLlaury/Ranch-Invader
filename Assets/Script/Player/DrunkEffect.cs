@@ -45,6 +45,7 @@ public class DrunkEffect : MonoBehaviour
     private Coroutine drunkCoroutine;
     private Vector3 originalCameraPosition;
     private Quaternion originalCameraRotation;
+    private Quaternion originalCameraRootRotation;
     private Volume volumeComponent;
 
     private ChromaticAberration chromaticAberration;
@@ -64,6 +65,15 @@ public class DrunkEffect : MonoBehaviour
         {
             originalCameraPosition = playerCamera.transform.localPosition;
             originalCameraRotation = playerCamera.transform.localRotation;
+        }
+
+        if (cameraRoot != null)
+        {
+            originalCameraRootRotation = cameraRoot.transform.localRotation;
+        }
+        else
+        {
+            Debug.LogWarning("CameraRoot n'est pas assigné dans DrunkEffect ! La rotation sur l'axe X pourrait ne pas fonctionner correctement.");
         }
 
         if (drunkVolumeObject != null)
@@ -143,6 +153,11 @@ public class DrunkEffect : MonoBehaviour
             playerCamera.transform.localRotation = originalCameraRotation;
         }
 
+        if (cameraRoot != null)
+        {
+            cameraRoot.transform.localRotation = originalCameraRootRotation;
+        }
+
         if (drunkVolumeObject != null)
         {
             drunkVolumeObject.SetActive(false);
@@ -166,7 +181,15 @@ public class DrunkEffect : MonoBehaviour
         float rotationZ = Mathf.Cos(Time.time * rotationFrequency * 0.7f) * (currentRotIntensity * 0.5f);
 
         Quaternion drunkRotation = Quaternion.Euler(rotationX, 0, rotationZ);
-        playerCamera.transform.localRotation = originalCameraRotation * drunkRotation;
+
+        if (cameraRoot != null)
+        {
+            cameraRoot.transform.localRotation = originalCameraRootRotation * drunkRotation;
+        }
+        else
+        {
+            playerCamera.transform.localRotation = originalCameraRotation * drunkRotation;
+        }
     }
 
     private IEnumerator FadeInEffect()
@@ -227,7 +250,15 @@ public class DrunkEffect : MonoBehaviour
                 float rotationZ = Mathf.Cos(Time.time * rotationFrequency * 0.7f) * (fadeOutRotIntensity * 0.5f);
 
                 Quaternion drunkRotation = Quaternion.Euler(rotationX, 0, rotationZ);
-                playerCamera.transform.localRotation = originalCameraRotation * drunkRotation;
+
+                if (cameraRoot != null)
+                {
+                    cameraRoot.transform.localRotation = originalCameraRootRotation * drunkRotation;
+                }
+                else
+                {
+                    playerCamera.transform.localRotation = originalCameraRotation * drunkRotation;
+                }
             }
 
             elapsed += Time.deltaTime;

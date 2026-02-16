@@ -486,7 +486,7 @@ GameObject:
   - component: {fileID: 8616685848737228376}
   - component: {fileID: 4598756115884909195}
   - component: {fileID: 9149508936626131006}
-  - component: {fileID: 2875234834772201426}
+  - component: {fileID: 6544675849692842929}
   m_Layer: 8
   m_Name: PlayerCapsule
   m_TagString: Player
@@ -808,7 +808,7 @@ MonoBehaviour:
   OnRevive:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &2875234834772201426
+--- !u!114 &6544675849692842929
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -822,12 +822,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DrunkEffect
   playerCamera: {fileID: 2601449335975220456}
   cameraRoot: {fileID: 4135013735270702863}
-  baseShakeIntensity: 0.1
-  shakeFrequency: 0.4
-  maxShakeIntensity: 1
-  baseRotationIntensity: 8
-  rotationFrequency: 3
-  maxRotationIntensity: 50
+  baseShakeIntensity: 0.25
+  shakeFrequency: 0.8
+  maxShakeIntensity: 2
+  baseRotationIntensity: 0.01
+  rotationFrequency: 0.05
+  maxRotationIntensity: 0.5
   drunkVolumeObject: {fileID: 3153290252080838341}
   baseChromaticAberration: 0.2
   baseLensDistortion: -0.3
@@ -839,6 +839,7 @@ MonoBehaviour:
   fadeOutDuration: 1
   maxBeerStack: 5
   stackIntensityMultiplier: 0.3
+  cinemachineTarget: {fileID: 4135013735270702856}
 --- !u!1 &9015978938948635490
 GameObject:
   m_ObjectHideFlags: 0
@@ -900,7 +901,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 9005220659476430818, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.20000005
+      value: 0.19999695
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430818, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
       propertyPath: m_LocalPosition.y

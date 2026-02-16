@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 public class ImpostorPhotoBooth : MonoBehaviour
@@ -24,10 +24,30 @@ public class ImpostorPhotoBooth : MonoBehaviour
     public Vector3 boothPosition = new Vector3(10000, 10000, 10000);
     public int boothLayer = 7;
 
+    [Header("Camera Settings")]
+    [Tooltip("Utiliser une caméra perspective au lieu d'orthographique")]
+    public bool usePerspective = true;
+
+    [Tooltip("Field of View de la caméra en mode perspective")]
+    [Range(20f, 120f)]
+    public float fieldOfView = 60f;
+
     [Header("Capture Settings")]
-    public float captureDistance = 5f;
-    public float captureHeight = 1.5f;
     public int renderTextureSize = 256;
+    public float paddingMultiplier = 1.2f;
+    public float minOrthographicSize = 1f;
+    public float maxOrthographicSize = 50f;
+
+    [Tooltip("Multiplicateur de distance de la caméra (plus grand = plus loin)")]
+    [Range(0.5f, 5f)]
+    public float cameraDistanceMultiplier = 1.5f;
+
+    [Tooltip("Hauteur de la caméra (niveau des yeux du joueur)")]
+    public float cameraHeight = 1.7f;
+
+    [Tooltip("Point de regard sur le mesh (0 = base, 0.5 = milieu, 1 = haut)")]
+    [Range(0f, 1f)]
+    public float lookAtHeightRatio = 0.4f;
 
     private Queue<ImpostorRequest> captureQueue = new Queue<ImpostorRequest>();
     private bool isCapturing = false;
@@ -40,6 +60,12 @@ public class ImpostorPhotoBooth : MonoBehaviour
         public Vector3 originalPosition;
         public Quaternion originalRotation;
         public int originalLayer;
+        public float customScale;
+        public Quaternion captureRotation;
+        public float customCameraHeight;
+        public float customLookAtRatio;
+        public float customFieldOfView;
+        public float customDistanceMultiplier;
     }
 
     void Awake()
@@ -70,8 +96,19 @@ public class ImpostorPhotoBooth : MonoBehaviour
             boothCamera = camGo.AddComponent<Camera>();
 
             boothCamera.enabled = false;
-            boothCamera.orthographic = true;
-            boothCamera.orthographicSize = 5f;
+
+            //  Configuration en mode Perspective
+            boothCamera.orthographic = !usePerspective;
+
+            if (usePerspective)
+            {
+                boothCamera.fieldOfView = fieldOfView;
+            }
+            else
+            {
+                boothCamera.orthographicSize = 5f;
+            }
+
             boothCamera.clearFlags = CameraClearFlags.SolidColor;
             boothCamera.backgroundColor = new Color(0, 0, 1, 0);
             boothCamera.cullingMask = 1 << boothLayer;
@@ -82,7 +119,18 @@ public class ImpostorPhotoBooth : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public void RequestCapture(GameObject meshObject, RenderTexture[] renderTextures, System.Action onComplete = null)
+
+    // MODIFIÉ : Ajout du paramètre captureRotation
+    public void RequestCapture(
+    GameObject meshObject,
+    RenderTexture[] renderTextures,
+    float customScale = 1f,
+    Quaternion? captureRotation = null,
+    float customCameraHeight = -1f,
+    float customLookAtRatio = -1f,
+    float customFieldOfView = -1f,
+    float customDistanceMultiplier = -1f, 
+    System.Action onComplete = null)
     {
         if (renderTextures == null || renderTextures.Length != 8)
         {
@@ -97,7 +145,13 @@ public class ImpostorPhotoBooth : MonoBehaviour
             onComplete = onComplete,
             originalPosition = meshObject.transform.position,
             originalRotation = meshObject.transform.rotation,
-            originalLayer = meshObject.layer
+            originalLayer = meshObject.layer,
+            customScale = customScale,
+            captureRotation = captureRotation ?? Quaternion.identity,
+            customCameraHeight = customCameraHeight,
+            customLookAtRatio = customLookAtRatio,
+            customFieldOfView = customFieldOfView,
+            customDistanceMultiplier = customDistanceMultiplier  
         };
 
         captureQueue.Enqueue(request);
@@ -107,6 +161,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
             ProcessNextCapture();
         }
     }
+
 
     void ProcessNextCapture()
     {
@@ -121,7 +176,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
 
         SetLayerRecursively(request.meshObject, boothLayer);
         request.meshObject.transform.position = captureZone.position;
-        request.meshObject.transform.rotation = Quaternion.identity;
+        request.meshObject.transform.rotation = request.captureRotation; // Utilise la rotation configurée
 
         CaptureAllDirections(request);
 
@@ -136,33 +191,105 @@ public class ImpostorPhotoBooth : MonoBehaviour
 
     void CaptureAllDirections(ImpostorRequest request)
     {
+        Bounds meshBounds = CalculateBounds(request.meshObject);
+
+        float maxSize = Mathf.Max(meshBounds.size.x, meshBounds.size.y, meshBounds.size.z);
+
+        //  Utiliser le multiplicateur de distance personnalisé ou la valeur par défaut
+        float activeDistanceMultiplier = request.customDistanceMultiplier > 0
+            ? request.customDistanceMultiplier
+            : cameraDistanceMultiplier;
+
+        //  Utiliser le FOV personnalisé ou la valeur par défaut
+        float activeFOV = request.customFieldOfView > 0 ? request.customFieldOfView : fieldOfView;
+
+        float cameraDistance;
+
+        // Configuration de la caméra selon le mode
+        if (usePerspective)
+        {
+            float halfFOV = activeFOV * 0.5f * Mathf.Deg2Rad;
+            float targetHeight = meshBounds.size.y * paddingMultiplier;
+
+            // Calculer la distance de base
+            cameraDistance = (targetHeight * 0.5f) / Mathf.Tan(halfFOV);
+
+            //  Appliquer le multiplicateur de distance
+            cameraDistance *= activeDistanceMultiplier;
+
+            boothCamera.orthographic = false;
+            boothCamera.fieldOfView = activeFOV;
+        }
+        else
+        {
+            float orthoSize = (maxSize * paddingMultiplier * request.customScale) / 2f;
+            orthoSize = Mathf.Clamp(orthoSize, minOrthographicSize, maxOrthographicSize);
+
+            cameraDistance = maxSize * activeDistanceMultiplier;
+
+            boothCamera.orthographic = true;
+            boothCamera.orthographicSize = orthoSize;
+        }
+
         Vector3[] directions = new Vector3[]
         {
-            new Vector3( 0, 0,  1),
-            new Vector3( 1, 0,  1).normalized,
-            new Vector3( 1, 0,  0),
-            new Vector3( 1, 0, -1).normalized,
-            new Vector3( 0, 0, -1),
-            new Vector3(-1, 0, -1).normalized,
-            new Vector3(-1, 0,  0),
-            new Vector3(-1, 0,  1).normalized
+        new Vector3( 0, 0,  1),
+        new Vector3(-1, 0,  1).normalized,
+        new Vector3(-1, 0,  0),
+        new Vector3(-1, 0, -1).normalized,
+        new Vector3( 0, 0, -1),
+        new Vector3( 1, 0, -1).normalized,
+        new Vector3( 1, 0,  0),
+        new Vector3( 1, 0,  1).normalized
         };
+
+        Vector3 meshBasePosition = request.meshObject.transform.position;
+
+        float activeLookAtRatio = request.customLookAtRatio >= 0 ? request.customLookAtRatio : lookAtHeightRatio;
+
+        Vector3 lookAtPoint = meshBasePosition;
+        lookAtPoint.y += meshBounds.size.y * activeLookAtRatio;
+
+        float activeCameraHeight = request.customCameraHeight >= 0 ? request.customCameraHeight : cameraHeight;
 
         for (int i = 0; i < 8; i++)
         {
             Vector3 dir = directions[i];
-            Vector3 camPos = request.meshObject.transform.position - dir * captureDistance;
-            camPos.y = request.meshObject.transform.position.y + captureHeight;
+
+            Vector3 camPos = meshBasePosition - dir * cameraDistance;
+            camPos.y = meshBasePosition.y + activeCameraHeight;
 
             boothCamera.transform.position = camPos;
-
-            Vector3 lookTarget = request.meshObject.transform.position;
-            lookTarget.y += captureHeight;
-            boothCamera.transform.LookAt(lookTarget);
+            boothCamera.transform.LookAt(lookAtPoint);
 
             boothCamera.targetTexture = request.renderTextures[i];
             boothCamera.Render();
         }
+    }
+
+
+
+
+
+    Bounds CalculateBounds(GameObject obj)
+    {
+        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+
+        if (renderers.Length == 0)
+        {
+            return new Bounds(obj.transform.position, Vector3.one);
+        }
+
+        Bounds bounds = renderers[0].bounds;
+
+        for (int i = 1; i < renderers.Length; i++)
+        {
+            bounds.Encapsulate(renderers[i].bounds);
+        }
+
+        bounds.center = obj.transform.InverseTransformPoint(bounds.center);
+
+        return bounds;
     }
 
     void SetLayerRecursively(GameObject obj, int layer)

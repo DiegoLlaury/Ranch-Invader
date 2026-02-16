@@ -2,7 +2,7 @@
 - Project name: Ranch-Invader
 - Unity version: Unity 6000.3.4f1
 - Active game object:
-  - Name: Tractor
+  - Name: Plane
   - Tag: Untagged
   - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
