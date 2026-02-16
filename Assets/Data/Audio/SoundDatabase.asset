@@ -36,3 +36,14 @@ MonoBehaviour:
     maxDistance: 20
     loop: 0
     cooldown: 0.05
+  - soundName: BeerCan_Open
+    clips:
+    - {fileID: 8300000, guid: a7863822b82e2824aae36984a370e3df, type: 3}
+    volume: 0.25
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0

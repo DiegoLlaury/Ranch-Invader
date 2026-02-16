@@ -30,6 +30,8 @@ public class BeerPickup : MonoBehaviour
 
     private void PickupBeer(GameObject player)
     {
+        SoundManager.Instance.PlaySound2D("BeerCan_Open");
+
         if (hasBeenPickedUp) return;
         hasBeenPickedUp = true;
 
