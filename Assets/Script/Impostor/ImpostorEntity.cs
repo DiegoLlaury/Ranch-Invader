@@ -45,6 +45,9 @@ public class ImpostorEntity : MonoBehaviour
     [Tooltip("Rotation du mesh lors de la capture (utilisez Y=180 si le mesh est inversé)")]
     public Vector3 meshRotationOffset = Vector3.zero;
 
+    [Tooltip("Le mesh suit la rotation du parent (entité AI) lors de la capture")]
+    public bool followParentRotation = true;
+
     [Header("Capture Settings")]
     [Tooltip("Multiplicateur de taille pour la capture (1 = auto, >1 = zoom out, <1 = zoom in)")]
     [Range(0.5f, 3f)]
@@ -187,7 +190,22 @@ public class ImpostorEntity : MonoBehaviour
     {
         meshInstance.SetActive(true);
 
-        Quaternion captureRotation = Quaternion.Euler(meshRotationOffset);
+        Quaternion captureRotation;
+
+        // Vérifier d'abord si on suit le parent
+        if (followParentRotation && transform.parent != null)
+        {
+            // Suivre la rotation du parent (entité AI)
+            captureRotation = transform.parent.rotation * Quaternion.Euler(meshRotationOffset);
+
+            // Debug pour vérifier
+            
+        }
+        else
+        {
+            // Mode fixe (objets statiques)
+            captureRotation = Quaternion.Euler(meshRotationOffset);
+        }
 
         ImpostorPhotoBooth.Instance.RequestCapture(
             meshInstance,
@@ -207,6 +225,8 @@ public class ImpostorEntity : MonoBehaviour
             }
         );
     }
+
+
 
 
     void UpdateQuadTexture()
@@ -248,7 +268,7 @@ public class ImpostorEntity : MonoBehaviour
     {
         RaycastHit hit;
 
-        //  Amélioration 1 : Raycast depuis très haut pour être sûr de toucher le sol
+        //  Raycast depuis très haut pour être sûr de toucher le sol
         Vector3 rayStart = transform.position;
         rayStart.y = 1000f; // Très haut pour être sûr
 
@@ -258,12 +278,12 @@ public class ImpostorEntity : MonoBehaviour
             newPos.y += groundOffset;
             transform.position = newPos;
 
-            // Amélioration 2 : Log pour debug
+            // Log pour debug
             Debug.Log($"{gameObject.name} collé au sol à Y={newPos.y:F2}");
         }
         else
         {
-            // Amélioration 3 : Avertissement si aucun sol trouvé
+            //  Avertissement si aucun sol trouvé
             Debug.LogWarning($"{gameObject.name} : Aucun sol trouvé ! Vérifiez le LayerMask 'Ground Layers'");
         }
     }

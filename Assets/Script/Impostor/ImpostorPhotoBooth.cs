@@ -110,7 +110,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
             }
 
             boothCamera.clearFlags = CameraClearFlags.SolidColor;
-            boothCamera.backgroundColor = new Color(0, 0, 1, 0);
+            boothCamera.backgroundColor = new Color(0, 1, 0, 0);
             boothCamera.cullingMask = 1 << boothLayer;
             boothCamera.nearClipPlane = 0.3f;
             boothCamera.farClipPlane = 1000f;

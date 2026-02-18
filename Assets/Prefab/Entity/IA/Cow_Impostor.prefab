@@ -1,0 +1,147 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6212800647891213506
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 150221204333626072}
+  - component: {fileID: 2760605115343815422}
+  - component: {fileID: 5620748601444646216}
+  - component: {fileID: 7739597063928777511}
+  - component: {fileID: 5557647312367797721}
+  - component: {fileID: -5756034229126316897}
+  m_Layer: 0
+  m_Name: Cow_Impostor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &150221204333626072
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6212800647891213506}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -127.81824, y: -0, z: -4.85044}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &2760605115343815422
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6212800647891213506}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5620748601444646216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6212800647891213506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b70c56879b4f0d440b9fea1599b53a26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RandomMovementAI
+  moveSpeed: 2
+  rotationSpeed: 360
+  zoneCenter: {x: 0, y: 0, z: 0}
+  zoneSize: {x: 20, y: 20}
+  waitTimeMin: 1
+  waitTimeMax: 1.5
+  maxAttempts: 10
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  obstacleDetectionDistance: 1
+  validationRadius: 0.5
+  showDebugGizmos: 1
+  zoneColor: {r: 0, g: 1, b: 0, a: 0.3}
+  targetColor: {r: 1, g: 0, b: 0, a: 1}
+--- !u!114 &7739597063928777511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6212800647891213506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b20dec462ead341be8aef9b90df7a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EntityTarget
+  maxHealth: 50
+  health: 50
+--- !u!114 &5557647312367797721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6212800647891213506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67f43a6755cbb9840853e80f3ebd6112, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ImpostorEntityAI
+  meshPrefab: {fileID: 73284592428818202, guid: 251df5020fb58e54cbe16b263adc6748, type: 3}
+  impostorMaterial: {fileID: 2100000, guid: 72eb5e46e3896b04090d4bf67ff51474, type: 2}
+  impostorQuadPrefab: {fileID: 6608268022857075241, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
+  animatedFPS: 2
+  captureScale: 1
+  meshRotationOffset: {x: 0, y: 90, z: 0}
+  customCameraHeight: 3
+  customLookAtRatio: -1
+  customFieldOfView: -1
+  customDistanceMultiplier: -1
+  quadScaleMultiplier: 1
+  quadManualSize: {x: 0, y: 0}
+  autoGenerateCollider: 1
+  colliderSize: {x: 0, y: 0, z: 0}
+  colliderCenter: {x: 0, y: 0, z: 0}
+  useSmoothRotation: 1
+  rotationSpeed: 8
+  rotationDeadZone: 8
+  followParentRotation: 1
+--- !u!114 &-5756034229126316897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6212800647891213506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e93fcfc756b424e44a739693d0294edc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ImpostorMeshAutoRotation
+  autoDetectOrientation: 1
+  detectionDelay: 2
+  samplesRequired: 3
+  showDebug: 0

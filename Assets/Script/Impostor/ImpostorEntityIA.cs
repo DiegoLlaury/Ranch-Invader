@@ -43,6 +43,9 @@ public class ImpostorEntityAI : MonoBehaviour
     [Range(0f, 45f)]
     public float rotationDeadZone = 8f;
 
+    [Tooltip("Le mesh suit la rotation de l'entité AI")]
+    public bool followParentRotation = true;
+
     private GameObject impostorQuadInstance;
     private GameObject meshInstance;
     private ImpostorEntity impostorEntity;
@@ -68,12 +71,15 @@ public class ImpostorEntityAI : MonoBehaviour
         impostorQuadInstance.transform.localPosition = Vector3.zero;
         impostorQuadInstance.transform.localRotation = Quaternion.identity;
 
-        // Créer l'instance du mesh (caché, utilisé pour la capture)
+        // Créer l'instance du mesh SANS parent
         meshInstance = Instantiate(meshPrefab);
         meshInstance.name = $"{meshPrefab.name}_ImpostorMesh";
         meshInstance.transform.position = new Vector3(10000, 10000, 10000);
+        meshInstance.transform.rotation = Quaternion.identity; // Rotation contrôlée
         meshInstance.SetActive(false);
-        meshInstance.transform.SetParent(transform); // Lié au parent pour cleanup
+
+        // À la place, garder une référence pour le cleanup
+        // (On le détruira dans OnDestroy)
 
         // Configurer ImpostorEntity
         impostorEntity = impostorQuadInstance.GetComponent<ImpostorEntity>();
@@ -82,7 +88,7 @@ public class ImpostorEntityAI : MonoBehaviour
             impostorEntity = impostorQuadInstance.AddComponent<ImpostorEntity>();
         }
 
-        // Configuration de ImpostorEntity
+        // Passer le meshInstance au lieu du prefab
         impostorEntity.meshPrefab = meshPrefab;
         impostorEntity.impostorMaterial = impostorMaterial;
         impostorEntity.playerTransform = playerTransform;
@@ -95,6 +101,7 @@ public class ImpostorEntityAI : MonoBehaviour
         // Capture
         impostorEntity.captureScale = captureScale;
         impostorEntity.meshRotationOffset = meshRotationOffset;
+        impostorEntity.followParentRotation = followParentRotation;
 
         // Camera
         impostorEntity.customCameraHeight = customCameraHeight;
@@ -104,7 +111,7 @@ public class ImpostorEntityAI : MonoBehaviour
 
         // Collision
         impostorEntity.autoGenerateCollider = autoGenerateCollider;
-        impostorEntity.dynamicCollider = false; // Pas besoin, le collider est fixe
+        impostorEntity.dynamicCollider = false;
         impostorEntity.colliderSize = colliderSize;
         impostorEntity.colliderCenter = colliderCenter;
 
@@ -132,6 +139,7 @@ public class ImpostorEntityAI : MonoBehaviour
         billboard.rotationSpeed = rotationSpeed;
         billboard.rotationDeadZone = rotationDeadZone;
     }
+
 
     void OnDestroy()
     {
