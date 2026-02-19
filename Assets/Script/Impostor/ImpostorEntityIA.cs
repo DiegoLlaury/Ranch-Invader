@@ -46,6 +46,15 @@ public class ImpostorEntityAI : MonoBehaviour
     [Tooltip("Le mesh suit la rotation de l'entité AI")]
     public bool followParentRotation = true;
 
+    [Header("Parallax Settings")]
+    public bool useParallax = true;
+    [Range(0f, 0.1f)]
+    public float parallaxStrength = 0.03f;
+    [Range(4, 32)]
+    public int parallaxMinSamples = 8;
+    [Range(4, 64)]
+    public int parallaxMaxSamples = 32;
+
     private GameObject impostorQuadInstance;
     private GameObject meshInstance;
     private ImpostorEntity impostorEntity;
@@ -115,6 +124,12 @@ public class ImpostorEntityAI : MonoBehaviour
         impostorEntity.colliderSize = colliderSize;
         impostorEntity.colliderCenter = colliderCenter;
 
+        // Parallax
+        impostorEntity.useParallax = useParallax;
+        impostorEntity.parallaxStrength = parallaxStrength;
+        impostorEntity.parallaxMinSamples = parallaxMinSamples;
+        impostorEntity.parallaxMaxSamples = parallaxMaxSamples;
+
         // Ground (désactivé car l'AI gère le mouvement)
         impostorEntity.snapToGround = false;
 
@@ -140,6 +155,22 @@ public class ImpostorEntityAI : MonoBehaviour
         billboard.rotationDeadZone = rotationDeadZone;
     }
 
+#if UNITY_EDITOR
+    void OnValidate()
+    {
+        if (Application.isPlaying && impostorEntity != null)
+        {
+            impostorEntity.meshRotationOffset = meshRotationOffset;
+
+            var captureMethod = impostorEntity.GetType().GetMethod(
+                "CaptureImpostor",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
+            );
+
+            captureMethod?.Invoke(impostorEntity, null);
+        }
+    }
+#endif
 
     void OnDestroy()
     {

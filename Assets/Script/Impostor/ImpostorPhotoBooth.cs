@@ -49,6 +49,11 @@ public class ImpostorPhotoBooth : MonoBehaviour
     [Range(0f, 1f)]
     public float lookAtHeightRatio = 0.4f;
 
+    [Header("Depth Capture")]
+    public bool captureDepth = true;
+    public Shader depthCaptureShader;
+    //public RenderTexture[] depthTextures;
+
     private Queue<ImpostorRequest> captureQueue = new Queue<ImpostorRequest>();
     private bool isCapturing = false;
 
@@ -56,6 +61,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
     {
         public GameObject meshObject;
         public RenderTexture[] renderTextures;
+        public RenderTexture[] depthTextures;
         public System.Action onComplete;
         public Vector3 originalPosition;
         public Quaternion originalRotation;
@@ -116,21 +122,26 @@ public class ImpostorPhotoBooth : MonoBehaviour
             boothCamera.farClipPlane = 1000f;
         }
 
+        if (captureDepth && depthCaptureShader == null)
+        {
+            depthCaptureShader = Shader.Find("Hidden/DepthCapture");
+        }
+
         DontDestroyOnLoad(gameObject);
     }
 
 
     // MODIFIÉ : Ajout du paramètre captureRotation
     public void RequestCapture(
-    GameObject meshObject,
-    RenderTexture[] renderTextures,
-    float customScale = 1f,
-    Quaternion? captureRotation = null,
-    float customCameraHeight = -1f,
-    float customLookAtRatio = -1f,
-    float customFieldOfView = -1f,
-    float customDistanceMultiplier = -1f, 
-    System.Action onComplete = null)
+     GameObject meshObject,
+     RenderTexture[] renderTextures,
+     float customScale = 1f,
+     Quaternion? captureRotation = null,
+     float customCameraHeight = -1f,
+     float customLookAtRatio = -1f,
+     float customFieldOfView = -1f,
+     float customDistanceMultiplier = -1f,
+     System.Action onComplete = null)
     {
         if (renderTextures == null || renderTextures.Length != 8)
         {
@@ -151,7 +162,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
             customCameraHeight = customCameraHeight,
             customLookAtRatio = customLookAtRatio,
             customFieldOfView = customFieldOfView,
-            customDistanceMultiplier = customDistanceMultiplier  
+            customDistanceMultiplier = customDistanceMultiplier
         };
 
         captureQueue.Enqueue(request);
@@ -262,13 +273,53 @@ public class ImpostorPhotoBooth : MonoBehaviour
             boothCamera.transform.position = camPos;
             boothCamera.transform.LookAt(lookAtPoint);
 
+            // Capture couleur
             boothCamera.targetTexture = request.renderTextures[i];
             boothCamera.Render();
+
+            // Capture profondeur
+            if (captureDepth && request.depthTextures != null)
+            {
+                RenderDepthTexture(request.meshObject, request.depthTextures[i]);
+            }
         }
+
     }
 
 
+    void RenderDepthTexture(GameObject meshObject, RenderTexture depthRT)
+    {
+        if (depthCaptureShader == null) return;
 
+        Material depthMaterial = new Material(depthCaptureShader);
+
+        RenderTexture originalRT = boothCamera.targetTexture;
+        boothCamera.targetTexture = depthRT;
+
+        Renderer[] renderers = meshObject.GetComponentsInChildren<Renderer>();
+        Material[][] originalMaterials = new Material[renderers.Length][];
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            originalMaterials[i] = renderers[i].sharedMaterials;
+            Material[] depthMats = new Material[renderers[i].sharedMaterials.Length];
+            for (int j = 0; j < depthMats.Length; j++)
+            {
+                depthMats[j] = depthMaterial;
+            }
+            renderers[i].sharedMaterials = depthMats;
+        }
+
+        boothCamera.Render();
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            renderers[i].sharedMaterials = originalMaterials[i];
+        }
+
+        boothCamera.targetTexture = originalRT;
+        Destroy(depthMaterial);
+    }
 
 
     Bounds CalculateBounds(GameObject obj)
@@ -301,19 +352,37 @@ public class ImpostorPhotoBooth : MonoBehaviour
         }
     }
 
-    public RenderTexture[] CreateRenderTextures(string baseName)
+    public void CreateRenderTexturePair(string baseName, out RenderTexture[] colorTextures, out RenderTexture[] depthTextures)
     {
-        RenderTexture[] textures = new RenderTexture[8];
+        colorTextures = new RenderTexture[8];
+        depthTextures = captureDepth ? new RenderTexture[8] : null;
+
         string[] directionNames = { "North", "NorthEast", "East", "SouthEast", "South", "SouthWest", "West", "NorthWest" };
 
         for (int i = 0; i < 8; i++)
         {
-            textures[i] = new RenderTexture(renderTextureSize, renderTextureSize, 24);
-            textures[i].name = $"{baseName}_{directionNames[i]}";
-            textures[i].filterMode = FilterMode.Bilinear;
-            textures[i].wrapMode = TextureWrapMode.Clamp;
-        }
+            colorTextures[i] = new RenderTexture(renderTextureSize, renderTextureSize, 24);
+            colorTextures[i].name = $"{baseName}_Color_{directionNames[i]}";
+            colorTextures[i].filterMode = FilterMode.Bilinear;
+            colorTextures[i].wrapMode = TextureWrapMode.Clamp;
 
-        return textures;
+            if (captureDepth)
+            {
+                depthTextures[i] = new RenderTexture(renderTextureSize, renderTextureSize, 0, RenderTextureFormat.RFloat);
+                depthTextures[i].name = $"{baseName}_Depth_{directionNames[i]}";
+                depthTextures[i].filterMode = FilterMode.Bilinear;
+                depthTextures[i].wrapMode = TextureWrapMode.Clamp;
+            }
+        }
     }
+
+    // Gardez aussi l'ancienne méthode pour compatibilité
+    public RenderTexture[] CreateRenderTextures(string baseName)
+    {
+        RenderTexture[] colorTextures;
+        RenderTexture[] depthTextures;
+        CreateRenderTexturePair(baseName, out colorTextures, out depthTextures);
+        return colorTextures;
+    }
+
 }

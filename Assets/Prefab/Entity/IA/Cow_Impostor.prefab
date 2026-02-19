@@ -29,13 +29,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6212800647891213506}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -127.81824, y: -0, z: -4.85044}
+  m_LocalRotation: {x: 0, y: 0.08715578, z: 0, w: 0.9961947}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 10, z: 0}
 --- !u!135 &2760605115343815422
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -115,7 +115,7 @@ MonoBehaviour:
   impostorQuadPrefab: {fileID: 6608268022857075241, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
   animatedFPS: 2
   captureScale: 1
-  meshRotationOffset: {x: 0, y: 90, z: 0}
+  meshRotationOffset: {x: 0, y: 0, z: 0}
   customCameraHeight: 3
   customLookAtRatio: -1
   customFieldOfView: -1
@@ -129,6 +129,10 @@ MonoBehaviour:
   rotationSpeed: 8
   rotationDeadZone: 8
   followParentRotation: 1
+  useParallax: 1
+  parallaxStrength: 0.06
+  parallaxMinSamples: 8
+  parallaxMaxSamples: 32
 --- !u!114 &-5756034229126316897
 MonoBehaviour:
   m_ObjectHideFlags: 0

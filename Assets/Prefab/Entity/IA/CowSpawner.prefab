@@ -60,4 +60,4 @@ MonoBehaviour:
     m_Bits: 0
   animatedFPS: 15
   captureScale: 1
-  meshRotationOffset: {x: 0, y: 0, z: 0}
+  meshRotationOffset: {x: 0, y: 180, z: 0}

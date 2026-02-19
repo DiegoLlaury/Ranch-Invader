@@ -1,13 +1,16 @@
+using StarterAssets;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using System.Collections;
 
 public class DrunkEffect : MonoBehaviour
 {
     [Header("Références")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private GameObject cameraRoot;
+    [SerializeField] private FirstPersonController playerController;
+    [SerializeField] private Volume drunkVolume;
 
     [Header("Paramètres de Shake - Position")]
     [SerializeField] private float baseShakeIntensity = 0.1f;
@@ -20,7 +23,6 @@ public class DrunkEffect : MonoBehaviour
     [SerializeField] private float maxRotationIntensity = 8f;
 
     [Header("Post-Processing - Valeurs de Base")]
-    [SerializeField] private GameObject drunkVolumeObject;
     [SerializeField] private float baseChromaticAberration = 0.5f;
     [SerializeField] private float baseLensDistortion = -0.3f;
     [SerializeField] private float baseVignetteIntensity = 0.35f;
@@ -40,13 +42,12 @@ public class DrunkEffect : MonoBehaviour
     private float baseDamageBoost = 0f;
     private int currentBeerStack = 0;
     private float remainingDuration = 0f;
-    private float beerDuration = 0f;
+    private float currentBlendFactor = 0f;
 
     private Coroutine drunkCoroutine;
     private Vector3 originalCameraPosition;
     private Quaternion originalCameraRotation;
     private Quaternion originalCameraRootRotation;
-    private Volume volumeComponent;
 
     private ChromaticAberration chromaticAberration;
     private LensDistortion lensDistortion;
@@ -71,30 +72,23 @@ public class DrunkEffect : MonoBehaviour
         {
             originalCameraRootRotation = cameraRoot.transform.localRotation;
         }
-        else
-        {
-            Debug.LogWarning("CameraRoot n'est pas assigné dans DrunkEffect ! La rotation sur l'axe X pourrait ne pas fonctionner correctement.");
-        }
 
-        if (drunkVolumeObject != null)
+        if (drunkVolume != null && drunkVolume.sharedProfile != null)
         {
-            volumeComponent = drunkVolumeObject.GetComponent<Volume>();
-            if (volumeComponent != null && volumeComponent.profile != null)
-            {
-                volumeComponent.profile.TryGet(out chromaticAberration);
-                volumeComponent.profile.TryGet(out lensDistortion);
-                volumeComponent.profile.TryGet(out vignette);
-                volumeComponent.profile.TryGet(out motionBlur);
-                volumeComponent.profile.TryGet(out colorAdjustments);
+            drunkVolume.sharedProfile.TryGet(out chromaticAberration);
+            drunkVolume.sharedProfile.TryGet(out lensDistortion);
+            drunkVolume.sharedProfile.TryGet(out vignette);
+            drunkVolume.sharedProfile.TryGet(out motionBlur);
+            drunkVolume.sharedProfile.TryGet(out colorAdjustments);
 
-                volumeComponent.weight = 0f;
-            }
-            drunkVolumeObject.SetActive(false);
-            Debug.Log("DrunkEffectVolume désactivé au démarrage");
+            UpdateVolumeEffects(0f);
+            drunkVolume.weight = 0f;
+
+            Debug.Log("DrunkEffect initialisé avec succès");
         }
         else
         {
-            Debug.LogWarning("DrunkVolumeObject n'est pas assigné dans DrunkEffect !");
+            Debug.LogWarning("DrunkVolume n'est pas assigné correctement !");
         }
     }
 
@@ -104,13 +98,11 @@ public class DrunkEffect : MonoBehaviour
         {
             currentBeerStack = Mathf.Min(currentBeerStack + 1, maxBeerStack);
             remainingDuration = duration;
-            UpdateVolumeEffects(1f);
             Debug.Log($"Bière supplémentaire ! Stack : {currentBeerStack}/{maxBeerStack}");
         }
         else
         {
             baseDamageBoost = damageBoost;
-            beerDuration = duration;
             currentBeerStack = 1;
             remainingDuration = duration;
 
@@ -127,17 +119,11 @@ public class DrunkEffect : MonoBehaviour
     {
         isDrunk = true;
 
-        if (drunkVolumeObject != null)
-        {
-            drunkVolumeObject.SetActive(true);
-        }
-
         yield return StartCoroutine(FadeInEffect());
 
         while (remainingDuration > 0)
         {
             ApplyCameraShakeAndRotation();
-
             remainingDuration -= Time.deltaTime;
             yield return null;
         }
@@ -158,10 +144,9 @@ public class DrunkEffect : MonoBehaviour
             cameraRoot.transform.localRotation = originalCameraRootRotation;
         }
 
-        if (drunkVolumeObject != null)
+        if (playerController != null)
         {
-            drunkVolumeObject.SetActive(false);
-            Debug.Log("DrunkEffectVolume DÉSACTIVÉ. Retour à la normale.");
+            playerController.externalRotationOffset = Vector3.zero;
         }
     }
 
@@ -169,8 +154,8 @@ public class DrunkEffect : MonoBehaviour
     {
         if (playerCamera == null) return;
 
-        float currentPosIntensity = GetCurrentShakeIntensity();
-        float currentRotIntensity = GetCurrentRotationIntensity();
+        float currentPosIntensity = GetCurrentShakeIntensity() * currentBlendFactor;
+        float currentRotIntensity = GetCurrentRotationIntensity() * currentBlendFactor;
 
         float shakeX = Mathf.Sin(Time.time * shakeFrequency) * currentPosIntensity;
         float shakeY = Mathf.Cos(Time.time * shakeFrequency * 1.5f) * currentPosIntensity;
@@ -180,15 +165,9 @@ public class DrunkEffect : MonoBehaviour
         float rotationX = Mathf.Sin(Time.time * rotationFrequency) * currentRotIntensity;
         float rotationZ = Mathf.Cos(Time.time * rotationFrequency * 0.7f) * (currentRotIntensity * 0.5f);
 
-        Quaternion drunkRotation = Quaternion.Euler(rotationX, 0, rotationZ);
-
-        if (cameraRoot != null)
+        if (playerController != null)
         {
-            cameraRoot.transform.localRotation = originalCameraRootRotation * drunkRotation;
-        }
-        else
-        {
-            playerCamera.transform.localRotation = originalCameraRotation * drunkRotation;
+            playerController.externalRotationOffset = new Vector3(rotationX, 0, rotationZ);
         }
     }
 
@@ -199,26 +178,29 @@ public class DrunkEffect : MonoBehaviour
         while (elapsed < fadeInDuration)
         {
             float t = elapsed / fadeInDuration;
+            currentBlendFactor = t;
 
-            if (volumeComponent != null)
+            if (drunkVolume != null)
             {
-                volumeComponent.weight = t;
+                drunkVolume.weight = t;
             }
 
             UpdateVolumeEffects(t);
+            ApplyCameraShakeAndRotation();
 
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        if (volumeComponent != null)
+        currentBlendFactor = 1f;
+
+        if (drunkVolume != null)
         {
-            volumeComponent.weight = 1f;
+            drunkVolume.weight = 1f;
         }
 
         UpdateVolumeEffects(1f);
-
-        Debug.Log($"DrunkEffectVolume ACTIVÉ avec fade-in ! Stack : {currentBeerStack}");
+        Debug.Log($"Effet d'ivresse activé ! Stack : {currentBeerStack}");
     }
 
     private IEnumerator FadeOutEffect()
@@ -228,49 +210,29 @@ public class DrunkEffect : MonoBehaviour
         while (elapsed < fadeOutDuration)
         {
             float t = 1f - (elapsed / fadeOutDuration);
+            currentBlendFactor = t;
 
-            if (volumeComponent != null)
+            if (drunkVolume != null)
             {
-                volumeComponent.weight = t;
+                drunkVolume.weight = t;
             }
 
             UpdateVolumeEffects(t);
-
-            float fadeOutPosIntensity = GetCurrentShakeIntensity() * t;
-            float fadeOutRotIntensity = GetCurrentRotationIntensity() * t;
-
-            if (playerCamera != null)
-            {
-                float shakeX = Mathf.Sin(Time.time * shakeFrequency) * fadeOutPosIntensity;
-                float shakeY = Mathf.Cos(Time.time * shakeFrequency * 1.5f) * fadeOutPosIntensity;
-
-                playerCamera.transform.localPosition = originalCameraPosition + new Vector3(shakeX, shakeY, 0);
-
-                float rotationX = Mathf.Sin(Time.time * rotationFrequency) * fadeOutRotIntensity;
-                float rotationZ = Mathf.Cos(Time.time * rotationFrequency * 0.7f) * (fadeOutRotIntensity * 0.5f);
-
-                Quaternion drunkRotation = Quaternion.Euler(rotationX, 0, rotationZ);
-
-                if (cameraRoot != null)
-                {
-                    cameraRoot.transform.localRotation = originalCameraRootRotation * drunkRotation;
-                }
-                else
-                {
-                    playerCamera.transform.localRotation = originalCameraRotation * drunkRotation;
-                }
-            }
+            ApplyCameraShakeAndRotation();
 
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        if (volumeComponent != null)
+        currentBlendFactor = 0f;
+
+        if (drunkVolume != null)
         {
-            volumeComponent.weight = 0f;
+            drunkVolume.weight = 0f;
         }
 
         UpdateVolumeEffects(0f);
+        Debug.Log("Effet d'ivresse terminé");
     }
 
     private void UpdateVolumeEffects(float blendFactor)

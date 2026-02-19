@@ -68,6 +68,25 @@ public class ImpostorEntity : MonoBehaviour
     [Range(-1f, 5f)]
     public float customDistanceMultiplier = -1f;
 
+    [Header("Parallax Settings")]
+    [Tooltip("Active l'effet de parallax mapping")]
+    public bool useParallax = true;
+
+    [Tooltip("Force de l'effet parallax")]
+    [Range(0f, 0.1f)]
+    public float parallaxStrength = 0.03f;
+
+    [Tooltip("Échantillons minimum pour le parallax")]
+    [Range(4, 32)]
+    public int parallaxMinSamples = 8;
+
+    [Tooltip("Échantillons maximum pour le parallax")]
+    [Range(4, 64)]
+    public int parallaxMaxSamples = 32;
+
+    private RenderTexture[] depthTextures;
+
+
     private GameObject meshInstance;
     private RenderTexture[] renderTextures;
     private MeshRenderer quadRenderer;
@@ -126,15 +145,34 @@ public class ImpostorEntity : MonoBehaviour
         meshInstance.transform.position = new Vector3(10000, 10000, 10000);
         meshInstance.SetActive(false);
 
-        renderTextures = ImpostorPhotoBooth.Instance.CreateRenderTextures(gameObject.name);
+        if (useParallax)
+        {
+            ImpostorPhotoBooth.Instance.CreateRenderTexturePair(gameObject.name, out renderTextures, out depthTextures);
+        }
+        else
+        {
+            renderTextures = ImpostorPhotoBooth.Instance.CreateRenderTextures(gameObject.name);
+            depthTextures = null;
+        }
 
         if (impostorMaterial == null)
         {
-            impostorMaterial = new Material(Shader.Find("Custom/ImpostorClean"));
+            string shaderName = useParallax ? "Custom/ImpostorParallax" : "Custom/ImpostorClean";
+            impostorMaterial = new Material(Shader.Find(shaderName));
         }
         else
         {
             impostorMaterial = new Material(impostorMaterial);
+        }
+
+        quadRenderer.material = impostorMaterial;
+
+        // Configurer les paramètres de parallax
+        if (useParallax)
+        {
+            impostorMaterial.SetFloat("_ParallaxStrength", parallaxStrength);
+            impostorMaterial.SetFloat("_ParallaxMinSamples", parallaxMinSamples);
+            impostorMaterial.SetFloat("_ParallaxMaxSamples", parallaxMaxSamples);
         }
 
         quadRenderer.material = impostorMaterial;
@@ -190,22 +228,7 @@ public class ImpostorEntity : MonoBehaviour
     {
         meshInstance.SetActive(true);
 
-        Quaternion captureRotation;
-
-        // Vérifier d'abord si on suit le parent
-        if (followParentRotation && transform.parent != null)
-        {
-            // Suivre la rotation du parent (entité AI)
-            captureRotation = transform.parent.rotation * Quaternion.Euler(meshRotationOffset);
-
-            // Debug pour vérifier
-            
-        }
-        else
-        {
-            // Mode fixe (objets statiques)
-            captureRotation = Quaternion.Euler(meshRotationOffset);
-        }
+        Quaternion captureRotation = Quaternion.Euler(meshRotationOffset);
 
         ImpostorPhotoBooth.Instance.RequestCapture(
             meshInstance,
@@ -226,9 +249,6 @@ public class ImpostorEntity : MonoBehaviour
         );
     }
 
-
-
-
     void UpdateQuadTexture()
     {
         if (playerTransform == null || renderTextures == null)
@@ -238,27 +258,55 @@ public class ImpostorEntity : MonoBehaviour
 
         if (useBlending && (blendDistance <= 0 || distanceToPlayer <= blendDistance))
         {
-            // Mode blend : transitions fluides
             int dirIndex, nextDirIndex;
             float blendFactor;
 
-            ImpostorDirectionHelper.GetDirectionBlend(
-                transform.position,
-                playerTransform.position,
-                out dirIndex,
-                out nextDirIndex,
-                out blendFactor
-            );
+            if (followParentRotation && transform.parent != null)
+            {
+                ImpostorDirectionHelper.GetDirectionBlendForRotatingEntity(
+                    transform.parent,
+                    playerTransform.position,
+                    meshRotationOffset,
+                    out dirIndex,
+                    out nextDirIndex,
+                    out blendFactor
+                );
+            }
+            else
+            {
+                ImpostorDirectionHelper.GetDirectionBlend(
+                    transform.position,
+                    playerTransform.position,
+                    out dirIndex,
+                    out nextDirIndex,
+                    out blendFactor
+                );
+            }
 
-            // Configurer le shader pour le blend
             impostorMaterial.SetTexture("_MainTex", renderTextures[dirIndex]);
             impostorMaterial.SetTexture("_BlendTex", renderTextures[nextDirIndex]);
             impostorMaterial.SetFloat("_BlendAmount", blendFactor);
         }
         else
         {
-            // Mode standard : une seule texture (plus performant)
-            int dirIndex = ImpostorDirectionHelper.GetDirectionIndex(transform.position, playerTransform.position);
+            int dirIndex;
+
+            if (followParentRotation && transform.parent != null)
+            {
+                dirIndex = ImpostorDirectionHelper.GetDirectionIndexForRotatingEntity(
+                    transform.parent,
+                    playerTransform.position,
+                    meshRotationOffset
+                );
+            }
+            else
+            {
+                dirIndex = ImpostorDirectionHelper.GetDirectionIndex(
+                    transform.position,
+                    playerTransform.position
+                );
+            }
+
             impostorMaterial.SetTexture("_MainTex", renderTextures[dirIndex]);
             impostorMaterial.SetFloat("_BlendAmount", 0);
         }
@@ -349,6 +397,18 @@ public class ImpostorEntity : MonoBehaviour
         if (renderTextures != null)
         {
             foreach (var rt in renderTextures)
+            {
+                if (rt != null)
+                {
+                    rt.Release();
+                    Destroy(rt);
+                }
+            }
+        }
+
+        if (depthTextures != null)
+        {
+            foreach (var rt in depthTextures)
             {
                 if (rt != null)
                 {

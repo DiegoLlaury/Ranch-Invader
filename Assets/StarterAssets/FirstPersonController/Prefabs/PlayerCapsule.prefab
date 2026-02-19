@@ -570,6 +570,7 @@ MonoBehaviour:
   CinemachineCameraTarget: {fileID: 4135013735270702863}
   TopClamp: 30
   BottomClamp: -30
+  externalRotationOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &1978471637655604388
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -822,15 +823,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DrunkEffect
   playerCamera: {fileID: 2601449335975220456}
   cameraRoot: {fileID: 4135013735270702863}
+  playerController: {fileID: 8616685848737228371}
   baseShakeIntensity: 0.25
   shakeFrequency: 0.8
   maxShakeIntensity: 2
-  baseRotationIntensity: 0.01
-  rotationFrequency: 0.05
-  maxRotationIntensity: 0.5
+  baseRotationIntensity: 1
+  rotationFrequency: 0.5
+  maxRotationIntensity: 2
   drunkVolumeObject: {fileID: 3153290252080838341}
-  baseChromaticAberration: 0.2
-  baseLensDistortion: -0.3
+  baseChromaticAberration: 0.1
+  baseLensDistortion: -0.1
   baseVignetteIntensity: 0.35
   baseMotionBlur: 0.3
   baseSaturation: 20
@@ -839,7 +841,6 @@ MonoBehaviour:
   fadeOutDuration: 1
   maxBeerStack: 5
   stackIntensityMultiplier: 0.3
-  cinemachineTarget: {fileID: 4135013735270702856}
 --- !u!1 &9015978938948635490
 GameObject:
   m_ObjectHideFlags: 0
