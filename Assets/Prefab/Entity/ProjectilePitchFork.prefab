@@ -103,6 +103,8 @@ MonoBehaviour:
   hitLayers:
     serializedVersion: 2
     m_Bits: 8
+  stickToTarget: 1
+  stickDuration: 3
 --- !u!1 &8650199676034873476
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7739597063928777511}
   - component: {fileID: 5557647312367797721}
   - component: {fileID: -5756034229126316897}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cow_Impostor
   m_TagString: Untagged
   m_Icon: {fileID: 0}

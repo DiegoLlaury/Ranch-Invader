@@ -824,13 +824,13 @@ MonoBehaviour:
   playerCamera: {fileID: 2601449335975220456}
   cameraRoot: {fileID: 4135013735270702863}
   playerController: {fileID: 8616685848737228371}
+  drunkVolume: {fileID: 620220077517891031}
   baseShakeIntensity: 0.25
   shakeFrequency: 0.8
-  maxShakeIntensity: 2
+  maxShakeIntensity: 1
   baseRotationIntensity: 1
   rotationFrequency: 0.5
   maxRotationIntensity: 2
-  drunkVolumeObject: {fileID: 3153290252080838341}
   baseChromaticAberration: 0.1
   baseLensDistortion: -0.1
   baseVignetteIntensity: 0.35

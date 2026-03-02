@@ -7,6 +7,11 @@ public class Projectile : MonoBehaviour
     public GameObject impactEffect;
     public LayerMask hitLayers;
 
+    public bool stickToTarget = false;
+    public float stickDuration = 3f;
+    private bool isStuck = false;
+
+
     private void Start()
     {
         Destroy(gameObject, lifetime);
@@ -14,6 +19,8 @@ public class Projectile : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (isStuck) return;
+
         if (((1 << collision.gameObject.layer) & hitLayers) != 0)
         {
             IDamageable damageable = collision.gameObject.GetComponent<IDamageable>();
@@ -27,7 +34,34 @@ public class Projectile : MonoBehaviour
                 Instantiate(impactEffect, collision.contacts[0].point, Quaternion.LookRotation(collision.contacts[0].normal));
             }
 
-            Destroy(gameObject);
+            if (stickToTarget)
+            {
+                StickToTarget(collision);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
     }
+
+    private void StickToTarget(Collision collision)
+    {
+        isStuck = true;
+
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.useGravity = false;
+            rb.isKinematic = true;
+        }
+
+        transform.SetParent(collision.transform);
+
+        Destroy(gameObject, stickDuration);
+    }
+
+
 }
