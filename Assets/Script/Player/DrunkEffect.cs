@@ -37,6 +37,7 @@ public class DrunkEffect : MonoBehaviour
     [Header("Stacking")]
     [SerializeField] private int maxBeerStack = 5;
     [SerializeField] private float stackIntensityMultiplier = 0.3f;
+    private float totalDuration = 0f;
 
     private bool isDrunk = false;
     private float baseDamageBoost = 0f;
@@ -94,6 +95,8 @@ public class DrunkEffect : MonoBehaviour
 
     public void ApplyDrunkEffect(float duration, float damageBoost)
     {
+        totalDuration = duration;
+
         if (isDrunk)
         {
             currentBeerStack = Mathf.Min(currentBeerStack + 1, maxBeerStack);
@@ -113,8 +116,12 @@ public class DrunkEffect : MonoBehaviour
 
             drunkCoroutine = StartCoroutine(DrunkRoutine());
         }
+
+
     }
 
+    /// <summary>Returns the total duration of the current drunk session for UI ratio computation.</summary>
+    public float GetTotalDuration() => totalDuration;
     private IEnumerator DrunkRoutine()
     {
         isDrunk = true;

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &6909288369959468198
+--- !u!1 &6696118201629660629
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,40 +8,40 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5982206646856981861}
-  - component: {fileID: 4937597183211525248}
-  - component: {fileID: 4521124159368953855}
-  - component: {fileID: 8827905846739349660}
-  - component: {fileID: -7144714219970064081}
-  m_Layer: 3
-  m_Name: EnemyRanged
+  - component: {fileID: 2828230021942719314}
+  - component: {fileID: 6847484776011585111}
+  - component: {fileID: 1681801617381565234}
+  - component: {fileID: 8425462651534344960}
+  - component: {fileID: 2152090278168059662}
+  m_Layer: 0
+  m_Name: EnemyMeleeFast
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5982206646856981861
+--- !u!4 &2828230021942719314
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6909288369959468198}
+  m_GameObject: {fileID: 6696118201629660629}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -120.79443, y: 1.5, z: 10.00056}
+  m_LocalPosition: {x: -126.45313, y: 0, z: 4.25077}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!195 &4937597183211525248
+--- !u!195 &6847484776011585111
 NavMeshAgent:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6909288369959468198}
+  m_GameObject: {fileID: 6696118201629660629}
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
@@ -54,21 +54,21 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
-  m_BaseOffset: 0.75
+  m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &4521124159368953855
+--- !u!114 &1681801617381565234
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6909288369959468198}
+  m_GameObject: {fileID: 6696118201629660629}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c4d88b71ca4e684598a2274d0732a87, type: 3}
+  m_Script: {fileID: 11500000, guid: ed444fcb0316d5545a5491600ffd99a0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyRanged
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyMeleeFast
   playerTransform: {fileID: 0}
   maxHealth: 100
   detectionRange: 15
@@ -77,20 +77,14 @@ MonoBehaviour:
   attackCooldown: 1.5
   navMeshUpdateRate: 0.2
   rotationSpeed: 8
-  enemyProjectilePrefab: {fileID: 1740951610661868350, guid: 441aaf13c14de9748b2cc6e18358ce54, type: 3}
-  projectileSpeed: 12
-  preferredDistance: 10
-  retreatDistance: 4
-  projectileSpawnOffset: 0.5
-  projectileSpawnHeight: 1
-  readyToFireAngle: 10
---- !u!114 &8827905846739349660
+  chaseRange: 12
+--- !u!114 &8425462651534344960
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6909288369959468198}
+  m_GameObject: {fileID: 6696118201629660629}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 67f43a6755cbb9840853e80f3ebd6112, type: 3}
@@ -119,13 +113,13 @@ MonoBehaviour:
   parallaxStrength: 0.06
   parallaxMinSamples: 8
   parallaxMaxSamples: 32
---- !u!136 &-7144714219970064081
+--- !u!136 &2152090278168059662
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6909288369959468198}
+  m_GameObject: {fileID: 6696118201629660629}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2

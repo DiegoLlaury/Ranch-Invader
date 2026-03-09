@@ -1,4 +1,5 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.Audio;
 using System.Collections.Generic;
 
 public class SoundManager : MonoBehaviour
@@ -11,11 +12,8 @@ public class SoundManager : MonoBehaviour
             if (instance == null)
             {
                 instance = FindFirstObjectByType<SoundManager>();
-
                 if (instance == null)
-                {
-                    Debug.LogError("SoundManager not found in scene! Please add a SoundManager GameObject to your scene.");
-                }
+                    Debug.LogError("[SoundManager] Not found in scene!");
             }
             return instance;
         }
@@ -24,23 +22,24 @@ public class SoundManager : MonoBehaviour
     [Header("Configuration")]
     public SoundDatabase soundDatabase;
 
+    [Header("Audio Mixer")]
+    [Tooltip("Groupe 'SFX' du MixerAudio — tous les sons 3D y seront routés.")]
+    public AudioMixerGroup sfxMixerGroup;
+
+    [Tooltip("Groupe 'Music' du MixerAudio — pour la musique de fond.")]
+    public AudioMixerGroup musicMixerGroup;
+
     [Header("Audio Source Pool")]
     [SerializeField] private int poolSize = 20;
     private Queue<AudioSource> audioSourcePool;
     private List<AudioSource> activeAudioSources;
 
     [Header("Volume Controls")]
-    [Range(0f, 1f)]
-    public float masterVolume = 1f;
-
-    [Range(0f, 1f)]
-    public float sfxVolume = 1f;
-
-    [Range(0f, 1f)]
-    public float musicVolume = 1f;
+    [Range(0f, 1f)] public float masterVolume = 1f;
+    [Range(0f, 1f)] public float sfxVolume = 1f;
+    [Range(0f, 1f)] public float musicVolume = 1f;
 
     private bool isInitialized = false;
-
     private Dictionary<string, float> soundCooldowns = new Dictionary<string, float>();
 
     private void Awake()
@@ -53,18 +52,16 @@ public class SoundManager : MonoBehaviour
 
         instance = this;
         DontDestroyOnLoad(gameObject);
-
         Initialize();
     }
 
     private void Initialize()
     {
-        if (isInitialized)
-            return;
+        if (isInitialized) return;
 
         if (soundDatabase == null)
         {
-            Debug.LogError("[SoundManager] SoundDatabase not assigned! Please assign it in the Inspector.");
+            Debug.LogError("[SoundManager] SoundDatabase not assigned!");
             return;
         }
 
@@ -74,22 +71,18 @@ public class SoundManager : MonoBehaviour
         activeAudioSources = new List<AudioSource>();
 
         for (int i = 0; i < poolSize; i++)
-        {
             CreateNewAudioSource();
-        }
 
         soundCooldowns.Clear();
-
         isInitialized = true;
-        Debug.Log($"[SoundManager] Initialized with {poolSize} audio sources");
     }
 
     private AudioSource CreateNewAudioSource()
     {
         GameObject audioObject = new GameObject($"AudioSource_{audioSourcePool.Count}");
         audioObject.transform.SetParent(transform);
-        AudioSource audioSource = audioObject.AddComponent<AudioSource>();
 
+        AudioSource audioSource = audioObject.AddComponent<AudioSource>();
         audioSource.playOnAwake = false;
         audioSource.spatialBlend = 1f;
         audioSource.rolloffMode = AudioRolloffMode.Linear;
@@ -99,22 +92,20 @@ public class SoundManager : MonoBehaviour
         audioSource.spread = 0f;
         audioSource.priority = 128;
 
+        // Routed vers le groupe SFX par défaut
+        audioSource.outputAudioMixerGroup = sfxMixerGroup;
+
         audioSourcePool.Enqueue(audioSource);
         return audioSource;
     }
 
-
     private AudioSource GetAudioSource()
     {
-        if (!isInitialized)
-        {
-            Debug.LogWarning("[SoundManager] Not initialized yet!");
-            Initialize();
-        }
+        if (!isInitialized) Initialize();
 
         if (audioSourcePool.Count == 0)
         {
-            Debug.LogWarning("[SoundManager] Pool exhausted, creating new AudioSource");
+            Debug.LogWarning("[SoundManager] Pool exhausted, creating new AudioSource.");
             return CreateNewAudioSource();
         }
 
@@ -130,6 +121,7 @@ public class SoundManager : MonoBehaviour
         source.Stop();
         source.clip = null;
         source.loop = false;
+        source.outputAudioMixerGroup = sfxMixerGroup; // reset au groupe par défaut
 
         activeAudioSources.Remove(source);
         audioSourcePool.Enqueue(source);
@@ -140,62 +132,25 @@ public class SoundManager : MonoBehaviour
         for (int i = activeAudioSources.Count - 1; i >= 0; i--)
         {
             AudioSource source = activeAudioSources[i];
-
             if (source != null && !source.isPlaying && !source.loop)
-            {
                 ReturnAudioSource(source);
-            }
         }
     }
 
-    private bool CanPlaySound(string soundName, float cooldown)
-    {
-        if (!soundCooldowns.ContainsKey(soundName))
-        {
-            return true;
-        }
-
-        float lastPlayedTime = soundCooldowns[soundName];
-        return Time.time >= lastPlayedTime + cooldown;
-    }
-
-    private void MarkSoundAsPlayed(string soundName)
-    {
-        soundCooldowns[soundName] = Time.time;
-    }
+    // ── Play API ──────────────────────────────────────────────────────────────
 
     public AudioSource PlaySound(string soundName, Vector3 position)
     {
-        if (!isInitialized)
-        {
-            Debug.LogWarning("[SoundManager] Attempting to play sound before initialization!");
-            Initialize();
-        }
-
-        if (soundDatabase == null)
-        {
-            Debug.LogError("[SoundManager] SoundDatabase is null!");
-            return null;
-        }
+        if (!isInitialized) Initialize();
+        if (soundDatabase == null) return null;
 
         SoundData sound = soundDatabase.GetSound(soundName);
-        if (sound == null)
-        {
-            Debug.LogWarning($"[SoundManager] Sound '{soundName}' not found in database!");
-            return null;
-        }
+        if (sound == null) return null;
 
-        if (!CanPlaySound(soundName, sound.cooldown))
-        {
-            return null;
-        }
+        if (!CanPlaySound(soundName, sound.cooldown)) return null;
 
         AudioClip clip = sound.GetRandomClip();
-        if (clip == null)
-        {
-            Debug.LogWarning($"[SoundManager] Sound '{soundName}' has no clip!");
-            return null;
-        }
+        if (clip == null) return null;
 
         AudioSource audioSource = GetAudioSource();
 
@@ -205,17 +160,15 @@ public class SoundManager : MonoBehaviour
         audioSource.pitch = sound.GetRandomPitch();
         audioSource.loop = sound.loop;
 
+        // Permet à SoundData de forcer un groupe spécifique (Music, etc.)
+        audioSource.outputAudioMixerGroup = sfxMixerGroup;
+
         if (sound.is3D)
         {
             audioSource.spatialBlend = 1f;
-
-            float minDist = Mathf.Max(sound.minDistance, 0.1f);
-            float maxDist = Mathf.Max(sound.maxDistance, minDist + 1f);
-
-            audioSource.minDistance = minDist;
-            audioSource.maxDistance = maxDist;
+            audioSource.minDistance = Mathf.Max(sound.minDistance, 0.1f);
+            audioSource.maxDistance = Mathf.Max(sound.maxDistance, audioSource.minDistance + 1f);
             audioSource.rolloffMode = AudioRolloffMode.Linear;
-
             audioSource.dopplerLevel = 0f;
             audioSource.spread = 0f;
         }
@@ -226,30 +179,17 @@ public class SoundManager : MonoBehaviour
 
         audioSource.Play();
         MarkSoundAsPlayed(soundName);
-
         return audioSource;
     }
 
-
-    public AudioSource PlaySound2D(string soundName)
-    {
-        return PlaySound(soundName, Vector3.zero);
-    }
-
-    public AudioSource PlaySoundAtPosition(string soundName, Vector3 position)
-    {
-        return PlaySound(soundName, position);
-    }
+    public AudioSource PlaySound2D(string soundName) => PlaySound(soundName, Vector3.zero);
+    public AudioSource PlaySoundAtPosition(string soundName, Vector3 position) => PlaySound(soundName, position);
 
     public AudioSource PlaySoundAtTransform(string soundName, Transform target)
     {
         AudioSource source = PlaySound(soundName, target.position);
-
         if (source != null && !source.loop)
-        {
             StartCoroutine(FollowTransform(source, target));
-        }
-
         return source;
     }
 
@@ -262,34 +202,16 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    public void StopSound(AudioSource source)
+    // ── Cooldown ──────────────────────────────────────────────────────────────
+
+    private bool CanPlaySound(string soundName, float cooldown)
     {
-        if (source != null)
-        {
-            ReturnAudioSource(source);
-        }
+        return !soundCooldowns.TryGetValue(soundName, out float lastTime)
+               || Time.time >= lastTime + cooldown;
     }
 
-    public void StopAllSounds()
+    private void MarkSoundAsPlayed(string soundName)
     {
-        foreach (AudioSource source in activeAudioSources.ToArray())
-        {
-            ReturnAudioSource(source);
-        }
-    }
-
-    public void SetMasterVolume(float volume)
-    {
-        masterVolume = Mathf.Clamp01(volume);
-    }
-
-    public void SetSFXVolume(float volume)
-    {
-        sfxVolume = Mathf.Clamp01(volume);
-    }
-
-    public void SetMusicVolume(float volume)
-    {
-        musicVolume = Mathf.Clamp01(volume);
+        soundCooldowns[soundName] = Time.time;
     }
 }
