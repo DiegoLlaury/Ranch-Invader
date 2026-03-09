@@ -1,6 +1,10 @@
 using UnityEngine;
 
-[RequireComponent(typeof(RandomMovementAI))]
+/// <summary>
+/// Connects the ImpostorEntity rendering system to any EnemyBase-driven AI on the same GameObject.
+/// Replaces the old RandomMovementAI dependency with the NavMesh-based EnemyBase.
+/// </summary>
+[RequireComponent(typeof(EnemyBase))]
 public class ImpostorEntityAI : MonoBehaviour
 {
     [Header("Impostor Settings")]
@@ -60,9 +64,8 @@ public class ImpostorEntityAI : MonoBehaviour
     private ImpostorEntity impostorEntity;
     private Transform playerTransform;
 
-    void Start()
+    private void Start()
     {
-        // Trouver le joueur
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
@@ -72,68 +75,54 @@ public class ImpostorEntityAI : MonoBehaviour
         SetupImpostor();
     }
 
-    void SetupImpostor()
+    private void SetupImpostor()
     {
-        // Créer le quad impostor comme enfant
         impostorQuadInstance = Instantiate(impostorQuadPrefab, transform);
         impostorQuadInstance.name = "ImpostorQuad";
         impostorQuadInstance.transform.localPosition = Vector3.zero;
         impostorQuadInstance.transform.localRotation = Quaternion.identity;
 
-        // Créer l'instance du mesh SANS parent
         meshInstance = Instantiate(meshPrefab);
         meshInstance.name = $"{meshPrefab.name}_ImpostorMesh";
         meshInstance.transform.position = new Vector3(10000, 10000, 10000);
-        meshInstance.transform.rotation = Quaternion.identity; // Rotation contrôlée
+        meshInstance.transform.rotation = Quaternion.identity;
         meshInstance.SetActive(false);
 
-        // À la place, garder une référence pour le cleanup
-        // (On le détruira dans OnDestroy)
-
-        // Configurer ImpostorEntity
         impostorEntity = impostorQuadInstance.GetComponent<ImpostorEntity>();
         if (impostorEntity == null)
         {
             impostorEntity = impostorQuadInstance.AddComponent<ImpostorEntity>();
         }
 
-        // Passer le meshInstance au lieu du prefab
         impostorEntity.meshPrefab = meshPrefab;
         impostorEntity.impostorMaterial = impostorMaterial;
         impostorEntity.playerTransform = playerTransform;
         impostorEntity.autoFindPlayer = false;
 
-        // Animation (toujours animé car l'AI bouge)
         impostorEntity.isAnimated = true;
         impostorEntity.animatedFPS = animatedFPS;
 
-        // Capture
         impostorEntity.captureScale = captureScale;
         impostorEntity.meshRotationOffset = meshRotationOffset;
         impostorEntity.followParentRotation = followParentRotation;
 
-        // Camera
         impostorEntity.customCameraHeight = customCameraHeight;
         impostorEntity.customLookAtRatio = customLookAtRatio;
         impostorEntity.customFieldOfView = customFieldOfView;
         impostorEntity.customDistanceMultiplier = customDistanceMultiplier;
 
-        // Collision
         impostorEntity.autoGenerateCollider = autoGenerateCollider;
         impostorEntity.dynamicCollider = false;
         impostorEntity.colliderSize = colliderSize;
         impostorEntity.colliderCenter = colliderCenter;
 
-        // Parallax
         impostorEntity.useParallax = useParallax;
         impostorEntity.parallaxStrength = parallaxStrength;
         impostorEntity.parallaxMinSamples = parallaxMinSamples;
         impostorEntity.parallaxMaxSamples = parallaxMaxSamples;
 
-        // Ground (désactivé car l'AI gère le mouvement)
         impostorEntity.snapToGround = false;
 
-        // Configurer QuadScaler
         ImpostorQuadScaler scaler = impostorQuadInstance.GetComponent<ImpostorQuadScaler>();
         if (scaler == null)
         {
@@ -143,7 +132,6 @@ public class ImpostorEntityAI : MonoBehaviour
         scaler.manualSize = quadManualSize;
         scaler.autoUpdate = false;
 
-        // Configurer Billboard
         Billboard billboard = impostorQuadInstance.GetComponent<Billboard>();
         if (billboard == null)
         {
@@ -156,7 +144,7 @@ public class ImpostorEntityAI : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    void OnValidate()
+    private void OnValidate()
     {
         if (Application.isPlaying && impostorEntity != null)
         {
@@ -172,7 +160,7 @@ public class ImpostorEntityAI : MonoBehaviour
     }
 #endif
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         if (meshInstance != null)
         {

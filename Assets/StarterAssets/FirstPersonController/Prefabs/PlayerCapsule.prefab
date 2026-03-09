@@ -487,7 +487,7 @@ GameObject:
   - component: {fileID: 4598756115884909195}
   - component: {fileID: 9149508936626131006}
   - component: {fileID: 6544675849692842929}
-  m_Layer: 8
+  m_Layer: 7
   m_Name: PlayerCapsule
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -825,12 +825,12 @@ MonoBehaviour:
   cameraRoot: {fileID: 4135013735270702863}
   playerController: {fileID: 8616685848737228371}
   drunkVolume: {fileID: 620220077517891031}
-  baseShakeIntensity: 0.25
-  shakeFrequency: 0.8
-  maxShakeIntensity: 1
+  baseShakeIntensity: 0.05
+  shakeFrequency: 0.5
+  maxShakeIntensity: 0.25
   baseRotationIntensity: 1
   rotationFrequency: 0.5
-  maxRotationIntensity: 2
+  maxRotationIntensity: 1.5
   baseChromaticAberration: 0.1
   baseLensDistortion: -0.1
   baseVignetteIntensity: 0.35
@@ -851,6 +851,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7433946359285749938}
   - component: {fileID: 2770885016335319536}
+  - component: {fileID: 19682591541043983}
   m_Layer: 8
   m_Name: FistWeapon
   m_TagString: Untagged
@@ -892,6 +893,21 @@ MonoBehaviour:
     m_Bits: 8
   attackPoint: {fileID: 1723263151866109815}
   useLeftFist: 1
+--- !u!114 &19682591541043983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9015978938948635490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f74830321784fe4282953449c80497f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoundEmitter
+  bindings:
+  - eventName: OnSwing
+    soundKey: Throw_Punch
 --- !u!1001 &6404906028758166285
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -902,7 +918,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 9005220659476430818, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.19999695
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430818, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
       propertyPath: m_LocalPosition.y

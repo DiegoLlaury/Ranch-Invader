@@ -24,7 +24,7 @@ MonoBehaviour:
     minDistance: 0.1
     maxDistance: 25
     loop: 0
-    cooldown: 0.05
+    cooldown: 1.2
   - soundName: Cow_Death
     clips:
     - {fileID: 8300000, guid: 37bfeaf3521eddd41805bc60a4845c8a, type: 3}
@@ -40,6 +40,42 @@ MonoBehaviour:
     clips:
     - {fileID: 8300000, guid: a7863822b82e2824aae36984a370e3df, type: 3}
     volume: 0.25
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: BeerCan_Open
+    clips:
+    - {fileID: 8300000, guid: a7863822b82e2824aae36984a370e3df, type: 3}
+    volume: 0.25
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Projectile_Enemy
+    clips:
+    - {fileID: 8300000, guid: d7863e74098f5c8418a6098e66ef8a06, type: 3}
+    volume: 0.05
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 1
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Throw_Punch
+    clips:
+    - {fileID: 8300000, guid: 823c6573a931157469de50af70ef6d46, type: 3}
+    - {fileID: 8300000, guid: 1d518f21078f8b94fbc6aa253075508d, type: 3}
+    - {fileID: 8300000, guid: 109aabf237d8f014bac50941c1a58752, type: 3}
+    - {fileID: 8300000, guid: 72eeedf4a3bb79949853d826a879168d, type: 3}
+    volume: 0.08
     pitch: 1
     pitchVariation: 0.1
     is3D: 0
