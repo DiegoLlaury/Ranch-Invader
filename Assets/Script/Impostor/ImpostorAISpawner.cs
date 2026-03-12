@@ -4,9 +4,6 @@ public class ImpostorAISpawner : MonoBehaviour
 {
     [Header("Prefabs")]
     public GameObject entityAIPrefab; // Prefab avec RandomMovementAI + ImpostorEntityAI
-    public GameObject impostorQuadPrefab;
-    public GameObject meshPrefab;
-    public Material impostorMaterial;
 
     [Header("Spawn Settings")]
     public int count = 10;
@@ -50,7 +47,6 @@ public class ImpostorAISpawner : MonoBehaviour
         GameObject entity = Instantiate(entityAIPrefab, position, Quaternion.identity);
         entity.name = $"{entityAIPrefab.name}_{Random.Range(1000, 9999)}";
 
-        // Configurer RandomMovementAI
         RandomMovementAI ai = entity.GetComponent<RandomMovementAI>();
         if (ai != null)
         {
@@ -61,13 +57,11 @@ public class ImpostorAISpawner : MonoBehaviour
             ai.SetMovementZone(zoneCenter, zoneSize);
         }
 
-        // Configurer ImpostorEntityAI
+        // Les champs meshPrefab, impostorMaterial et impostorQuadPrefab
+        // sont déjà configurés sur le prefab — aucun écrasement nécessaire.
         ImpostorEntityAI impostorAI = entity.GetComponent<ImpostorEntityAI>();
         if (impostorAI != null)
         {
-            impostorAI.meshPrefab = meshPrefab;
-            impostorAI.impostorMaterial = impostorMaterial;
-            impostorAI.impostorQuadPrefab = impostorQuadPrefab;
             impostorAI.animatedFPS = animatedFPS;
             impostorAI.captureScale = captureScale;
             impostorAI.meshRotationOffset = meshRotationOffset;
@@ -75,6 +69,7 @@ public class ImpostorAISpawner : MonoBehaviour
 
         return entity;
     }
+
 
     Vector3 GetRandomPositionInZone()
     {

@@ -77,6 +77,8 @@ MonoBehaviour:
   attackCooldown: 1.5
   navMeshUpdateRate: 0.2
   rotationSpeed: 8
+  attackVfxPrefab: {fileID: 1141330259687333427, guid: 6718dc24203da53468af9ada8fef7d6d, type: 3}
+  deathVfxPrefab: {fileID: 2433282508537954060, guid: 3ef3ae421f71c5c4e97fe12dc2fc6312, type: 3}
   enemyProjectilePrefab: {fileID: 1740951610661868350, guid: 441aaf13c14de9748b2cc6e18358ce54, type: 3}
   projectileSpeed: 12
   preferredDistance: 10

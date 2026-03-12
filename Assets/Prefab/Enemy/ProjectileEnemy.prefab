@@ -47,10 +47,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyProjectile
   damage: 15
   lifetime: 6
+  detectionRadius: 0.2
   hitLayers:
     serializedVersion: 2
     m_Bits: 128
   spriteTransform: {fileID: 402926085125649780}
+  impactVfxPrefab: {fileID: 5880797563127281583, guid: 265d3a5ba69981a4698ceabcedf368b0, type: 3}
 --- !u!212 &6709237295937944754
 SpriteRenderer:
   serializedVersion: 2

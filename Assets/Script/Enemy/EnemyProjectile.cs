@@ -15,6 +15,11 @@ public class EnemyProjectile : MonoBehaviour
     [Header("Sprite Billboard")]
     public Transform spriteTransform;
 
+    [Header("VFX")]
+    [Tooltip("Particle prefab spawned at the impact point when the projectile hits.")]
+    public GameObject impactVfxPrefab;
+
+
     // Sound event name constants
     public const string SoundOnImpact = "OnImpact"; // Hit player or obstacle
 
@@ -68,6 +73,10 @@ public class EnemyProjectile : MonoBehaviour
 
             // Feedback: impact sound before destroy
             soundEmitter?.PlayAt(SoundOnImpact, hit.point);
+
+            if (impactVfxPrefab != null)
+                Instantiate(impactVfxPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+
 
             PlayerHealth playerHealth = hit.collider.GetComponent<PlayerHealth>();
             if (playerHealth != null)

@@ -25,6 +25,14 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     [Header("Rotation")]
     public float rotationSpeed = 8f;
 
+    [Header("VFX")]
+    [Tooltip("Particle prefab played at the enemy position when it attacks.")]
+    public GameObject attackVfxPrefab;
+
+    [Tooltip("Particle prefab played at the enemy position when it dies.")]
+    public GameObject deathVfxPrefab;
+
+
     // Sound event name constants — use these as keys in the SoundEmitter Inspector
     public const string SoundOnDetect = "OnDetect";   // Player spotted for the first time
     public const string SoundOnAttack = "OnAttack";   // Attack swing / shot fired
@@ -175,6 +183,10 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
         // Feedback: attack swing sound
         soundEmitter?.Play(SoundOnAttack);
 
+        if (attackVfxPrefab != null)
+            Instantiate(attackVfxPrefab, transform.position, transform.rotation);
+
+
         PlayerHealth playerHealth = playerTransform.GetComponent<PlayerHealth>();
         if (playerHealth != null)
             playerHealth.TakeDamage(attackDamage);
@@ -202,6 +214,10 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
 
         // Feedback: death sound
         soundEmitter?.Play(SoundOnDeath);
+
+        if (deathVfxPrefab != null)
+            Instantiate(deathVfxPrefab, transform.position, Quaternion.identity);
+
 
         Destroy(gameObject);
     }

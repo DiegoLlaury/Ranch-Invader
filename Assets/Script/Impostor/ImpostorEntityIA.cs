@@ -59,6 +59,12 @@ public class ImpostorEntityAI : MonoBehaviour
     [Range(4, 64)]
     public int parallaxMaxSamples = 32;
 
+    [Header("Ground Alignment")]
+    [Tooltip("Aligne automatiquement l'impostor sur le sol au démarrage.")]
+    public bool snapToGround = true;
+    public float groundOffset = 0f;
+    public LayerMask groundLayers = -1;
+
     private GameObject impostorQuadInstance;
     private GameObject meshInstance;
     private ImpostorEntity impostorEntity;
@@ -121,7 +127,9 @@ public class ImpostorEntityAI : MonoBehaviour
         impostorEntity.parallaxMinSamples = parallaxMinSamples;
         impostorEntity.parallaxMaxSamples = parallaxMaxSamples;
 
-        impostorEntity.snapToGround = false;
+        impostorEntity.snapToGround = snapToGround;
+        impostorEntity.groundOffset = groundOffset;
+        impostorEntity.groundLayers = groundLayers;
 
         ImpostorQuadScaler scaler = impostorQuadInstance.GetComponent<ImpostorQuadScaler>();
         if (scaler == null)

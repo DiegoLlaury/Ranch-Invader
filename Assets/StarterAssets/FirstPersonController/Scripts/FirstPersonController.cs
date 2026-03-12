@@ -119,8 +119,8 @@ namespace StarterAssets
 
 		private void Update()
 		{
-			JumpAndGravity();
-			GroundedCheck();
+            GroundedCheck();
+            JumpAndGravity();
 			Move();
 		}
 
