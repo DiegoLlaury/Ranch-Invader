@@ -84,6 +84,14 @@ public class ImpostorEntity : MonoBehaviour
     [Range(4, 64)]
     public int parallaxMaxSamples = 32;
 
+    [Header("Static Face Settings")]
+    [Tooltip("Verrouille l'impostor sur une face fixe, ignorant la position de la caméra")]
+    public bool useStaticFace = false;
+
+    [Tooltip("Index de la face fixe (0=avant, 2=gauche, 4=arrière, 6=droite, valeurs intermédiaires = diagonales)")]
+    [Range(0, 7)]
+    public int staticFaceIndex = 0;
+
     private RenderTexture[] depthTextures;
 
 
@@ -251,7 +259,19 @@ public class ImpostorEntity : MonoBehaviour
 
     void UpdateQuadTexture()
     {
-        if (playerTransform == null || renderTextures == null)
+        if (renderTextures == null)
+            return;
+
+        // Mode face fixe : ignore complètement la position du joueur
+        if (useStaticFace)
+        {
+            int clampedIndex = Mathf.Clamp(staticFaceIndex, 0, renderTextures.Length - 1);
+            impostorMaterial.SetTexture("_MainTex", renderTextures[clampedIndex]);
+            impostorMaterial.SetFloat("_BlendAmount", 0f);
+            return;
+        }
+
+        if (playerTransform == null)
             return;
 
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
@@ -308,9 +328,10 @@ public class ImpostorEntity : MonoBehaviour
             }
 
             impostorMaterial.SetTexture("_MainTex", renderTextures[dirIndex]);
-            impostorMaterial.SetFloat("_BlendAmount", 0);
+            impostorMaterial.SetFloat("_BlendAmount", 0f);
         }
     }
+
 
     void AlignToGround()
     {

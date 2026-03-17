@@ -124,6 +124,8 @@ MonoBehaviour:
   parallaxStrength: 0.06
   parallaxMinSamples: 8
   parallaxMaxSamples: 32
+  useStaticFace: 0
+  staticFaceIndex: 0
 --- !u!208 &-4967102005683243322
 NavMeshObstacle:
   m_ObjectHideFlags: 0
