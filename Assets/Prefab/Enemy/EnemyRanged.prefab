@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 4521124159368953855}
   - component: {fileID: 8827905846739349660}
   - component: {fileID: -7144714219970064081}
+  - component: {fileID: 6767163022675517099}
+  - component: {fileID: -106357231090502156}
   m_Layer: 3
   m_Name: EnemyRanged
   m_TagString: Untagged
@@ -45,7 +47,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 4
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -54,7 +56,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
-  m_BaseOffset: 0.75
+  m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!114 &4521124159368953855
@@ -71,14 +73,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyRanged
   playerTransform: {fileID: 0}
   maxHealth: 100
-  detectionRange: 15
-  attackRange: 1.5
+  detectionRange: 30
+  attackRange: 2
   attackDamage: 10
   attackCooldown: 1.5
   navMeshUpdateRate: 0.2
   rotationSpeed: 8
   attackVfxPrefab: {fileID: 1141330259687333427, guid: 6718dc24203da53468af9ada8fef7d6d, type: 3}
   deathVfxPrefab: {fileID: 2433282508537954060, guid: 3ef3ae421f71c5c4e97fe12dc2fc6312, type: 3}
+  navMeshSnapRadius: 5
+  alignToSlope: 0
+  slopeAlignSpeed: 8
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 512
   enemyProjectilePrefab: {fileID: 1740951610661868350, guid: 441aaf13c14de9748b2cc6e18358ce54, type: 3}
   projectileSpeed: 12
   preferredDistance: 10
@@ -110,7 +118,7 @@ MonoBehaviour:
   customDistanceMultiplier: -1
   quadScaleMultiplier: 1
   quadManualSize: {x: 0, y: 0}
-  autoGenerateCollider: 1
+  autoGenerateCollider: 0
   colliderSize: {x: 0, y: 0, z: 0}
   colliderCenter: {x: 0, y: 0, z: 0}
   useSmoothRotation: 1
@@ -121,6 +129,11 @@ MonoBehaviour:
   parallaxStrength: 0.06
   parallaxMinSamples: 8
   parallaxMaxSamples: 32
+  snapToGround: 1
+  groundOffset: 0
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!136 &-7144714219970064081
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -144,3 +157,44 @@ CapsuleCollider:
   m_Height: 1.45
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &6767163022675517099
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6909288369959468198}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &-106357231090502156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6909288369959468198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fedc0936247a978409da28a3d48d4577, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHitFlash
+  flashDuration: 0.15
+  flashPeakIntensity: 0.85

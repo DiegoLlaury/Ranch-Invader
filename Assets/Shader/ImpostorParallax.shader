@@ -15,6 +15,10 @@ Shader "Custom/ImpostorParallax"
         _KeyColor ("Key Color", Color) = (0,0,1,1)
         _Threshold ("Key Threshold", Range(0,2)) = 0.5
         _Softness ("Edge Softness", Range(0,0.5)) = 0.1
+
+        [Header(Hit Flash)]
+        _HitColor ("Hit Color", Color) = (1,0,0,1)
+        _HitIntensity ("Hit Intensity", Range(0,1)) = 0
     }
 
     SubShader
@@ -72,6 +76,8 @@ Shader "Custom/ImpostorParallax"
             float _ParallaxStrength;
             float _ParallaxMinSamples;
             float _ParallaxMaxSamples;
+            float4 _HitColor;
+            float _HitIntensity;
             CBUFFER_END
 
             Varyings vert (Attributes IN)
@@ -143,6 +149,9 @@ Shader "Custom/ImpostorParallax"
                 }
 
                 clip(col1.a - 0.01);
+
+                // Hit flash: blend visible pixels toward _HitColor
+                col1.rgb = lerp(col1.rgb, _HitColor.rgb, _HitIntensity * col1.a);
 
                 return col1;
             }

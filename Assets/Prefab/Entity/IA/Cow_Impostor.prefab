@@ -116,23 +116,28 @@ MonoBehaviour:
   animatedFPS: 2
   captureScale: 1
   meshRotationOffset: {x: 0, y: 0, z: 0}
-  customCameraHeight: 3
+  customCameraHeight: 2.5
   customLookAtRatio: -1
   customFieldOfView: -1
-  customDistanceMultiplier: -1
-  quadScaleMultiplier: 1
+  customDistanceMultiplier: 2.5
+  quadScaleMultiplier: 1.5
   quadManualSize: {x: 0, y: 0}
   autoGenerateCollider: 1
   colliderSize: {x: 0, y: 0, z: 0}
   colliderCenter: {x: 0, y: 0, z: 0}
   useSmoothRotation: 1
   rotationSpeed: 8
-  rotationDeadZone: 8
+  rotationDeadZone: 12.5
   followParentRotation: 1
   useParallax: 1
   parallaxStrength: 0.06
   parallaxMinSamples: 8
   parallaxMaxSamples: 32
+  snapToGround: 1
+  groundOffset: 0.75
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 512
 --- !u!114 &-5756034229126316897
 MonoBehaviour:
   m_ObjectHideFlags: 0

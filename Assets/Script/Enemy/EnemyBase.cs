@@ -32,6 +32,19 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     [Tooltip("Particle prefab played at the enemy position when it dies.")]
     public GameObject deathVfxPrefab;
 
+    [Tooltip("Rayon de recherche du NavMesh au spawn si l'ennemi apparaît hors du NavMesh")]
+    public float navMeshSnapRadius = 5f;
+
+    [Header("Slope")]
+    [Tooltip("Incline l'ennemi visuellement sur les pentes pour plus de réalisme")]
+    public bool alignToSlope = false;
+
+    [Tooltip("Vitesse d'interpolation de l'alignement sur la pente")]
+    public float slopeAlignSpeed = 8f;
+
+    [Tooltip("Masque de layer utilisé pour détecter le sol")]
+    public LayerMask groundLayer = ~0;
+
 
     // Sound event name constants — use these as keys in the SoundEmitter Inspector
     public const string SoundOnDetect = "OnDetect";   // Player spotted for the first time
@@ -45,8 +58,12 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     protected float lastAttackTime;
     protected float lastNavUpdateTime;
     protected bool isDead;
+    private EnemyHitFlash hitFlash;
 
     private bool hasDetectedPlayer;
+    private Quaternion targetSlopeRotation = Quaternion.identity;
+    private const float MinVelocityToRotate = 0.3f;
+
 
     public Vector3 FacingDirection { get; private set; }
     public bool IsMoving => navAgent != null && navAgent.velocity.sqrMagnitude > 0.01f;
@@ -57,6 +74,17 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
         navAgent.updateRotation = false;
 
         soundEmitter = GetComponent<SoundEmitter>();
+
+        hitFlash = GetComponent<EnemyHitFlash>();
+
+        // The NavMeshAgent owns movement — Rigidbody must be kinematic
+        // to prevent physics forces from conflicting with agent steering.
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.useGravity = false;
+        }
     }
 
     protected virtual void Start()
@@ -71,7 +99,22 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
             else
                 Debug.LogWarning($"[{gameObject.name}] No GameObject with tag 'Player' found.");
         }
+
+        SnapToNavMesh(); // ← ajouter cette ligne
     }
+
+    private void SnapToNavMesh()
+    {
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, navMeshSnapRadius, NavMesh.AllAreas))
+        {
+            navAgent.Warp(hit.position);
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] Aucun NavMesh trouvé dans un rayon de {navMeshSnapRadius}m. Vérifiez le bake.");
+        }
+    }
+
 
     protected virtual void Update()
     {
@@ -79,6 +122,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
 
         UpdateRotation();
         UpdateFacingDirection();
+        UpdateSlopeAlignment();
         CheckDetection();
         UpdateBehavior();
     }
@@ -125,7 +169,34 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     {
         Vector3 velocity = navAgent.velocity;
         velocity.y = 0f;
+
+        // If the agent is nearly stopped (stuck against NavMesh boundary), 
+        // rotate toward the player directly to avoid spinning in place.
+        if (velocity.sqrMagnitude < MinVelocityToRotate * MinVelocityToRotate && playerTransform != null)
+        {
+            Vector3 toPlayer = playerTransform.position - transform.position;
+            toPlayer.y = 0f;
+            return toPlayer;
+        }
+
         return velocity;
+    }
+
+    /// <summary>
+    /// Aligne visuellement l'ennemi sur la normale du sol sous lui si alignToSlope est activé.
+    /// </summary>
+    private void UpdateSlopeAlignment()
+    {
+        if (!alignToSlope) return;
+
+        if (Physics.Raycast(transform.position + Vector3.up * 0.2f, Vector3.down, out RaycastHit hit, 2f, groundLayer))
+        {
+            Vector3 forward = Vector3.ProjectOnPlane(transform.forward, hit.normal).normalized;
+            if (forward.sqrMagnitude > 0.001f)
+                targetSlopeRotation = Quaternion.LookRotation(forward, hit.normal);
+        }
+
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetSlopeRotation, slopeAlignSpeed * Time.deltaTime);
     }
 
     /// <summary>
@@ -202,6 +273,8 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
 
         // Feedback: hit reaction sound
         soundEmitter?.Play(SoundOnHit);
+        hitFlash?.Flash();
+
 
         if (currentHealth <= 0f)
             Die();

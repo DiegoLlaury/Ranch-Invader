@@ -27,7 +27,8 @@ public class MeleeWeapon : BaseWeapon
 
     protected virtual void DealDamage(GameObject target)
     {
-        IDamageable damageable = target.GetComponent<IDamageable>();
+        // Search on the hit object AND up the hierarchy to handle child colliders
+        IDamageable damageable = target.GetComponentInParent<IDamageable>();
         if (damageable != null)
         {
             float finalDamage = GetFinalDamage();
