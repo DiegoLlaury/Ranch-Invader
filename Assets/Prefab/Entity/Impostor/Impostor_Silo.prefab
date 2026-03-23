@@ -145,19 +145,20 @@ MonoBehaviour:
     m_Bits: 1
   useBlending: 0
   blendDistance: 50
+  captureScale: 2.02
   meshRotationOffset: {x: 0, y: 185, z: 0}
   followParentRotation: 1
-  captureScale: 2.02
-  customCameraHeight: 1.5
-  customLookAtRatio: 0.6
   customFieldOfView: 20
+  customDistanceMult: -1
+  customLookAtRatio: 0.6
+  customCameraHeight: 1.5
   customDistanceMultiplier: 1
+  useStaticFace: 0
+  staticFaceIndex: 0
   useParallax: 1
   parallaxStrength: 0.06
   parallaxMinSamples: 8
   parallaxMaxSamples: 32
-  useStaticFace: 0
-  staticFaceIndex: 0
 --- !u!208 &1926852549657082097
 NavMeshObstacle:
   m_ObjectHideFlags: 0

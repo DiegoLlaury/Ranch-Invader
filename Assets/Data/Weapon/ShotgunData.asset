@@ -15,11 +15,11 @@ MonoBehaviour:
   weaponName: Shotgun
   weaponType: 2
   damage: 30
-  range: 50
+  range: 75
   attackCooldown: 0.5
   maxAmmo: 2
-  currentAmmo: 0
-  reloadTime: 1.5
+  currentAmmo: 2
+  reloadTime: 0.4
   maxDurability: 100
   currentDurability: 100
   durabilityLossPerHit: 10
@@ -40,17 +40,17 @@ MonoBehaviour:
     duration: 0.3
     curveType: 4
   reloadAnimation:
-  - sprite: {fileID: 21300000, guid: babbb55c2d6559f49abf976b911320eb, type: 3}
-    positionOffset: {x: 0, y: 80}
-    rotationAngle: 15
-    scaleMultiplier: {x: 1, y: 1, z: 1}
+  - sprite: {fileID: 21300000, guid: 1dd6b7299e5f24047a0378e765ec752e, type: 3}
+    positionOffset: {x: 0, y: 250}
+    rotationAngle: -25
+    scaleMultiplier: {x: 1.25, y: 1.25, z: 1}
     duration: 0.3
     curveType: 2
-  - sprite: {fileID: 21300000, guid: babbb55c2d6559f49abf976b911320eb, type: 3}
-    positionOffset: {x: 0, y: 80}
-    rotationAngle: 15
-    scaleMultiplier: {x: 1, y: 1, z: 1}
-    duration: 0.8
+  - sprite: {fileID: 21300000, guid: 1dd6b7299e5f24047a0378e765ec752e, type: 3}
+    positionOffset: {x: 0, y: 350}
+    rotationAngle: -25
+    scaleMultiplier: {x: 1.25, y: 1.25, z: 1}
+    duration: 0.3
     curveType: 0
   - sprite: {fileID: 21300000, guid: 4538e5379265cb544ac350d555abc756, type: 3}
     positionOffset: {x: 0, y: 20}
@@ -60,5 +60,5 @@ MonoBehaviour:
     curveType: 1
   attackAnimationTrigger: Attack
   animationDuration: 0.3
-  hitEffectPrefab: {fileID: 0}
+  hitEffectPrefab: {fileID: 5880797563127281583, guid: 265d3a5ba69981a4698ceabcedf368b0, type: 3}
   muzzleFlashPrefab: {fileID: 0}

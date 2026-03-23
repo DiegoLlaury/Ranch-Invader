@@ -50,12 +50,12 @@ MonoBehaviour:
   - soundName: Projectile_Enemy
     clips:
     - {fileID: 8300000, guid: d7863e74098f5c8418a6098e66ef8a06, type: 3}
-    volume: 0.05
+    volume: 0.15
     pitch: 1
     pitchVariation: 0.1
     is3D: 1
     minDistance: 0
-    maxDistance: 20
+    maxDistance: 35
     loop: 0
     cooldown: 0
   - soundName: Throw_Punch

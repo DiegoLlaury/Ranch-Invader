@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: -7144714219970064081}
   - component: {fileID: 6767163022675517099}
   - component: {fileID: -106357231090502156}
+  - component: {fileID: -2756450750026438067}
   m_Layer: 3
   m_Name: EnemyRanged
   m_TagString: Untagged
@@ -72,7 +73,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyRanged
   playerTransform: {fileID: 0}
-  maxHealth: 100
+  maxHealth: 30
   detectionRange: 30
   attackRange: 2
   attackDamage: 10
@@ -180,7 +181,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -196,5 +197,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fedc0936247a978409da28a3d48d4577, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHitFlash
-  flashDuration: 0.15
+  flashDuration: 0.3
   flashPeakIntensity: 0.85
+--- !u!114 &-2756450750026438067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6909288369959468198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f74830321784fe4282953449c80497f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoundEmitter
+  bindings:
+  - eventName: OnAttack
+    soundKey: Projectile_Enemy
+  - eventName: OnHit
+    soundKey: Cow_Hurt

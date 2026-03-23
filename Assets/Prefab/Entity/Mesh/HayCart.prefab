@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3013891122723285704}
   - component: {fileID: 132596140162698157}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: BoxColision (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -63,7 +63,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3710612860879018804}
   - component: {fileID: 7286816093800029445}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: BoxColision (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,7 +116,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3475665752094244852}
   - component: {fileID: 7781750876674867478}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: BoxColision
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -169,7 +169,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6750844117527583182}
   - component: {fileID: 7333350148958288297}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: BoxColision (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -279,6 +279,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 09701491f978ff14e83ebb87966d9068, type: 3}
       propertyPath: m_Name
       value: HayCart
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 09701491f978ff14e83ebb87966d9068, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: 09701491f978ff14e83ebb87966d9068, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

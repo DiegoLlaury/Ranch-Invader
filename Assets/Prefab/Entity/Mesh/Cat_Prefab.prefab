@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 151121728309716137}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Cat_Prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -83,6 +83,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 5c318a0619a4eeb47a46b521da65acc8, type: 3}
       propertyPath: m_Name
       value: meshCat
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 5c318a0619a4eeb47a46b521da65acc8, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: 5c318a0619a4eeb47a46b521da65acc8, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

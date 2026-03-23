@@ -3,7 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// Plays a red flash on the impostor quad material when the enemy takes damage.
-/// Call Flash() from EnemyBase.TakeDamage().
+/// Driven by EnemyBase.TakeDamage().
 /// </summary>
 public class EnemyHitFlash : MonoBehaviour
 {
@@ -13,43 +13,45 @@ public class EnemyHitFlash : MonoBehaviour
     [Tooltip("Duration of the full flash in seconds.")]
     public float flashDuration = 0.15f;
 
-    [Tooltip("Intensity of the hit color overlay (0 = none, 1 = full).")]
+    [Tooltip("Peak intensity of the hit color overlay (0 = none, 1 = full).")]
     [Range(0f, 1f)]
     public float flashPeakIntensity = 0.85f;
 
     private Material impostorMaterial;
     private Coroutine flashCoroutine;
 
-    // Resolved lazily on first Flash() call because ImpostorEntityAI instantiates
-    // the quad child in its own Start(), which may execute after ours.
-    private bool isMaterialResolved;
-
-    private void TryResolveMaterial()
+    // Retried every Flash() call until resolved — ImpostorEntity.Initialize() runs
+    // one frame after ImpostorEntityAI.SetupImpostor() (AddComponent defers Start).
+    private bool TryResolveMaterial()
     {
-        if (isMaterialResolved) return;
+        if (impostorMaterial != null) return true;
 
-        isMaterialResolved = true;
+        ImpostorEntity impostorEntity = GetComponentInChildren<ImpostorEntity>();
 
-        MeshRenderer quadRenderer = GetComponentInChildren<MeshRenderer>();
-        if (quadRenderer != null)
+        if (impostorEntity == null)
         {
-            impostorMaterial = quadRenderer.material;
+            Debug.LogWarning($"[EnemyHitFlash] ImpostorEntity not found in children of {gameObject.name}.");
+            return false;
         }
-        else
+
+        impostorMaterial = impostorEntity.ImpostorMaterialInstance;
+
+        if (impostorMaterial == null)
         {
-            Debug.LogWarning($"[EnemyHitFlash] No MeshRenderer found in children of {gameObject.name}. " +
-                             "Ensure ImpostorEntityAI has initialised the quad before the first hit.");
+            // ImpostorEntity exists but Initialize() hasn't run yet — retry next hit.
+            return false;
         }
+
+        Debug.Log($"[EnemyHitFlash] Material resolved on {gameObject.name}: {impostorMaterial.name}");
+        return true;
     }
 
     /// <summary>
-    /// Triggers the hit flash effect. Safe to call while a flash is already running.
+    /// Triggers the hit flash. Safe to call while a flash is already running.
     /// </summary>
     public void Flash()
     {
-        TryResolveMaterial();
-
-        if (impostorMaterial == null) return;
+        if (!TryResolveMaterial()) return;
 
         if (flashCoroutine != null)
             StopCoroutine(flashCoroutine);
@@ -66,8 +68,7 @@ public class EnemyHitFlash : MonoBehaviour
         while (elapsed < halfDuration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / halfDuration;
-            impostorMaterial.SetFloat(HitIntensityId, Mathf.Lerp(0f, flashPeakIntensity, t));
+            impostorMaterial.SetFloat(HitIntensityId, Mathf.Lerp(0f, flashPeakIntensity, elapsed / halfDuration));
             yield return null;
         }
 
@@ -77,8 +78,7 @@ public class EnemyHitFlash : MonoBehaviour
         while (elapsed < halfDuration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / halfDuration;
-            impostorMaterial.SetFloat(HitIntensityId, Mathf.Lerp(flashPeakIntensity, 0f, t));
+            impostorMaterial.SetFloat(HitIntensityId, Mathf.Lerp(flashPeakIntensity, 0f, elapsed / halfDuration));
             yield return null;
         }
 
