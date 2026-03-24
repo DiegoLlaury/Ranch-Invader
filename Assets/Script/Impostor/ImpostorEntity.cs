@@ -103,6 +103,7 @@ public class ImpostorEntity : MonoBehaviour
     private float nextUpdateTime;
     private float updateInterval;
     private bool isInitialized = false;
+    private RenderTexture atlas;
 
     // Cache for UpdateQuadTexture to avoid redundant GPU calls
     private int lastDirIndex = -1;
@@ -128,8 +129,7 @@ public class ImpostorEntity : MonoBehaviour
     {
         if (meshPrefab == null)
         {
-            Debug.LogError("Mesh Prefab non assign� sur ImpostorEntity !");
-            enabled = false;
+            Debug.LogError("Mesh Prefab non assigné !");
             return;
         }
 
@@ -137,90 +137,53 @@ public class ImpostorEntity : MonoBehaviour
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
-            {
                 playerTransform = player.transform;
-            }
-            else
-            {
-                Debug.LogWarning("Aucun GameObject avec le tag 'Player' trouv� !");
-            }
         }
 
         quadRenderer = GetComponentInChildren<MeshRenderer>();
 
         if (quadRenderer == null)
         {
-            Debug.LogError("Aucun MeshRenderer trouv� sur l'ImpostorQuad !");
-            enabled = false;
+            Debug.LogError("Aucun MeshRenderer trouvé !");
             return;
-        }
-
-        if (snapToGround)
-        {
-            AlignToGround();
-        }
-
-        meshInstance = Instantiate(meshPrefab);
-        meshInstance.name = $"{meshPrefab.name}_ImpostorMesh";
-        meshInstance.transform.position = new Vector3(10000, 10000, 10000);
-        meshInstance.SetActive(false);
-
-        if (useParallax)
-        {
-            ImpostorPhotoBooth.Instance.CreateRenderTexturePair(gameObject.name, out renderTextures, out depthTextures);
-        }
-        else
-        {
-            renderTextures = ImpostorPhotoBooth.Instance.CreateRenderTextures(gameObject.name);
-            depthTextures = null;
         }
 
         if (impostorMaterial == null)
         {
-            string shaderName = useParallax ? "Custom/ImpostorParallax" : "Custom/ImpostorClean";
-            impostorMaterial = new Material(Shader.Find(shaderName));
-        }
-        else
-        {
-            impostorMaterial = new Material(impostorMaterial);
+            Shader shader = Shader.Find("Custom/ImpostorAtlas");
+
+            if (shader == null)
+            {
+                Debug.LogError("Shader Custom/ImpostorAtlas introuvable !");
+                return;
+            }
+
+            impostorMaterial = new Material(shader);
         }
 
+        // Création mesh caché
+        meshInstance = Instantiate(meshPrefab);
+        meshInstance.name = meshPrefab.name + "_Impostor";
+        meshInstance.transform.position = new Vector3(10000, 10000, 10000);
+        meshInstance.SetActive(false);
+
+        // Création atlas
+        atlas = new RenderTexture(512, 256, 24);
+        atlas.name = gameObject.name + "_Atlas";
+        atlas.Create();
+
+        // Material
+        impostorMaterial = new Material(Shader.Find("Custom/ImpostorAtlas"));
         quadRenderer.material = impostorMaterial;
 
-        // Configurer les paramètres de parallax
-        if (useParallax)
-        {
-            impostorMaterial.SetFloat("_ParallaxStrength", parallaxStrength);
-            impostorMaterial.SetFloat("_ParallaxMinSamples", parallaxMinSamples);
-            impostorMaterial.SetFloat("_ParallaxMaxSamples", parallaxMaxSamples);
-        }
+        impostorMaterial.SetTexture("_MainTex", atlas);
+        impostorMaterial.SetFloat("_Columns", 4);
+        impostorMaterial.SetFloat("_Rows", 2);
 
         updateInterval = isAnimated ? (1f / animatedFPS) : staticUpdateInterval;
-
-        // Décalage aléatoire pour éviter que tous les impostors recapturent la même frame
         nextUpdateTime = Time.time + Random.Range(0f, updateInterval);
 
-        quadScaler = GetComponent<ImpostorQuadScaler>();
-        if (quadScaler != null && meshInstance != null)
-        {
-            Renderer meshRenderer = meshInstance.GetComponentInChildren<Renderer>();
-            if (meshRenderer != null)
-            {
-                quadScaler.sourceRenderer = meshRenderer;
-            }
-        }
-
         CaptureImpostor();
-
-        if (quadScaler != null)
-        {
-            quadScaler.UpdateScale();
-        }
-
-        if (autoGenerateCollider)
-        {
-            SetupCollider();
-        }
 
         isInitialized = true;
     }
@@ -252,114 +215,36 @@ public class ImpostorEntity : MonoBehaviour
 
         Quaternion captureRotation = Quaternion.Euler(meshRotationOffset);
 
-        ImpostorPhotoBooth.Instance.RequestCapture(
-            meshInstance,
-            renderTextures,
-            captureScale,
-            captureRotation,
-            customCameraHeight,
-            customLookAtRatio,
-            customFieldOfView,
-            customDistanceMultiplier,
-            () =>
-            {
-                if (!isAnimated)
-                {
-                    meshInstance.SetActive(false);
-                }
-            }
+        ImpostorPhotoBooth.Instance.RequestAtlasCapture(
+        meshInstance,
+        atlas,
+        captureScale,
+        captureRotation,
+        customCameraHeight,
+        customLookAtRatio,
+        customFieldOfView,
+        customDistanceMultiplier,
+        () =>
+        {
+            if (!isAnimated)
+            meshInstance.SetActive(false);
+        }
         );
     }
 
     void UpdateQuadTexture()
     {
-        if (renderTextures == null)
-            return;
+        if (impostorMaterial == null) return; 
+        if (atlas == null) return;
 
-        // Mode face fixe : ignore complètement la position du joueur
-        if (useStaticFace)
-        {
-            int clampedIndex = Mathf.Clamp(staticFaceIndex, 0, renderTextures.Length - 1);
-            if (lastDirIndex == clampedIndex) return;
-            lastDirIndex = clampedIndex;
-            impostorMaterial.SetTexture("_MainTex", renderTextures[clampedIndex]);
-            impostorMaterial.SetFloat("_BlendAmount", 0f);
-            return;
-        }
+        if (playerTransform == null) return;
 
-        if (playerTransform == null)
-            return;
+        int dirIndex = ImpostorDirectionHelper.GetDirectionIndex(
+            transform.position,
+            playerTransform.position
+        );
 
-        float distanceToPlayer = (transform.position - playerTransform.position).sqrMagnitude;
-        float blendDistSqr = blendDistance * blendDistance;
-
-        if (useBlending && (blendDistance <= 0 || distanceToPlayer <= blendDistSqr))
-        {
-            int dirIndex, nextDirIndex;
-            float blendFactor;
-
-            if (followParentRotation && transform.parent != null)
-            {
-                ImpostorDirectionHelper.GetDirectionBlendForRotatingEntity(
-                    transform.parent,
-                    playerTransform.position,
-                    meshRotationOffset,
-                    out dirIndex,
-                    out nextDirIndex,
-                    out blendFactor
-                );
-            }
-            else
-            {
-                ImpostorDirectionHelper.GetDirectionBlend(
-                    transform.position,
-                    playerTransform.position,
-                    out dirIndex,
-                    out nextDirIndex,
-                    out blendFactor
-                );
-            }
-
-            if (dirIndex == lastDirIndex && nextDirIndex == lastNextDirIndex && Mathf.Approximately(blendFactor, lastBlendFactor))
-                return;
-
-            lastDirIndex = dirIndex;
-            lastNextDirIndex = nextDirIndex;
-            lastBlendFactor = blendFactor;
-
-            impostorMaterial.SetTexture("_MainTex", renderTextures[dirIndex]);
-            impostorMaterial.SetTexture("_BlendTex", renderTextures[nextDirIndex]);
-            impostorMaterial.SetFloat("_BlendAmount", blendFactor);
-        }
-        else
-        {
-            int dirIndex;
-
-            if (followParentRotation && transform.parent != null)
-            {
-                dirIndex = ImpostorDirectionHelper.GetDirectionIndexForRotatingEntity(
-                    transform.parent,
-                    playerTransform.position,
-                    meshRotationOffset
-                );
-            }
-            else
-            {
-                dirIndex = ImpostorDirectionHelper.GetDirectionIndex(
-                    transform.position,
-                    playerTransform.position
-                );
-            }
-
-            if (dirIndex == lastDirIndex && lastBlendFactor == 0f) return;
-
-            lastDirIndex = dirIndex;
-            lastNextDirIndex = -1;
-            lastBlendFactor = 0f;
-
-            impostorMaterial.SetTexture("_MainTex", renderTextures[dirIndex]);
-            impostorMaterial.SetFloat("_BlendAmount", 0f);
-        }
+        impostorMaterial.SetFloat("_Direction", dirIndex);
     }
 
 

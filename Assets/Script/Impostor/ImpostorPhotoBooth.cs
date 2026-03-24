@@ -67,7 +67,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
     private class ImpostorRequest
     {
         public GameObject meshObject;
-        public RenderTexture[] renderTextures;
+        public RenderTexture atlas;
         public RenderTexture[] depthTextures;
         public System.Action onComplete;
         public Vector3 originalPosition;
@@ -145,9 +145,9 @@ public class ImpostorPhotoBooth : MonoBehaviour
 
 
     // MODIFIÉ : Ajout du paramètre captureRotation
-    public void RequestCapture(
+    public void RequestAtlasCapture(
      GameObject meshObject,
-     RenderTexture[] renderTextures,
+     RenderTexture atlas,
      float customScale = 1f,
      Quaternion? captureRotation = null,
      float customCameraHeight = -1f,
@@ -156,16 +156,16 @@ public class ImpostorPhotoBooth : MonoBehaviour
      float customDistanceMultiplier = -1f,
      System.Action onComplete = null)
     {
-        if (renderTextures == null || renderTextures.Length != 8)
+        if (atlas == null)
         {
-            Debug.LogError("Il faut 8 RenderTextures pour une capture impostor !");
+            Debug.LogError("Atlas null !");
             return;
         }
 
         ImpostorRequest request = new ImpostorRequest
         {
             meshObject = meshObject,
-            renderTextures = renderTextures,
+            atlas = atlas,
             onComplete = onComplete,
             originalPosition = meshObject.transform.position,
             originalRotation = meshObject.transform.rotation,
@@ -181,7 +181,6 @@ public class ImpostorPhotoBooth : MonoBehaviour
 
         captureQueue.Enqueue(request);
         isCapturing = true;
-        // Ne pas appeler ProcessNextCapture ici — l'Update() s'en charge
     }
 
 
@@ -218,7 +217,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
         request.meshObject.transform.position = captureZone.position;
         request.meshObject.transform.rotation = request.captureRotation;
 
-        CaptureAllDirections(request);
+        CaptureAtlas(request);
 
         SetLayerRecursively(request.meshObject, request.originalLayer);
         request.meshObject.transform.position = request.originalPosition;
@@ -227,91 +226,106 @@ public class ImpostorPhotoBooth : MonoBehaviour
         request.onComplete?.Invoke();
     }
 
-    void CaptureAllDirections(ImpostorRequest request)
+    void CaptureAtlas(ImpostorRequest request)
     {
-        Bounds meshBounds = CalculateBoundsFromRenderers(request.cachedRenderers, request.meshObject.transform);
+        RenderTexture atlas = request.atlas;
+
+        int gridX = 4;
+        int gridY = 2;
+
+        int cellWidth = atlas.width / gridX;
+        int cellHeight = atlas.height / gridY;
+
+        Bounds meshBounds = CalculateBoundsFromRenderers(
+            request.cachedRenderers,
+            request.meshObject.transform
+        );
 
         float maxSize = Mathf.Max(meshBounds.size.x, meshBounds.size.y, meshBounds.size.z);
 
-        //  Utiliser le multiplicateur de distance personnalisé ou la valeur par défaut
-        float activeDistanceMultiplier = request.customDistanceMultiplier > 0
+        float distanceMultiplier = request.customDistanceMultiplier > 0
             ? request.customDistanceMultiplier
             : cameraDistanceMultiplier;
 
-        //  Utiliser le FOV personnalisé ou la valeur par défaut
-        float activeFOV = request.customFieldOfView > 0 ? request.customFieldOfView : fieldOfView;
+        float cameraDistance = maxSize * distanceMultiplier;
 
-        float cameraDistance;
+        float lookRatio = request.customLookAtRatio >= 0
+            ? request.customLookAtRatio
+            : lookAtHeightRatio;
 
-        // Configuration de la caméra selon le mode
-        if (usePerspective)
-        {
-            float halfFOV = activeFOV * 0.5f * Mathf.Deg2Rad;
-            float targetHeight = meshBounds.size.y * paddingMultiplier;
+        Vector3 basePos = request.meshObject.transform.position;
 
-            // Calculer la distance de base
-            cameraDistance = (targetHeight * 0.5f) / Mathf.Tan(halfFOV);
+        Vector3 lookAtPoint = basePos;
+        lookAtPoint.y += meshBounds.size.y * lookRatio;
 
-            //  Appliquer le multiplicateur de distance
-            cameraDistance *= activeDistanceMultiplier;
-
-            boothCamera.orthographic = false;
-            boothCamera.fieldOfView = activeFOV;
-        }
-        else
-        {
-            float orthoSize = (maxSize * paddingMultiplier * request.customScale) / 2f;
-            orthoSize = Mathf.Clamp(orthoSize, minOrthographicSize, maxOrthographicSize);
-
-            cameraDistance = maxSize * activeDistanceMultiplier;
-
-            boothCamera.orthographic = true;
-            boothCamera.orthographicSize = orthoSize;
-        }
+        float camHeight = request.customCameraHeight >= 0
+            ? request.customCameraHeight
+            : cameraHeight;
 
         Vector3[] directions = new Vector3[]
         {
-        new Vector3( 0, 0,  1),
-        new Vector3(-1, 0,  1).normalized,
-        new Vector3(-1, 0,  0),
-        new Vector3(-1, 0, -1).normalized,
-        new Vector3( 0, 0, -1),
-        new Vector3( 1, 0, -1).normalized,
-        new Vector3( 1, 0,  0),
-        new Vector3( 1, 0,  1).normalized
+        new Vector3(0,0,1),
+        new Vector3(1,0,1).normalized,
+        new Vector3(1,0,0),
+        new Vector3(1,0,-1).normalized,
+        new Vector3(0,0,-1),
+        new Vector3(-1,0,-1).normalized,
+        new Vector3(-1,0,0),
+        new Vector3(-1,0,1).normalized
         };
 
-        Vector3 meshBasePosition = request.meshObject.transform.position;
-
-        float activeLookAtRatio = request.customLookAtRatio >= 0 ? request.customLookAtRatio : lookAtHeightRatio;
-
-        Vector3 lookAtPoint = meshBasePosition;
-        lookAtPoint.y += meshBounds.size.y * activeLookAtRatio;
-
-        float activeCameraHeight = request.customCameraHeight >= 0 ? request.customCameraHeight : cameraHeight;
+        boothCamera.targetTexture = atlas;
 
         for (int i = 0; i < 8; i++)
         {
+            int x = i % gridX;
+            int y = i / gridX;
+
+            boothCamera.pixelRect = new Rect(
+                x * cellWidth,
+                y * cellHeight,
+                cellWidth,
+                cellHeight
+            );
+
             Vector3 dir = directions[i];
 
-            Vector3 camPos = meshBasePosition - dir * cameraDistance;
-            camPos.y = meshBasePosition.y + activeCameraHeight;
+            Vector3 camPos = basePos - dir * cameraDistance;
+            camPos.y = basePos.y + camHeight;
 
             boothCamera.transform.position = camPos;
             boothCamera.transform.LookAt(lookAtPoint);
 
-            // Capture couleur
-            boothCamera.targetTexture = request.renderTextures[i];
             boothCamera.Render();
-
-            // Capture profondeur
-            if (captureDepth && request.depthTextures != null)
-            {
-                RenderDepthTexture(request.cachedRenderers, request.depthTextures[i]);
-            }
         }
 
+        boothCamera.pixelRect = new Rect(0, 0, atlas.width, atlas.height);
     }
+
+    void SetCameraDirection(int i, ImpostorRequest request)
+    {
+        Vector3[] directions = new Vector3[]
+        {
+        new Vector3(0,0,1),
+        new Vector3(1,0,1).normalized,
+        new Vector3(1,0,0),
+        new Vector3(1,0,-1).normalized,
+        new Vector3(0,0,-1),
+        new Vector3(-1,0,-1).normalized,
+        new Vector3(-1,0,0),
+        new Vector3(-1,0,1).normalized
+        };
+
+        Vector3 dir = directions[i];
+
+        Vector3 pos = request.meshObject.transform.position - dir * 5f;
+        pos.y += 1.5f;
+
+        boothCamera.transform.position = pos;
+        boothCamera.transform.LookAt(request.meshObject.transform.position);
+    }
+
+   
 
 
     void RenderDepthTexture(Renderer[] renderers, RenderTexture depthRT)

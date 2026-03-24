@@ -62,7 +62,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 8400000, guid: 1dde1b496f010534f9c758be284963d8, type: 2}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -103,11 +103,13 @@ Material:
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
+    - _Columns: 4
     - _Cull: 2
     - _Cutoff: 0.5
     - _Despill: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _Direction: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EdgeCleanup: 0.2
@@ -122,6 +124,7 @@ Material:
     - _PixelSnap: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _Rows: 2
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _Softness: 0.05
