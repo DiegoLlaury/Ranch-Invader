@@ -13,13 +13,13 @@ public class ImpostorCaptureManager : MonoBehaviour
 
     [Tooltip("Nombre de snapshots par seconde pour les meshes animés (15-16 recommandé)")]
     [Range(1, 60)]
-    public int animatedFPS = 15;
+    public int animatedFPS = 5;
 
     [Tooltip("Intervalle entre captures pour meshes statiques (en secondes)")]
     public float staticCaptureInterval = 1f;
 
     [Tooltip("Capturer toutes les directions à chaque frame ou une par une en rotation")]
-    public bool captureAllDirectionsAtOnce = true;
+    public bool captureAllDirectionsAtOnce = false;
 
     private float nextCaptureTime;
     private int currentDirection = 0;

@@ -5,20 +5,20 @@ using UnityEngine.AI;
 
 /// <summary>
 /// Spawner configurable de vagues d'ennemis.
-/// Déclenche des GameplayEventSO quand tous les ennemis d'une vague sont éliminés.
+/// Dï¿½clenche des GameplayEventSO quand tous les ennemis d'une vague sont ï¿½liminï¿½s.
 /// </summary>
 public class EnemySpawner : MonoBehaviour
 {
     [System.Serializable]
     public class EnemyWave
     {
-        [Tooltip("Prefabs d'ennemis à spawner pour cette vague")]
+        [Tooltip("Prefabs d'ennemis ï¿½ spawner pour cette vague")]
         public GameObject[] enemyPrefabs;
 
-        [Tooltip("Délai entre chaque spawn d'ennemi dans la vague")]
+        [Tooltip("Dï¿½lai entre chaque spawn d'ennemi dans la vague")]
         public float spawnInterval = 0.5f;
 
-        [Tooltip("Événements déclenchés quand tous les ennemis de cette vague sont éliminés")]
+        [Tooltip("ï¿½vï¿½nements dï¿½clenchï¿½s quand tous les ennemis de cette vague sont ï¿½liminï¿½s")]
         public GameplayEventSO[] onWaveCleared;
     }
 
@@ -26,15 +26,15 @@ public class EnemySpawner : MonoBehaviour
     [Tooltip("Liste des vagues configurables")]
     public EnemyWave[] waves;
 
-    [Tooltip("Déclenche automatiquement la vague 0 au démarrage")]
+    [Tooltip("Dï¿½clenche automatiquement la vague 0 au dï¿½marrage")]
     public bool autoStartOnAwake = false;
 
     [Header("Spawn Points")]
-    [Tooltip("Points de spawn utilisés à la rotation. Si vide, utilise la position du spawner.")]
+    [Tooltip("Points de spawn utilisï¿½s ï¿½ la rotation. Si vide, utilise la position du spawner.")]
     public Transform[] spawnPoints;
 
     [Header("Events")]
-    [Tooltip("Événements déclenchés quand TOUTES les vagues sont terminées")]
+    [Tooltip("ï¿½vï¿½nements dï¿½clenchï¿½s quand TOUTES les vagues sont terminï¿½es")]
     public GameplayEventSO[] onAllWavesCleared;
 
     private int currentWaveIndex = -1;
@@ -52,18 +52,18 @@ public class EnemySpawner : MonoBehaviour
             TriggerNextWave();
     }
 
-    /// <summary>Déclenche la vague suivante dans l'ordre.</summary>
+    /// <summary>Dï¿½clenche la vague suivante dans l'ordre.</summary>
     public void TriggerNextWave()
     {
         TriggerWave(currentWaveIndex + 1);
     }
 
-    /// <summary>Déclenche une vague par son index.</summary>
+    /// <summary>Dï¿½clenche une vague par son index.</summary>
     public void TriggerWave(int index)
     {
         if (allWavesCompleted)
         {
-            Debug.LogWarning($"[EnemySpawner:{name}] Toutes les vagues sont déjà terminées.");
+            Debug.LogWarning($"[EnemySpawner:{name}] Toutes les vagues sont dï¿½jï¿½ terminï¿½es.");
             return;
         }
 
@@ -88,7 +88,7 @@ public class EnemySpawner : MonoBehaviour
             Vector3 spawnPosition = GetNextSpawnPosition();
             GameObject enemy = Instantiate(prefab, spawnPosition, Quaternion.identity);
 
-            // S'abonne à la destruction de l'ennemi pour suivre son état
+            // S'abonne ï¿½ la destruction de l'ennemi pour suivre son ï¿½tat
             EnemyDeathNotifier notifier = enemy.AddComponent<EnemyDeathNotifier>();
             notifier.Initialize(this);
 
@@ -99,10 +99,13 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    /// <summary>Appelé par EnemyDeathNotifier quand un ennemi est détruit.</summary>
+    /// <summary>AppelÃ© par EnemyDeathNotifier quand un ennemi est dÃ©truit.</summary>
     public void OnEnemyDied(GameObject enemy)
     {
         aliveEnemies.Remove(enemy);
+
+        // Nettoie les rÃ©fÃ©rences nulles restantes (destructions inattendues)
+        aliveEnemies.RemoveAll(e => e == null);
 
         if (aliveEnemies.Count == 0)
             OnWaveCleared();

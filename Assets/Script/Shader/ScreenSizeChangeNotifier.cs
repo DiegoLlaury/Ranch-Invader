@@ -8,6 +8,11 @@ public class ScreenSizeChangeNotifier : UIBehaviour
 
     protected override void OnRectTransformDimensionsChange()
     {
+        // Ne pas notifier avant que le jeu soit initialisé :
+        // CanvasScaler.OnEnable() peut déclencher cet event avec des dimensions invalides
+        if (!Application.isPlaying || Screen.width <= 0 || Screen.height <= 0)
+            return;
+
         notifyScreenSizeChange.Invoke();
     }
 }

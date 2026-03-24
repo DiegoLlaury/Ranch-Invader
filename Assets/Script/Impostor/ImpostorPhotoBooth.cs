@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 
 public class ImpostorPhotoBooth : MonoBehaviour
@@ -33,7 +33,9 @@ public class ImpostorPhotoBooth : MonoBehaviour
     public float fieldOfView = 60f;
 
     [Header("Capture Settings")]
-    public int renderTextureSize = 256;
+    [Tooltip("Résolution de chaque RenderTexture (256 = bon compromis qualité/perf, max 4096)")]
+    [Range(64, 4096)]
+    public int renderTextureSize = 128;
     public float paddingMultiplier = 1.2f;
     public float minOrthographicSize = 1f;
     public float maxOrthographicSize = 50f;
@@ -50,12 +52,17 @@ public class ImpostorPhotoBooth : MonoBehaviour
     public float lookAtHeightRatio = 0.4f;
 
     [Header("Depth Capture")]
-    public bool captureDepth = true;
+    public bool captureDepth = false;
     public Shader depthCaptureShader;
     //public RenderTexture[] depthTextures;
 
+    [Header("Performance")]
+    [Tooltip("Nombre maximum de captures traitées par frame (1 recommandé)")]
+    public int maxCapturesPerFrame = 1;
+
     private Queue<ImpostorRequest> captureQueue = new Queue<ImpostorRequest>();
     private bool isCapturing = false;
+    private Material cachedDepthMaterial;
 
     private class ImpostorRequest
     {
@@ -72,6 +79,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
         public float customLookAtRatio;
         public float customFieldOfView;
         public float customDistanceMultiplier;
+        public Renderer[] cachedRenderers; // mis en cache une fois au RequestCapture
     }
 
     void Awake()
@@ -127,6 +135,11 @@ public class ImpostorPhotoBooth : MonoBehaviour
             depthCaptureShader = Shader.Find("Hidden/DepthCapture");
         }
 
+        if (captureDepth && depthCaptureShader != null)
+        {
+            cachedDepthMaterial = new Material(depthCaptureShader);
+        }
+
         DontDestroyOnLoad(gameObject);
     }
 
@@ -162,17 +175,34 @@ public class ImpostorPhotoBooth : MonoBehaviour
             customCameraHeight = customCameraHeight,
             customLookAtRatio = customLookAtRatio,
             customFieldOfView = customFieldOfView,
-            customDistanceMultiplier = customDistanceMultiplier
+            customDistanceMultiplier = customDistanceMultiplier,
+            cachedRenderers = meshObject.GetComponentsInChildren<Renderer>()
         };
 
         captureQueue.Enqueue(request);
-
-        if (!isCapturing)
-        {
-            ProcessNextCapture();
-        }
+        isCapturing = true;
+        // Ne pas appeler ProcessNextCapture ici — l'Update() s'en charge
     }
 
+
+    void Update()
+    {
+        if (!isCapturing || captureQueue.Count == 0)
+        {
+            isCapturing = false;
+            return;
+        }
+
+        int processed = 0;
+        while (captureQueue.Count > 0 && processed < maxCapturesPerFrame)
+        {
+            ProcessNextCapture();
+            processed++;
+        }
+
+        if (captureQueue.Count == 0)
+            isCapturing = false;
+    }
 
     void ProcessNextCapture()
     {
@@ -182,12 +212,11 @@ public class ImpostorPhotoBooth : MonoBehaviour
             return;
         }
 
-        isCapturing = true;
         ImpostorRequest request = captureQueue.Dequeue();
 
         SetLayerRecursively(request.meshObject, boothLayer);
         request.meshObject.transform.position = captureZone.position;
-        request.meshObject.transform.rotation = request.captureRotation; // Utilise la rotation configurée
+        request.meshObject.transform.rotation = request.captureRotation;
 
         CaptureAllDirections(request);
 
@@ -196,13 +225,11 @@ public class ImpostorPhotoBooth : MonoBehaviour
         request.meshObject.transform.rotation = request.originalRotation;
 
         request.onComplete?.Invoke();
-
-        ProcessNextCapture();
     }
 
     void CaptureAllDirections(ImpostorRequest request)
     {
-        Bounds meshBounds = CalculateBounds(request.meshObject);
+        Bounds meshBounds = CalculateBoundsFromRenderers(request.cachedRenderers, request.meshObject.transform);
 
         float maxSize = Mathf.Max(meshBounds.size.x, meshBounds.size.y, meshBounds.size.z);
 
@@ -280,23 +307,20 @@ public class ImpostorPhotoBooth : MonoBehaviour
             // Capture profondeur
             if (captureDepth && request.depthTextures != null)
             {
-                RenderDepthTexture(request.meshObject, request.depthTextures[i]);
+                RenderDepthTexture(request.cachedRenderers, request.depthTextures[i]);
             }
         }
 
     }
 
 
-    void RenderDepthTexture(GameObject meshObject, RenderTexture depthRT)
+    void RenderDepthTexture(Renderer[] renderers, RenderTexture depthRT)
     {
-        if (depthCaptureShader == null) return;
-
-        Material depthMaterial = new Material(depthCaptureShader);
+        if (cachedDepthMaterial == null) return;
 
         RenderTexture originalRT = boothCamera.targetTexture;
         boothCamera.targetTexture = depthRT;
 
-        Renderer[] renderers = meshObject.GetComponentsInChildren<Renderer>();
         Material[][] originalMaterials = new Material[renderers.Length][];
 
         for (int i = 0; i < renderers.Length; i++)
@@ -304,43 +328,68 @@ public class ImpostorPhotoBooth : MonoBehaviour
             originalMaterials[i] = renderers[i].sharedMaterials;
             Material[] depthMats = new Material[renderers[i].sharedMaterials.Length];
             for (int j = 0; j < depthMats.Length; j++)
-            {
-                depthMats[j] = depthMaterial;
-            }
+                depthMats[j] = cachedDepthMaterial;
             renderers[i].sharedMaterials = depthMats;
         }
 
         boothCamera.Render();
 
         for (int i = 0; i < renderers.Length; i++)
-        {
             renderers[i].sharedMaterials = originalMaterials[i];
-        }
 
         boothCamera.targetTexture = originalRT;
-        Destroy(depthMaterial);
     }
 
+    void OnDestroy()
+    {
+        if (cachedDepthMaterial != null)
+            Destroy(cachedDepthMaterial);
+    }
+
+
+    Bounds CalculateBoundsFromRenderers(Renderer[] renderers, Transform root)
+    {
+        if (renderers == null || renderers.Length == 0)
+            return new Bounds(Vector3.zero, Vector3.one);
+
+        // On accumule uniquement les renderers actifs pour éviter des bounds aberrantes
+        Bounds? accumulated = null;
+        foreach (Renderer r in renderers)
+        {
+            if (r == null || !r.gameObject.activeInHierarchy) continue;
+            if (accumulated == null)
+                accumulated = r.bounds;
+            else
+            {
+                Bounds b = accumulated.Value;
+                b.Encapsulate(r.bounds);
+                accumulated = b;
+            }
+        }
+
+        if (accumulated == null)
+        {
+            Debug.LogWarning($"[ImpostorPhotoBooth] Aucun renderer actif trouvé sur '{root.name}'. Bounds par défaut utilisées.");
+            return new Bounds(Vector3.zero, Vector3.one);
+        }
+
+        Bounds result = accumulated.Value;
+
+        // Convertir le centre en espace local pour cohérence avec les positions relatives
+        result.center = root.InverseTransformPoint(result.center);
+
+        // Sanity check : taille aberrante = mesh probablement mal positionné
+        float maxDim = Mathf.Max(result.size.x, result.size.y, result.size.z);
+        if (maxDim > 100f)
+            Debug.LogWarning($"[ImpostorPhotoBooth] Bounds suspectes sur '{root.name}' : size={result.size}, maxDim={maxDim:F1}. Vérifiez le scale et la position du mesh.");
+
+        return result;
+    }
 
     Bounds CalculateBounds(GameObject obj)
     {
         Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
-
-        if (renderers.Length == 0)
-        {
-            return new Bounds(obj.transform.position, Vector3.one);
-        }
-
-        Bounds bounds = renderers[0].bounds;
-
-        for (int i = 1; i < renderers.Length; i++)
-        {
-            bounds.Encapsulate(renderers[i].bounds);
-        }
-
-        bounds.center = obj.transform.InverseTransformPoint(bounds.center);
-
-        return bounds;
+        return CalculateBoundsFromRenderers(renderers, obj.transform);
     }
 
     void SetLayerRecursively(GameObject obj, int layer)
@@ -354,6 +403,11 @@ public class ImpostorPhotoBooth : MonoBehaviour
 
     public void CreateRenderTexturePair(string baseName, out RenderTexture[] colorTextures, out RenderTexture[] depthTextures)
     {
+        // Clamp de sécurité — évite le crash GPU si la valeur Inspector est aberrante
+        int safeSize = Mathf.Clamp(renderTextureSize, 64, SystemInfo.maxTextureSize);
+        if (safeSize != renderTextureSize)
+            Debug.LogError($"[ImpostorPhotoBooth] renderTextureSize ({renderTextureSize}) dépasse la limite GPU ({SystemInfo.maxTextureSize}). Valeur ramenée à {safeSize}.");
+
         colorTextures = new RenderTexture[8];
         depthTextures = captureDepth ? new RenderTexture[8] : null;
 
@@ -361,14 +415,14 @@ public class ImpostorPhotoBooth : MonoBehaviour
 
         for (int i = 0; i < 8; i++)
         {
-            colorTextures[i] = new RenderTexture(renderTextureSize, renderTextureSize, 24);
+            colorTextures[i] = new RenderTexture(safeSize, safeSize, 24);
             colorTextures[i].name = $"{baseName}_Color_{directionNames[i]}";
             colorTextures[i].filterMode = FilterMode.Bilinear;
             colorTextures[i].wrapMode = TextureWrapMode.Clamp;
 
             if (captureDepth)
             {
-                depthTextures[i] = new RenderTexture(renderTextureSize, renderTextureSize, 0, RenderTextureFormat.RFloat);
+                depthTextures[i] = new RenderTexture(safeSize, safeSize, 0, RenderTextureFormat.RFloat);
                 depthTextures[i].name = $"{baseName}_Depth_{directionNames[i]}";
                 depthTextures[i].filterMode = FilterMode.Bilinear;
                 depthTextures[i].wrapMode = TextureWrapMode.Clamp;

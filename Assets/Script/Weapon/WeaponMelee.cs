@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class MeleeWeapon : BaseWeapon
 {
-    [Header("DÈtection de collision")]
+    [Header("DÔøΩtection de collision")]
     public LayerMask enemyLayer;
     public Transform attackPoint;
 
@@ -34,10 +34,12 @@ public class MeleeWeapon : BaseWeapon
             float finalDamage = GetFinalDamage();
             damageable.TakeDamage(finalDamage);
 
+#if UNITY_EDITOR
             if (drunkEffect != null && drunkEffect.IsDrunk())
             {
-                Debug.Log($"DÈg‚ts avec bonus bourrÈ ! DÈg‚ts de base: {weaponData.damage}, DÈg‚ts finaux: {finalDamage}");
+                Debug.Log($"D√©g√¢ts avec bonus bourr√© ! D√©g√¢ts de base: {weaponData.damage}, D√©g√¢ts finaux: {finalDamage}");
             }
+#endif
         }
 
         if (weaponData.hitEffectPrefab != null)

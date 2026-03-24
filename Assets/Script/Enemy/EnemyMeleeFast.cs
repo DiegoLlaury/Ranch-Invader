@@ -10,11 +10,11 @@ public class EnemyMeleeFast : EnemyBase
     public float chaseRange = 12f;
 
     [Header("Stuck Detection")]
-    [Tooltip("Vitesse en-dessous de laquelle l'ennemi est considéré bloqué")]
+    [Tooltip("Vitesse en-dessous de laquelle l'ennemi est considï¿½rï¿½ bloquï¿½")]
     public float stuckSpeedThreshold = 0.3f;
-    [Tooltip("Durée avant de tenter un contournement")]
+    [Tooltip("Durï¿½e avant de tenter un contournement")]
     public float stuckDuration = 1.0f;
-    [Tooltip("Rayon du point de contournement aléatoire")]
+    [Tooltip("Rayon du point de contournement alï¿½atoire")]
     public float steerRadius = 2.5f;
 
     private float stuckTimer;
@@ -35,11 +35,11 @@ public class EnemyMeleeFast : EnemyBase
 
     protected override void UpdateBehavior()
     {
-        float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
+        float sqrDistanceToPlayer = (transform.position - playerTransform.position).sqrMagnitude;
 
-        if (distanceToPlayer <= detectionRange)
+        if (sqrDistanceToPlayer <= detectionRange * detectionRange)
         {
-            if (distanceToPlayer > attackRange)
+            if (sqrDistanceToPlayer > attackRange * attackRange)
             {
                 HandleStuckDetection();
                 MoveToward(playerTransform.position);

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
@@ -59,6 +59,10 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     protected float lastNavUpdateTime;
     protected bool isDead;
     private EnemyHitFlash hitFlash;
+    private PlayerHealth cachedPlayerHealth;
+
+    private const float SlopeRaycastInterval = 0.1f;
+    private float lastSlopeRaycastTime;
 
     private bool hasDetectedPlayer;
     private Quaternion targetSlopeRotation = Quaternion.identity;
@@ -99,6 +103,9 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
             else
                 Debug.LogWarning($"[{gameObject.name}] No GameObject with tag 'Player' found.");
         }
+
+        if (playerTransform != null)
+            cachedPlayerHealth = playerTransform.GetComponent<PlayerHealth>();
 
         SnapToNavMesh(); // ← ajouter cette ligne
     }
@@ -184,10 +191,17 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
 
     /// <summary>
     /// Aligne visuellement l'ennemi sur la normale du sol sous lui si alignToSlope est activé.
+    /// Throttlé à 10 fois/seconde pour éviter un raycast par frame.
     /// </summary>
     private void UpdateSlopeAlignment()
     {
         if (!alignToSlope) return;
+
+        // Lisse la rotation en permanence, mais ne recalcule le raycast qu'à intervalle fixe
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetSlopeRotation, slopeAlignSpeed * Time.deltaTime);
+
+        if (Time.time - lastSlopeRaycastTime < SlopeRaycastInterval) return;
+        lastSlopeRaycastTime = Time.time;
 
         if (Physics.Raycast(transform.position + Vector3.up * 0.2f, Vector3.down, out RaycastHit hit, 2f, groundLayer))
         {
@@ -195,8 +209,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
             if (forward.sqrMagnitude > 0.001f)
                 targetSlopeRotation = Quaternion.LookRotation(forward, hit.normal);
         }
-
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetSlopeRotation, slopeAlignSpeed * Time.deltaTime);
     }
 
     /// <summary>
@@ -236,7 +248,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
 
     protected bool IsPlayerInRange(float range)
     {
-        return Vector3.Distance(transform.position, playerTransform.position) <= range;
+        return (transform.position - playerTransform.position).sqrMagnitude <= range * range;
     }
 
     protected bool CanAttack()
@@ -257,10 +269,8 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
         if (attackVfxPrefab != null)
             Instantiate(attackVfxPrefab, transform.position, transform.rotation);
 
-
-        PlayerHealth playerHealth = playerTransform.GetComponent<PlayerHealth>();
-        if (playerHealth != null)
-            playerHealth.TakeDamage(attackDamage);
+        if (cachedPlayerHealth != null)
+            cachedPlayerHealth.TakeDamage(attackDamage);
     }
 
     // ── Damage & Death ────────────────────────────────────────────────────────

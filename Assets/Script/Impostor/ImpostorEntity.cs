@@ -18,10 +18,10 @@ public class ImpostorEntity : MonoBehaviour
     public float staticUpdateInterval = 1f;
 
     [Header("Collision")]
-    [Tooltip("Génère automatiquement le collider au démarrage")]
+    [Tooltip("Gï¿½nï¿½re automatiquement le collider au dï¿½marrage")]
     public bool autoGenerateCollider = true;
 
-    [Tooltip("Le collider se met à jour à chaque frame (lent)")]
+    [Tooltip("Le collider se met ï¿½ jour ï¿½ chaque frame (lent)")]
     public bool dynamicCollider = false;
 
     [Tooltip("Taille manuelle du BoxCollider (si (0,0,0) = auto)")]
@@ -39,13 +39,13 @@ public class ImpostorEntity : MonoBehaviour
     [Tooltip("Active le blend progressif entre textures")]
     public bool useBlending = true;
 
-    [Tooltip("Distance à laquelle le blend s'active (0 = toujours)")]
+    [Tooltip("Distance ï¿½ laquelle le blend s'active (0 = toujours)")]
     public float blendDistance = 50f;
 
-    [Tooltip("Rotation du mesh lors de la capture (utilisez Y=180 si le mesh est inversé)")]
+    [Tooltip("Rotation du mesh lors de la capture (utilisez Y=180 si le mesh est inversï¿½)")]
     public Vector3 meshRotationOffset = Vector3.zero;
 
-    [Tooltip("Le mesh suit la rotation du parent (entité AI) lors de la capture")]
+    [Tooltip("Le mesh suit la rotation du parent (entitï¿½ AI) lors de la capture")]
     public bool followParentRotation = true;
 
     [Header("Capture Settings")]
@@ -53,18 +53,18 @@ public class ImpostorEntity : MonoBehaviour
     [Range(0.5f, 3f)]
     public float captureScale = 1f;
 
-    [Tooltip("Hauteur de caméra personnalisée (0 = utilise le défaut)")]
+    [Tooltip("Hauteur de camï¿½ra personnalisï¿½e (0 = utilise le dï¿½faut)")]
     public float customCameraHeight = 0f;
 
-    [Tooltip("Point de regard personnalisé (0-1, négatif = utilise le défaut)")]
+    [Tooltip("Point de regard personnalisï¿½ (0-1, nï¿½gatif = utilise le dï¿½faut)")]
     [Range(-1f, 1f)]
     public float customLookAtRatio = -1f;
 
-    [Tooltip("Field of View personnalisé (-1 = utilise le défaut)")]
+    [Tooltip("Field of View personnalisï¿½ (-1 = utilise le dï¿½faut)")]
     [Range(-1f, 120f)]
     public float customFieldOfView = -1f;
 
-    [Tooltip("Multiplicateur de distance de la caméra (-1 = utilise le défaut, plus grand = plus loin)")]
+    [Tooltip("Multiplicateur de distance de la camï¿½ra (-1 = utilise le dï¿½faut, plus grand = plus loin)")]
     [Range(-1f, 5f)]
     public float customDistanceMultiplier = -1f;
 
@@ -76,19 +76,19 @@ public class ImpostorEntity : MonoBehaviour
     [Range(0f, 0.1f)]
     public float parallaxStrength = 0.03f;
 
-    [Tooltip("Échantillons minimum pour le parallax")]
+    [Tooltip("ï¿½chantillons minimum pour le parallax")]
     [Range(4, 32)]
     public int parallaxMinSamples = 8;
 
-    [Tooltip("Échantillons maximum pour le parallax")]
+    [Tooltip("ï¿½chantillons maximum pour le parallax")]
     [Range(4, 64)]
     public int parallaxMaxSamples = 32;
 
     [Header("Static Face Settings")]
-    [Tooltip("Verrouille l'impostor sur une face fixe, ignorant la position de la caméra")]
+    [Tooltip("Verrouille l'impostor sur une face fixe, ignorant la position de la camï¿½ra")]
     public bool useStaticFace = false;
 
-    [Tooltip("Index de la face fixe (0=avant, 2=gauche, 4=arrière, 6=droite, valeurs intermédiaires = diagonales)")]
+    [Tooltip("Index de la face fixe (0=avant, 2=gauche, 4=arriï¿½re, 6=droite, valeurs intermï¿½diaires = diagonales)")]
     [Range(0, 7)]
     public int staticFaceIndex = 0;
 
@@ -104,6 +104,18 @@ public class ImpostorEntity : MonoBehaviour
     private float updateInterval;
     private bool isInitialized = false;
 
+    // Cache for UpdateQuadTexture to avoid redundant GPU calls
+    private int lastDirIndex = -1;
+    private int lastNextDirIndex = -1;
+    private float lastBlendFactor = -1f;
+
+    // Throttle UpdateQuadTexture : recalcul de direction max 10x/s
+    private const float QuadTextureUpdateInterval = 0.1f;
+    private float nextQuadTextureUpdateTime;
+
+    // DerniÃ¨re position joueur connue pour dÃ©tecter les micro-changements
+    private Vector3 lastPlayerPos;
+
     void Start()
     {
         if (!isInitialized)
@@ -116,7 +128,7 @@ public class ImpostorEntity : MonoBehaviour
     {
         if (meshPrefab == null)
         {
-            Debug.LogError("Mesh Prefab non assigné sur ImpostorEntity !");
+            Debug.LogError("Mesh Prefab non assignï¿½ sur ImpostorEntity !");
             enabled = false;
             return;
         }
@@ -130,7 +142,7 @@ public class ImpostorEntity : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("Aucun GameObject avec le tag 'Player' trouvé !");
+                Debug.LogWarning("Aucun GameObject avec le tag 'Player' trouvï¿½ !");
             }
         }
 
@@ -138,7 +150,7 @@ public class ImpostorEntity : MonoBehaviour
 
         if (quadRenderer == null)
         {
-            Debug.LogError("Aucun MeshRenderer trouvé sur l'ImpostorQuad !");
+            Debug.LogError("Aucun MeshRenderer trouvï¿½ sur l'ImpostorQuad !");
             enabled = false;
             return;
         }
@@ -175,7 +187,7 @@ public class ImpostorEntity : MonoBehaviour
 
         quadRenderer.material = impostorMaterial;
 
-        // Configurer les paramètres de parallax
+        // Configurer les paramÃ¨tres de parallax
         if (useParallax)
         {
             impostorMaterial.SetFloat("_ParallaxStrength", parallaxStrength);
@@ -183,9 +195,10 @@ public class ImpostorEntity : MonoBehaviour
             impostorMaterial.SetFloat("_ParallaxMaxSamples", parallaxMaxSamples);
         }
 
-        quadRenderer.material = impostorMaterial;
-
         updateInterval = isAnimated ? (1f / animatedFPS) : staticUpdateInterval;
+
+        // DÃ©calage alÃ©atoire pour Ã©viter que tous les impostors recapturent la mÃªme frame
+        nextUpdateTime = Time.time + Random.Range(0f, updateInterval);
 
         quadScaler = GetComponent<ImpostorQuadScaler>();
         if (quadScaler != null && meshInstance != null)
@@ -214,22 +227,23 @@ public class ImpostorEntity : MonoBehaviour
 
     void Update()
     {
-        if (Time.time >= nextUpdateTime)
+        // Recapture uniquement pour les impostors animï¿½s (les statiques capturent une seule fois ï¿½ l'init)
+        if (isAnimated && Time.time >= nextUpdateTime)
         {
-            if (isAnimated || meshInstance.activeSelf)
-            {
-                CaptureImpostor();
+            CaptureImpostor();
 
-                // Mise à jour dynamique uniquement si activé
-                if (autoGenerateCollider && dynamicCollider)
-                {
-                    UpdateCollider();
-                }
-            }
+            if (autoGenerateCollider && dynamicCollider)
+                UpdateCollider();
+
             nextUpdateTime = Time.time + updateInterval;
         }
 
-        UpdateQuadTexture();
+        // Throttle du calcul de direction : inutile ï¿½ 60 Hz pour un billboard statique
+        if (Time.time >= nextQuadTextureUpdateTime)
+        {
+            UpdateQuadTexture();
+            nextQuadTextureUpdateTime = Time.time + QuadTextureUpdateInterval;
+        }
     }
 
     void CaptureImpostor()
@@ -262,10 +276,12 @@ public class ImpostorEntity : MonoBehaviour
         if (renderTextures == null)
             return;
 
-        // Mode face fixe : ignore complètement la position du joueur
+        // Mode face fixe : ignore complÃ¨tement la position du joueur
         if (useStaticFace)
         {
             int clampedIndex = Mathf.Clamp(staticFaceIndex, 0, renderTextures.Length - 1);
+            if (lastDirIndex == clampedIndex) return;
+            lastDirIndex = clampedIndex;
             impostorMaterial.SetTexture("_MainTex", renderTextures[clampedIndex]);
             impostorMaterial.SetFloat("_BlendAmount", 0f);
             return;
@@ -274,9 +290,10 @@ public class ImpostorEntity : MonoBehaviour
         if (playerTransform == null)
             return;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
+        float distanceToPlayer = (transform.position - playerTransform.position).sqrMagnitude;
+        float blendDistSqr = blendDistance * blendDistance;
 
-        if (useBlending && (blendDistance <= 0 || distanceToPlayer <= blendDistance))
+        if (useBlending && (blendDistance <= 0 || distanceToPlayer <= blendDistSqr))
         {
             int dirIndex, nextDirIndex;
             float blendFactor;
@@ -303,6 +320,13 @@ public class ImpostorEntity : MonoBehaviour
                 );
             }
 
+            if (dirIndex == lastDirIndex && nextDirIndex == lastNextDirIndex && Mathf.Approximately(blendFactor, lastBlendFactor))
+                return;
+
+            lastDirIndex = dirIndex;
+            lastNextDirIndex = nextDirIndex;
+            lastBlendFactor = blendFactor;
+
             impostorMaterial.SetTexture("_MainTex", renderTextures[dirIndex]);
             impostorMaterial.SetTexture("_BlendTex", renderTextures[nextDirIndex]);
             impostorMaterial.SetFloat("_BlendAmount", blendFactor);
@@ -327,6 +351,12 @@ public class ImpostorEntity : MonoBehaviour
                 );
             }
 
+            if (dirIndex == lastDirIndex && lastBlendFactor == 0f) return;
+
+            lastDirIndex = dirIndex;
+            lastNextDirIndex = -1;
+            lastBlendFactor = 0f;
+
             impostorMaterial.SetTexture("_MainTex", renderTextures[dirIndex]);
             impostorMaterial.SetFloat("_BlendAmount", 0f);
         }
@@ -337,9 +367,9 @@ public class ImpostorEntity : MonoBehaviour
     {
         RaycastHit hit;
 
-        //  Raycast depuis très haut pour être sûr de toucher le sol
+        //  Raycast depuis trï¿½s haut pour ï¿½tre sï¿½r de toucher le sol
         Vector3 rayStart = transform.position;
-        rayStart.y = 1000f; // Très haut pour être sûr
+        rayStart.y = 1000f; // Trï¿½s haut pour ï¿½tre sï¿½r
 
         if (Physics.Raycast(rayStart, Vector3.down, out hit, 2000f, groundLayers))
         {
@@ -347,18 +377,19 @@ public class ImpostorEntity : MonoBehaviour
             newPos.y += groundOffset;
             transform.position = newPos;
 
-            // Log pour debug
-            Debug.Log($"{gameObject.name} collé au sol à Y={newPos.y:F2}");
+#if UNITY_EDITOR
+            Debug.Log($"{gameObject.name} collÃ© au sol Ã  Y={newPos.y:F2}");
+#endif
         }
         else
         {
-            //  Avertissement si aucun sol trouvé
-            Debug.LogWarning($"{gameObject.name} : Aucun sol trouvé ! Vérifiez le LayerMask 'Ground Layers'");
+            //  Avertissement si aucun sol trouvï¿½
+            Debug.LogWarning($"{gameObject.name} : Aucun sol trouvï¿½ ! Vï¿½rifiez le LayerMask 'Ground Layers'");
         }
     }
 
 
-    // Setup initial du collider (appelé une seule fois)
+    // Setup initial du collider (appelï¿½ une seule fois)
     void SetupCollider()
     {
         boxCollider = GetComponent<BoxCollider>();
@@ -380,14 +411,14 @@ public class ImpostorEntity : MonoBehaviour
         }
     }
 
-    // Mise à jour du collider (utilisé seulement en mode dynamique ou setup initial)
+    // Mise ï¿½ jour du collider (utilisï¿½ seulement en mode dynamique ou setup initial)
     void UpdateCollider()
     {
         if (quadRenderer == null || boxCollider == null) return;
 
         if (colliderSize != Vector3.zero)
         {
-            // Utiliser la taille manuelle si spécifiée
+            // Utiliser la taille manuelle si spï¿½cifiï¿½e
             boxCollider.size = colliderSize;
             boxCollider.center = colliderCenter;
         }
@@ -404,7 +435,7 @@ public class ImpostorEntity : MonoBehaviour
                 Mathf.Abs(localSize.y),
                 0.5f // Profondeur fixe
             );
-            boxCollider.center = Vector3.zero; // Toujours centré
+            boxCollider.center = Vector3.zero; // Toujours centrï¿½
         }
     }
 
@@ -446,7 +477,7 @@ public class ImpostorEntity : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    //  Visualiser le collider dans l'éditeur
+    //  Visualiser le collider dans l'ï¿½diteur
     void OnDrawGizmosSelected()
     {
         if (boxCollider != null)
