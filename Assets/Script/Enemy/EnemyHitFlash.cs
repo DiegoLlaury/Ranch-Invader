@@ -26,7 +26,9 @@ public class EnemyHitFlash : MonoBehaviour
     {
         if (impostorMaterial != null) return true;
 
-        ImpostorEntity impostorEntity = GetComponentInChildren<ImpostorEntity>();
+        // ImpostorEntity est sur un enfant instancié dynamiquement au runtime.
+        // GetComponentInChildren couvre les enfants existants au moment de l'appel.
+        ImpostorEntity impostorEntity = GetComponentInChildren<ImpostorEntity>(true);
 
         if (impostorEntity == null)
         {
@@ -38,13 +40,14 @@ public class EnemyHitFlash : MonoBehaviour
 
         if (impostorMaterial == null)
         {
-            // ImpostorEntity exists but Initialize() hasn't run yet — retry next hit.
+            // ImpostorEntity existe mais Initialize() n'a pas encore tourné — retry au prochain hit.
             return false;
         }
 
         Debug.Log($"[EnemyHitFlash] Material resolved on {gameObject.name}: {impostorMaterial.name}");
         return true;
     }
+
 
     /// <summary>
     /// Triggers the hit flash. Safe to call while a flash is already running.

@@ -5,11 +5,6 @@ using UnityEditor;
 [CustomEditor(typeof(ImpostorSpawner))]
 public class ImpostorSpawnerEditor : Editor
 {
-    private bool showCaptureSettings = true;
-    private bool showQuadSettings = true;
-    private bool showCollisionSettings = true;
-    private bool showGroundSettings = true;
-
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();

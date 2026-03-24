@@ -209,7 +209,7 @@ public class ImpostorSpawner : MonoBehaviour
     [ContextMenu("Clear All Spawned")]
     public void ClearAllSpawned()
     {
-        ImpostorEntity[] entities = FindObjectsOfType<ImpostorEntity>();
+        ImpostorEntity[] entities = FindObjectsByType<ImpostorEntity>(FindObjectsSortMode.None);
         foreach (var entity in entities)
         {
             if (entity.meshPrefab == meshPrefab)

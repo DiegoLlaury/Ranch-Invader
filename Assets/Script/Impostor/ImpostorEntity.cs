@@ -93,7 +93,7 @@ public class ImpostorEntity : MonoBehaviour
     public int staticFaceIndex = 0;
 
     private RenderTexture[] depthTextures;
-
+    public Material ImpostorMaterialInstance => impostorMaterial;
 
     private GameObject meshInstance;
     private RenderTexture[] renderTextures;
