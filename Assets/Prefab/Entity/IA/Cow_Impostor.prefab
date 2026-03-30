@@ -31,8 +31,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.08715578, z: 0, w: 0.9961947}
   m_LocalPosition: {x: 0, y: -0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 10, z: 0}
@@ -55,7 +55,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 0.1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &5620748601444646216
 MonoBehaviour:
@@ -114,7 +114,7 @@ MonoBehaviour:
   impostorMaterial: {fileID: 2100000, guid: 72eb5e46e3896b04090d4bf67ff51474, type: 2}
   impostorQuadPrefab: {fileID: 6608268022857075241, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
   animatedFPS: 2
-  captureScale: 1
+  captureScale: 3
   meshRotationOffset: {x: 0, y: 0, z: 0}
   customCameraHeight: 2.5
   customLookAtRatio: -1
@@ -122,9 +122,10 @@ MonoBehaviour:
   customDistanceMultiplier: 2.5
   quadScaleMultiplier: 1.5
   quadManualSize: {x: 0, y: 0}
-  autoGenerateCollider: 1
+  autoGenerateCollider: 0
   colliderSize: {x: 0, y: 0, z: 0}
   colliderCenter: {x: 0, y: 0, z: 0}
+  useBillboard: 1
   useSmoothRotation: 1
   rotationSpeed: 8
   rotationDeadZone: 12.5
@@ -133,6 +134,9 @@ MonoBehaviour:
   parallaxStrength: 0.06
   parallaxMinSamples: 8
   parallaxMaxSamples: 32
+  positionOffset: {x: 0, y: 0, z: 0}
+  useStaticFace: 0
+  staticFaceIndex: 0
   snapToGround: 1
   groundOffset: 0.75
   groundLayers:

@@ -156,6 +156,8 @@ MonoBehaviour:
   parallaxStrength: 0.06
   parallaxMinSamples: 8
   parallaxMaxSamples: 32
+  useBillboard: 1
+  positionOffset: {x: 0, y: 0, z: 0}
   useStaticFace: 0
   staticFaceIndex: 0
 --- !u!208 &1926852549657082097

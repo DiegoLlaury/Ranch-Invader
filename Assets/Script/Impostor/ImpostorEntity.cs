@@ -84,6 +84,14 @@ public class ImpostorEntity : MonoBehaviour
     [Range(4, 64)]
     public int parallaxMaxSamples = 32;
 
+    [Header("Billboard Settings")]
+    [Tooltip("Active le billboard (le quad tourne vers le joueur). Désactiver pour un impostor statique orienté manuellement.")]
+    public bool useBillboard = true;
+
+    [Header("Position Offset")]
+    [Tooltip("Décalage local du quad par rapport au pivot de l'entité parent")]
+    public Vector3 positionOffset = Vector3.zero;
+
     [Header("Static Face Settings")]
     [Tooltip("Verrouille l'impostor sur une face fixe, ignorant la position de la cam�ra")]
     public bool useStaticFace = false;
@@ -165,6 +173,18 @@ public class ImpostorEntity : MonoBehaviour
         meshInstance = Instantiate(meshPrefab);
         meshInstance.name = meshPrefab.name + "_Impostor";
         meshInstance.transform.position = new Vector3(10000, 10000, 10000);
+
+        // Setup du scaler avec les bounds du mesh (avant SetActive pour avoir des bounds valides)
+        ImpostorQuadScaler scaler = GetComponent<ImpostorQuadScaler>();
+        if (scaler != null)
+        {
+            Renderer meshRenderer = meshInstance.GetComponentInChildren<Renderer>();
+            if (meshRenderer != null)
+                scaler.sourceRenderer = meshRenderer;
+            scaler.autoUpdate = false;
+            scaler.UpdateScale();
+        }
+
         meshInstance.SetActive(false);
 
         // Création atlas
@@ -182,6 +202,15 @@ public class ImpostorEntity : MonoBehaviour
 
         updateInterval = isAnimated ? (1f / animatedFPS) : staticUpdateInterval;
         nextUpdateTime = Time.time + Random.Range(0f, updateInterval);
+
+        // Apply position offset
+        if (positionOffset != Vector3.zero)
+            transform.localPosition += positionOffset;
+
+        // Enable / disable billboard selon le paramètre
+        Billboard billboard = GetComponent<Billboard>();
+        if (billboard != null)
+            billboard.enabled = useBillboard;
 
         CaptureImpostor();
 
@@ -213,39 +242,45 @@ public class ImpostorEntity : MonoBehaviour
     {
         meshInstance.SetActive(true);
 
-        Quaternion captureRotation = Quaternion.Euler(meshRotationOffset);
+        Quaternion captureRotation = followParentRotation
+            ? transform.rotation * Quaternion.Euler(meshRotationOffset)
+            : Quaternion.Euler(meshRotationOffset);
 
         ImpostorPhotoBooth.Instance.RequestAtlasCapture(
-        meshInstance,
-        atlas,
-        captureScale,
-        captureRotation,
-        customCameraHeight,
-        customLookAtRatio,
-        customFieldOfView,
-        customDistanceMultiplier,
-        () =>
-        {
-            if (!isAnimated)
-            meshInstance.SetActive(false);
-        }
+            meshInstance,
+            atlas,
+            captureScale,
+            captureRotation,
+            customCameraHeight,
+            customLookAtRatio,
+            customFieldOfView,
+            customDistanceMultiplier,
+            () => { if (!isAnimated) meshInstance.SetActive(false); }
         );
     }
 
+
     void UpdateQuadTexture()
     {
-        if (impostorMaterial == null) return; 
-        if (atlas == null) return;
+        if (impostorMaterial == null || atlas == null) return;
+
+        if (useStaticFace)
+        {
+            impostorMaterial.SetFloat("_Direction", staticFaceIndex);
+            return;
+        }
 
         if (playerTransform == null) return;
 
-        int dirIndex = ImpostorDirectionHelper.GetDirectionIndex(
-            transform.position,
-            playerTransform.position
+        int dirIndex = ImpostorDirectionHelper.GetDirectionIndexForRotatingEntity(
+            transform,
+            playerTransform.position,
+            meshRotationOffset
         );
 
         impostorMaterial.SetFloat("_Direction", dirIndex);
     }
+
 
 
     void AlignToGround()

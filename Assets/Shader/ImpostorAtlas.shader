@@ -61,7 +61,7 @@ Shader "Custom/ImpostorAtlas"
                 float2 atlasUV = IN.uv;
 
                 atlasUV.x = (atlasUV.x + col) / _Columns;
-                atlasUV.y = (atlasUV.y + row) / _Rows;
+                atlasUV.y = (atlasUV.y + (_Rows - 1 - row)) / _Rows;
 
                 return SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, atlasUV);
             }

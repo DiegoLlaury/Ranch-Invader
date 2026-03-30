@@ -41,13 +41,15 @@ public class ImpostorEntityAI : MonoBehaviour
     public Vector3 colliderCenter = Vector3.zero;
 
     [Header("Billboard Settings")]
+    [Tooltip("Active le billboard (le quad tourne vers le joueur). Désactiver pour un impostor statique orienté manuellement.")]
+    public bool useBillboard = true;
     public bool useSmoothRotation = true;
     [Range(0.1f, 50f)]
     public float rotationSpeed = 8f;
     [Range(0f, 45f)]
     public float rotationDeadZone = 8f;
 
-    [Tooltip("Le mesh suit la rotation de l'entit� AI")]
+    [Tooltip("Le mesh suit la rotation de l'entit� AI")]
     public bool followParentRotation = true;
 
     [Header("Parallax Settings")]
@@ -59,14 +61,25 @@ public class ImpostorEntityAI : MonoBehaviour
     [Range(4, 64)]
     public int parallaxMaxSamples = 32;
 
+    [Header("Position Offset")]
+    [Tooltip("Décalage local du quad impostor par rapport au pivot de l'entité AI")]
+    public Vector3 positionOffset = Vector3.zero;
+
+    [Header("Static Face Settings")]
+    [Tooltip("Verrouille l'impostor sur une face fixe, ignorant la position du joueur")]
+    public bool useStaticFace = false;
+
+    [Tooltip("Index de la face fixe (0=avant, 2=gauche, 4=arrière, 6=droite)")]
+    [Range(0, 7)]
+    public int staticFaceIndex = 0;
+
     [Header("Ground Alignment")]
-    [Tooltip("Aligne automatiquement l'impostor sur le sol au d�marrage.")]
+    [Tooltip("Aligne automatiquement l'impostor sur le sol au d�marrage.")]
     public bool snapToGround = true;
     public float groundOffset = 0f;
     public LayerMask groundLayers = -1;
 
     private GameObject impostorQuadInstance;
-    private GameObject meshInstance;
     private ImpostorEntity impostorEntity;
     private Transform playerTransform;
 
@@ -88,11 +101,6 @@ public class ImpostorEntityAI : MonoBehaviour
         impostorQuadInstance.transform.localPosition = Vector3.zero;
         impostorQuadInstance.transform.localRotation = Quaternion.identity;
 
-        meshInstance = Instantiate(meshPrefab);
-        meshInstance.name = $"{meshPrefab.name}_ImpostorMesh";
-        meshInstance.transform.position = new Vector3(10000, 10000, 10000);
-        meshInstance.transform.rotation = Quaternion.identity;
-        meshInstance.SetActive(false);
 
         impostorEntity = impostorQuadInstance.GetComponent<ImpostorEntity>();
         if (impostorEntity == null)
@@ -130,6 +138,10 @@ public class ImpostorEntityAI : MonoBehaviour
         impostorEntity.snapToGround = snapToGround;
         impostorEntity.groundOffset = groundOffset;
         impostorEntity.groundLayers = groundLayers;
+        impostorEntity.useBillboard = useBillboard;
+        impostorEntity.positionOffset = positionOffset;
+        impostorEntity.useStaticFace = useStaticFace;
+        impostorEntity.staticFaceIndex = staticFaceIndex;
 
         ImpostorQuadScaler scaler = impostorQuadInstance.GetComponent<ImpostorQuadScaler>();
         if (scaler == null)
@@ -157,6 +169,14 @@ public class ImpostorEntityAI : MonoBehaviour
         if (Application.isPlaying && impostorEntity != null)
         {
             impostorEntity.meshRotationOffset = meshRotationOffset;
+            impostorEntity.useStaticFace = useStaticFace;
+            impostorEntity.staticFaceIndex = staticFaceIndex;
+
+            Billboard billboard = impostorQuadInstance != null
+                ? impostorQuadInstance.GetComponent<Billboard>()
+                : null;
+            if (billboard != null)
+                billboard.enabled = useBillboard;
 
             var captureMethod = impostorEntity.GetType().GetMethod(
                 "CaptureImpostor",
@@ -168,11 +188,4 @@ public class ImpostorEntityAI : MonoBehaviour
     }
 #endif
 
-    private void OnDestroy()
-    {
-        if (meshInstance != null)
-        {
-            Destroy(meshInstance);
-        }
-    }
 }

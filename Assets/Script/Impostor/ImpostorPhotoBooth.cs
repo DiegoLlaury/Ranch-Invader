@@ -181,6 +181,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
 
         captureQueue.Enqueue(request);
         isCapturing = true;
+        enabled = true;
     }
 
 
@@ -189,6 +190,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
         if (!isCapturing || captureQueue.Count == 0)
         {
             isCapturing = false;
+            enabled = false; // Désactive le composant, plus de Update() tant qu'il n'y a rien
             return;
         }
 
@@ -200,7 +202,10 @@ public class ImpostorPhotoBooth : MonoBehaviour
         }
 
         if (captureQueue.Count == 0)
+        {
             isCapturing = false;
+            enabled = false;
+        }
     }
 
     void ProcessNextCapture()
@@ -290,7 +295,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
 
             Vector3 dir = directions[i];
 
-            Vector3 camPos = basePos - dir * cameraDistance;
+            Vector3 camPos = basePos + dir * cameraDistance;
             camPos.y = basePos.y + camHeight;
 
             boothCamera.transform.position = camPos;
