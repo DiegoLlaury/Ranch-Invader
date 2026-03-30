@@ -53,6 +53,17 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     public const string SoundOnDeath = "OnDeath";    // Killed
     public const string SoundOnMove = "OnMove";     // Footstep / movement loop
 
+    /// <summary>
+    /// Fired whenever this enemy executes an attack. The parameter is the attacking EnemyBase instance.
+    /// Subscribe from EnemyAnimatorController to drive the Attack trigger on the Animator.
+    /// </summary>
+    public static event System.Action<EnemyBase> OnEnemyAttack;
+
+    /// <summary>
+    /// Raises the OnEnemyAttack event for this instance. Call from subclasses when an attack is executed.
+    /// </summary>
+    protected void RaiseOnAttack() => OnEnemyAttack?.Invoke(this);
+
     protected NavMeshAgent navAgent;
     protected SoundEmitter soundEmitter;
     protected float lastAttackTime;
@@ -262,6 +273,9 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     protected void DealDamageToPlayer()
     {
         lastAttackTime = Time.time;
+
+        // Notify animator subscribers that an attack has been executed
+        RaiseOnAttack();
 
         // Feedback: attack swing sound
         soundEmitter?.Play(SoundOnAttack);

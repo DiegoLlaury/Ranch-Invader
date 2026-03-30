@@ -23,7 +23,9 @@ public class Projectile : MonoBehaviour
 
         if (((1 << collision.gameObject.layer) & hitLayers) != 0)
         {
-            IDamageable damageable = collision.gameObject.GetComponent<IDamageable>();
+            // GetComponentInParent couvre le cas où la collision touche un enfant
+            // (ex. ImpostorQuad) dont l'IDamageable est sur le root parent (EnemyBase).
+            IDamageable damageable = collision.gameObject.GetComponentInParent<IDamageable>();
             if (damageable != null)
             {
                 damageable.TakeDamage(damage);

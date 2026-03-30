@@ -22,13 +22,13 @@ public class RandomMovementAI : MonoBehaviour
     [Tooltip("Nombre de tentatives pour trouver une position valide")]
     public int maxAttempts = 10;
 
-    [Header("Détection d'obstacles")]
+    [Header("Dï¿½tection d'obstacles")]
     public LayerMask obstacleLayer;
 
-    [Tooltip("Distance de détection des obstacles devant l'entité")]
+    [Tooltip("Distance de dï¿½tection des obstacles devant l'entitï¿½")]
     public float obstacleDetectionDistance = 1f;
 
-    [Tooltip("Rayon pour vérifier si une position est libre")]
+    [Tooltip("Rayon pour vï¿½rifier si une position est libre")]
     public float validationRadius = 0.5f;
 
     [Header("Debug")]
@@ -97,14 +97,18 @@ public class RandomMovementAI : MonoBehaviour
 
     private bool IsPositionValid(Vector3 position)
     {
+        // Aucune layer configurÃ©e : toutes les positions sont valides
+        if (obstacleLayer == 0) return true;
+
         Collider[] colliders = Physics.OverlapSphere(position, validationRadius, obstacleLayer);
 
         foreach (Collider col in colliders)
         {
-            if (col.gameObject != gameObject)
-            {
-                return false;
-            }
+            // Exclure le GameObject lui-mÃªme et tous ses enfants (ex: quad impostor avec collider)
+            if (col.transform == transform || col.transform.IsChildOf(transform))
+                continue;
+
+            return false;
         }
 
         return true;

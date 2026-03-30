@@ -113,7 +113,8 @@ MonoBehaviour:
   meshPrefab: {fileID: 73284592428818202, guid: 251df5020fb58e54cbe16b263adc6748, type: 3}
   impostorMaterial: {fileID: 2100000, guid: 72eb5e46e3896b04090d4bf67ff51474, type: 2}
   impostorQuadPrefab: {fileID: 6608268022857075241, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
-  animatedFPS: 2
+  animatedFPS: 1
+  animatorController: {fileID: 0}
   captureScale: 3
   meshRotationOffset: {x: 0, y: 0, z: 0}
   customCameraHeight: 2.5

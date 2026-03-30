@@ -218,15 +218,26 @@ public class ImpostorPhotoBooth : MonoBehaviour
 
         ImpostorRequest request = captureQueue.Dequeue();
 
+        // L'objet peut avoir été détruit (ennemi mort) pendant qu'il attendait en queue.
+        if (request.meshObject == null)
+        {
+            request.onComplete?.Invoke();
+            return;
+        }
+
         SetLayerRecursively(request.meshObject, boothLayer);
         request.meshObject.transform.position = captureZone.position;
         request.meshObject.transform.rotation = request.captureRotation;
 
         CaptureAtlas(request);
 
-        SetLayerRecursively(request.meshObject, request.originalLayer);
-        request.meshObject.transform.position = request.originalPosition;
-        request.meshObject.transform.rotation = request.originalRotation;
+        // Re-vérifier après la capture — un Destroy() aurait pu survenir dans CaptureAtlas via events.
+        if (request.meshObject != null)
+        {
+            SetLayerRecursively(request.meshObject, request.originalLayer);
+            request.meshObject.transform.position = request.originalPosition;
+            request.meshObject.transform.rotation = request.originalRotation;
+        }
 
         request.onComplete?.Invoke();
     }

@@ -1,10 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// Connects the ImpostorEntity rendering system to any EnemyBase-driven AI on the same GameObject.
-/// Replaces the old RandomMovementAI dependency with the NavMesh-based EnemyBase.
+/// Connects the ImpostorEntity rendering system to any AI on the same GameObject.
+/// Drives the hidden mesh Animator (IsMoving, IsDetected, Attack) and forwards
+/// the entity rotation to the impostor quad so it faces the correct direction.
+/// EnemyBase est optionnel — compatible aussi avec RandomMovementAI (ex : vaches).
 /// </summary>
-[RequireComponent(typeof(EnemyBase))]
 public class ImpostorEntityAI : MonoBehaviour
 {
     [Header("Impostor Settings")]
@@ -15,6 +16,8 @@ public class ImpostorEntityAI : MonoBehaviour
     [Header("Animation Settings")]
     [Range(1, 60)]
     public int animatedFPS = 15;
+    [Tooltip("AnimatorController à assigner sur le mesh instancié. Nécessaire si le meshPrefab est un FBX source sans controller natif.")]
+    public RuntimeAnimatorController animatorController;
 
     [Header("Capture Settings")]
     [Range(0.5f, 3f)]
@@ -82,16 +85,51 @@ public class ImpostorEntityAI : MonoBehaviour
     private GameObject impostorQuadInstance;
     private ImpostorEntity impostorEntity;
     private Transform playerTransform;
+    private EnemyBase enemyBase;
+
+    private void Awake()
+    {
+        enemyBase = GetComponent<EnemyBase>();
+    }
 
     private void Start()
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
-        {
             playerTransform = player.transform;
-        }
 
         SetupImpostor();
+
+        // Subscribe to attack events so we can trigger the Attack animation
+        EnemyBase.OnEnemyAttack += HandleAttack;
+    }
+
+    private void OnDestroy()
+    {
+        EnemyBase.OnEnemyAttack -= HandleAttack;
+    }
+
+    private void Update()
+    {
+        if (impostorEntity == null || enemyBase == null) return;
+
+        bool isDetected = IsPlayerInDetectionRange();
+        bool isMoving   = enemyBase.IsMoving;
+
+        impostorEntity.SetMovementState(isMoving, isDetected);
+    }
+
+    private bool IsPlayerInDetectionRange()
+    {
+        if (playerTransform == null) return false;
+        float sqrDist = (transform.position - playerTransform.position).sqrMagnitude;
+        return sqrDist <= enemyBase.detectionRange * enemyBase.detectionRange;
+    }
+
+    private void HandleAttack(EnemyBase attacker)
+    {
+        if (attacker != enemyBase) return;
+        impostorEntity?.TriggerAttack();
     }
 
     private void SetupImpostor()
@@ -115,6 +153,7 @@ public class ImpostorEntityAI : MonoBehaviour
 
         impostorEntity.isAnimated = true;
         impostorEntity.animatedFPS = animatedFPS;
+        impostorEntity.animatorController = animatorController;
 
         impostorEntity.captureScale = captureScale;
         impostorEntity.meshRotationOffset = meshRotationOffset;
@@ -161,6 +200,11 @@ public class ImpostorEntityAI : MonoBehaviour
         billboard.useSmoothRotation = useSmoothRotation;
         billboard.rotationSpeed = rotationSpeed;
         billboard.rotationDeadZone = rotationDeadZone;
+
+        // Force l'initialisation immédiatement après avoir configuré toutes les propriétés.
+        // Sans cela, ImpostorEntity.Start() pourrait s'exécuter avant que nos propriétés
+        // (isAnimated, meshPrefab, etc.) soient assignées, selon l'ordre des Start() Unity.
+        impostorEntity.ForceInitialize();
     }
 
 #if UNITY_EDITOR

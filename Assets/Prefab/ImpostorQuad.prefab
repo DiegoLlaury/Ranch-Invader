@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2632246656403067629}
   - component: {fileID: 2160575382835346065}
   - component: {fileID: 5095935713051859064}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ImpostorQuad
   m_TagString: Untagged
   m_Icon: {fileID: 0}

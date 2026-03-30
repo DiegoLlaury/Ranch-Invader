@@ -104,12 +104,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67f43a6755cbb9840853e80f3ebd6112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ImpostorEntityAI
-  meshPrefab: {fileID: 73284592428818202, guid: 251df5020fb58e54cbe16b263adc6748, type: 3}
+  meshPrefab: {fileID: 3625932758769810077, guid: e33d2355bee4bd746891c5962a80f943, type: 3}
   impostorMaterial: {fileID: 2100000, guid: 72eb5e46e3896b04090d4bf67ff51474, type: 2}
   impostorQuadPrefab: {fileID: 6608268022857075241, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
   animatedFPS: 2
+  animatorController: {fileID: 9100000, guid: 20175518f0b32af4cbd9b5aa8f72f566, type: 2}
   captureScale: 1
-  meshRotationOffset: {x: 0, y: 0, z: 0}
+  meshRotationOffset: {x: 0, y: 180, z: 0}
   customCameraHeight: 3
   customLookAtRatio: -1
   customFieldOfView: -1

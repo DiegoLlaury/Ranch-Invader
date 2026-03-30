@@ -104,6 +104,7 @@ public class ImpostorEntity : MonoBehaviour
     public Material ImpostorMaterialInstance => impostorMaterial;
 
     private GameObject meshInstance;
+    private Animator meshAnimator;
     private RenderTexture[] renderTextures;
     private MeshRenderer quadRenderer;
     private BoxCollider boxCollider;
@@ -112,6 +113,17 @@ public class ImpostorEntity : MonoBehaviour
     private float updateInterval;
     private bool isInitialized = false;
     private RenderTexture atlas;
+
+    // Transform du root ennemi (parent du quad) — utilisé pour le calcul de direction
+    private Transform enemyRootTransform;
+
+    // Animator parameter hashes — must match AnimC_Alien.controller
+    private static readonly int IsMovingHash   = Animator.StringToHash("IsMoving");
+    private static readonly int IsDetectedHash = Animator.StringToHash("IsDetected");
+    private static readonly int AttackHash     = Animator.StringToHash("Attack");
+
+    [Tooltip("AnimatorController à forcer sur le mesh instancié. Renseigné automatiquement par ImpostorEntityIA.")]
+    [HideInInspector] public RuntimeAnimatorController animatorController;
 
     // Cache for UpdateQuadTexture to avoid redundant GPU calls
     private int lastDirIndex = -1;
@@ -127,10 +139,21 @@ public class ImpostorEntity : MonoBehaviour
 
     void Start()
     {
+        // Si déjà initialisé par un appel externe (ex. ImpostorEntityIA), on ne re-initialise pas.
         if (!isInitialized)
         {
             Initialize();
         }
+    }
+
+    /// <summary>
+    /// Initialise l'imposteur. Peut être appelé manuellement par ImpostorEntityIA
+    /// après avoir configuré toutes les propriétés, pour éviter les problèmes d'ordre des Start().
+    /// </summary>
+    public void ForceInitialize()
+    {
+        if (!isInitialized)
+            Initialize();
     }
 
     void Initialize()
@@ -169,10 +192,34 @@ public class ImpostorEntity : MonoBehaviour
             impostorMaterial = new Material(shader);
         }
 
+        // Récupère le transform du parent ennemi pour le calcul de direction
+        // (le quad lui-même est écrasé par Billboard, il faut la rotation du root)
+        enemyRootTransform = transform.parent != null ? transform.parent : transform;
+
         // Création mesh caché
         meshInstance = Instantiate(meshPrefab);
         meshInstance.name = meshPrefab.name + "_Impostor";
         meshInstance.transform.position = new Vector3(10000, 10000, 10000);
+
+        // Récupère et configure l'Animator uniquement en mode animé
+        if (isAnimated)
+        {
+            meshAnimator = meshInstance.GetComponentInChildren<Animator>();
+            if (meshAnimator == null)
+            {
+                Debug.LogWarning($"[ImpostorEntity] Aucun Animator trouvé sur '{meshPrefab.name}'. Les animations ne seront pas jouées.");
+            }
+            else
+            {
+                // Si un controller est fourni explicitement (ex. FBX sans controller natif), on l'assigne.
+                // Sinon on garde celui déjà présent sur le prefab.
+                if (animatorController != null)
+                    meshAnimator.runtimeAnimatorController = animatorController;
+
+                if (meshAnimator.runtimeAnimatorController == null)
+                    Debug.LogWarning($"[ImpostorEntity] L'Animator de '{meshPrefab.name}' n'a pas de AnimatorController. Assignez-en un dans ImpostorEntityIA ou sur le prefab.");
+            }
+        }
 
         // Setup du scaler avec les bounds du mesh (avant SetActive pour avoir des bounds valides)
         ImpostorQuadScaler scaler = GetComponent<ImpostorQuadScaler>();
@@ -185,7 +232,10 @@ public class ImpostorEntity : MonoBehaviour
             scaler.UpdateScale();
         }
 
-        meshInstance.SetActive(false);
+        // En mode animé : le mesh reste actif en permanence pour que l'Animator joue
+        // En mode statique : on le désactive après la première capture
+        if (!isAnimated)
+            meshInstance.SetActive(false);
 
         // Création atlas
         atlas = new RenderTexture(512, 256, 24);
@@ -242,9 +292,14 @@ public class ImpostorEntity : MonoBehaviour
     {
         meshInstance.SetActive(true);
 
-        Quaternion captureRotation = followParentRotation
-            ? transform.rotation * Quaternion.Euler(meshRotationOffset)
-            : Quaternion.Euler(meshRotationOffset);
+        // On utilise enemyRootTransform (le root ennemi) pour la rotation de capture.
+        // transform (le quad) est constamment réinitialisé par Billboard vers la caméra —
+        // il ne représente jamais la rotation réelle de l'ennemi.
+        Transform rotSource = (followParentRotation && enemyRootTransform != null)
+            ? enemyRootTransform
+            : transform;
+
+        Quaternion captureRotation = rotSource.rotation * Quaternion.Euler(meshRotationOffset);
 
         ImpostorPhotoBooth.Instance.RequestAtlasCapture(
             meshInstance,
@@ -255,6 +310,7 @@ public class ImpostorEntity : MonoBehaviour
             customLookAtRatio,
             customFieldOfView,
             customDistanceMultiplier,
+            // En mode statique on cache le mesh après capture. En mode animé il doit rester actif.
             () => { if (!isAnimated) meshInstance.SetActive(false); }
         );
     }
@@ -272,11 +328,30 @@ public class ImpostorEntity : MonoBehaviour
 
         if (playerTransform == null) return;
 
-        int dirIndex = ImpostorDirectionHelper.GetDirectionIndexForRotatingEntity(
-            transform,
-            playerTransform.position,
-            meshRotationOffset
-        );
+        Transform rotationSource = enemyRootTransform != null ? enemyRootTransform : transform;
+        int dirIndex;
+
+        if (followParentRotation)
+        {
+            // Entité rotative (IA NavMesh) : la capture intègre déjà la rotation de l'ennemi.
+            // La sélection de cellule se fait en espace monde pur, sans compensation d'offset.
+            // L'offset n'agit que sur CaptureImpostor pour orienter correctement le mesh.
+            dirIndex = ImpostorDirectionHelper.GetDirectionIndexForRotatingEntity(
+                rotationSource,
+                playerTransform.position,
+                meshRotationOffset  // passé pour compatibilité API, ignoré dans la méthode
+            );
+        }
+        else
+        {
+            // Entité statique (vache, décor) : le mesh est toujours dans son orientation par défaut.
+            // L'offset compense un FBX orienté différemment de +Z.
+            dirIndex = ImpostorDirectionHelper.GetDirectionIndexFromRotation(
+                rotationSource,
+                playerTransform.position,
+                meshRotationOffset
+            );
+        }
 
         impostorMaterial.SetFloat("_Direction", dirIndex);
     }
@@ -357,6 +432,29 @@ public class ImpostorEntity : MonoBehaviour
             );
             boxCollider.center = Vector3.zero; // Toujours centr�
         }
+    }
+
+    // ── Animator Bridge ───────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Sets the IsMoving and IsDetected booleans on the hidden mesh Animator.
+    /// Called every frame by ImpostorEntityIA.
+    /// </summary>
+    public void SetMovementState(bool isMoving, bool isDetected)
+    {
+        if (meshAnimator == null || meshAnimator.runtimeAnimatorController == null) return;
+        meshAnimator.SetBool(IsMovingHash,   isMoving);
+        meshAnimator.SetBool(IsDetectedHash, isDetected);
+    }
+
+    /// <summary>
+    /// Fires the Attack trigger on the hidden mesh Animator.
+    /// Called by ImpostorEntityIA when the enemy attacks.
+    /// </summary>
+    public void TriggerAttack()
+    {
+        if (meshAnimator == null || meshAnimator.runtimeAnimatorController == null) return;
+        meshAnimator.SetTrigger(AttackHash);
     }
 
     void OnDestroy()

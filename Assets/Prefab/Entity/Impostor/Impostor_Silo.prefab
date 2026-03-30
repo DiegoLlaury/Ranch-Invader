@@ -160,6 +160,7 @@ MonoBehaviour:
   positionOffset: {x: 0, y: 0, z: 0}
   useStaticFace: 0
   staticFaceIndex: 0
+  animatorController: {fileID: 0}
 --- !u!208 &1926852549657082097
 NavMeshObstacle:
   m_ObjectHideFlags: 0

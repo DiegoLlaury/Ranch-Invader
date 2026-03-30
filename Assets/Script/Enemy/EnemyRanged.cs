@@ -126,6 +126,9 @@ public class EnemyRanged : EnemyBase
     {
         lastAttackTime = Time.time;
 
+        // Notify animator subscribers that an attack has been executed
+        RaiseOnAttack();
+
         // Feedback: fire sound
         soundEmitter?.Play(SoundOnAttack);
 
@@ -174,11 +177,11 @@ public class EnemyRanged : EnemyBase
 
         if (Application.isPlaying && playerTransform != null)
         {
-            // Point de visée réel
+            // Point de visï¿½e rï¿½el
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(PlayerBodyCenter, 0.15f);
 
-            // Arc représentant le readyToFireAngle
+            // Arc reprï¿½sentant le readyToFireAngle
             Gizmos.color = isAiming ? Color.green : Color.grey;
             Vector3 leftBound = Quaternion.Euler(0, -readyToFireAngle, 0) * transform.forward;
             Vector3 rightBound = Quaternion.Euler(0, readyToFireAngle, 0) * transform.forward;

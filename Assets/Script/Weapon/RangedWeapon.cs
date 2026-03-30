@@ -43,7 +43,9 @@ public class RangedWeapon : BaseWeapon
 
         if (Physics.Raycast(ray, out RaycastHit hit, weaponData.range, hitLayers))
         {
-            IDamageable damageable = hit.collider.GetComponent<IDamageable>();
+            // GetComponentInParent couvre le cas où le collider touché est sur un enfant
+            // (ex. ImpostorQuad) dont l'IDamageable est sur le root parent (EnemyBase).
+            IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
             if (damageable != null)
             {
                 float finalDamage = GetFinalDamage();
