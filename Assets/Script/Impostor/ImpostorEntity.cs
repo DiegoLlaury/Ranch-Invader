@@ -92,6 +92,11 @@ public class ImpostorEntity : MonoBehaviour
     [Tooltip("Décalage local du quad par rapport au pivot de l'entité parent")]
     public Vector3 positionOffset = Vector3.zero;
 
+    [Header("Direction Hysteresis")]
+    [Tooltip("Zone morte en degrés autour de chaque frontière de face. Évite le flickering quand le joueur est proche. 0 = désactivé, 20 = très stable.")]
+    [Range(0f, 20f)]
+    public float directionHysteresis = 8f;
+
     [Header("Static Face Settings")]
     [Tooltip("Verrouille l'impostor sur une face fixe, ignorant la position de la cam�ra")]
     public bool useStaticFace = false;
@@ -113,6 +118,7 @@ public class ImpostorEntity : MonoBehaviour
     private float updateInterval;
     private bool isInitialized = false;
     private RenderTexture atlas;
+    private int currentDirectionIndex = 0;
 
     // Transform du root ennemi (parent du quad) — utilisé pour le calcul de direction
     private Transform enemyRootTransform;
@@ -124,11 +130,6 @@ public class ImpostorEntity : MonoBehaviour
 
     [Tooltip("AnimatorController à forcer sur le mesh instancié. Renseigné automatiquement par ImpostorEntityIA.")]
     [HideInInspector] public RuntimeAnimatorController animatorController;
-
-    // Cache for UpdateQuadTexture to avoid redundant GPU calls
-    private int lastDirIndex = -1;
-    private int lastNextDirIndex = -1;
-    private float lastBlendFactor = -1f;
 
     // Throttle UpdateQuadTexture : recalcul de direction max 10x/s
     private const float QuadTextureUpdateInterval = 0.1f;
@@ -238,9 +239,15 @@ public class ImpostorEntity : MonoBehaviour
             meshInstance.SetActive(false);
 
         // Création atlas
-        atlas = new RenderTexture(512, 256, 24);
+        // Création atlas
+        int cellSize = ImpostorPhotoBooth.Instance.renderTextureSize;
+        atlas = new RenderTexture(cellSize * 4, cellSize * 2, 24, RenderTextureFormat.ARGB32);
+        atlas.antiAliasing = 4;
+        atlas.filterMode = FilterMode.Trilinear;
+        atlas.anisoLevel = 4;
         atlas.name = gameObject.name + "_Atlas";
         atlas.Create();
+
 
         // Material
         impostorMaterial = new Material(Shader.Find("Custom/ImpostorAtlas"));
@@ -295,11 +302,20 @@ public class ImpostorEntity : MonoBehaviour
         // On utilise enemyRootTransform (le root ennemi) pour la rotation de capture.
         // transform (le quad) est constamment réinitialisé par Billboard vers la caméra —
         // il ne représente jamais la rotation réelle de l'ennemi.
-        Transform rotSource = (followParentRotation && enemyRootTransform != null)
-            ? enemyRootTransform
-            : transform;
+        Quaternion captureRotation;
 
-        Quaternion captureRotation = rotSource.rotation * Quaternion.Euler(meshRotationOffset);
+        if (followParentRotation && enemyRootTransform != null)
+        {
+            // Entité rotative (IA NavMesh) : intègre la rotation monde du parent ennemi
+            float yAngle = enemyRootTransform.eulerAngles.y;
+            captureRotation = Quaternion.Euler(0f, yAngle, 0f) * Quaternion.Euler(meshRotationOffset);
+        }
+        else
+        {
+            // Entité statique (décor, vache...) : seul l'offset FBX est appliqué,
+            // le quad billboard ne doit jamais polluer la rotation de capture
+            captureRotation = Quaternion.Euler(meshRotationOffset);
+        }
 
         ImpostorPhotoBooth.Instance.RequestAtlasCapture(
             meshInstance,
@@ -329,34 +345,59 @@ public class ImpostorEntity : MonoBehaviour
         if (playerTransform == null) return;
 
         Transform rotationSource = enemyRootTransform != null ? enemyRootTransform : transform;
-        int dirIndex;
+        int candidateIndex;
 
         if (followParentRotation)
         {
-            // Entité rotative (IA NavMesh) : la capture intègre déjà la rotation de l'ennemi.
-            // La sélection de cellule se fait en espace monde pur, sans compensation d'offset.
-            // L'offset n'agit que sur CaptureImpostor pour orienter correctement le mesh.
-            dirIndex = ImpostorDirectionHelper.GetDirectionIndexForRotatingEntity(
+            candidateIndex = ImpostorDirectionHelper.GetDirectionIndexForRotatingEntity(
                 rotationSource,
                 playerTransform.position,
-                meshRotationOffset  // passé pour compatibilité API, ignoré dans la méthode
+                meshRotationOffset
             );
         }
         else
         {
-            // Entité statique (vache, décor) : le mesh est toujours dans son orientation par défaut.
-            // L'offset compense un FBX orienté différemment de +Z.
-            dirIndex = ImpostorDirectionHelper.GetDirectionIndexFromRotation(
+            candidateIndex = ImpostorDirectionHelper.GetDirectionIndexFromRotation(
                 rotationSource,
                 playerTransform.position,
                 meshRotationOffset
             );
         }
 
-        impostorMaterial.SetFloat("_Direction", dirIndex);
+        // Hysteresis : on ne change de face que si le joueur est suffisamment
+        // loin de la frontière actuelle dans la nouvelle direction.
+        if (directionHysteresis > 0f && candidateIndex != currentDirectionIndex)
+        {
+            float rawAngle = GetRawAngle(rotationSource, playerTransform.position);
+            float boundary = currentDirectionIndex * 45f + 22.5f; // frontière droite de la face courante
+            float delta = Mathf.DeltaAngle(rawAngle, boundary);   // signé, en degrés
+                                                                  // On accepte le changement uniquement si on dépasse la zone morte
+            if (Mathf.Abs(delta) < directionHysteresis)
+                candidateIndex = currentDirectionIndex;
+        }
+
+        currentDirectionIndex = candidateIndex;
+        impostorMaterial.SetFloat("_Direction", currentDirectionIndex);
     }
 
+    /// <summary>
+    /// Retourne l'angle brut (0-360) depuis l'entité vers le joueur,
+    /// dans le même espace que AngleToIndex (Atan2 X,Z en degrés positifs).
+    /// </summary>
+    private float GetRawAngle(Transform rotationSource, Vector3 playerPos)
+    {
+        Vector3 dir = playerPos - rotationSource.position;
+        dir.y = 0f;
+        if (dir.sqrMagnitude < 0.0001f) return 0f;
+        dir.Normalize();
 
+        if (!followParentRotation && meshRotationOffset != Vector3.zero)
+            dir = Quaternion.Inverse(Quaternion.Euler(meshRotationOffset)) * dir;
+
+        float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+        if (angle < 0f) angle += 360f;
+        return angle;
+    }
 
     void AlignToGround()
     {

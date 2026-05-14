@@ -26,7 +26,6 @@ public class Billboard : MonoBehaviour
 
     private Camera cam;
     private Quaternion targetRotation;
-    private float currentAngularVelocity = 0f;
 
     void Start()
     {
@@ -50,7 +49,8 @@ public class Billboard : MonoBehaviour
         {
             // Mode classique (full rotation)
             Vector3 lookDirection = cam.transform.rotation * Vector3.forward;
-            targetRotation = Quaternion.LookRotation(transform.position + lookDirection, cam.transform.rotation * Vector3.up);
+            targetRotation = Quaternion.LookRotation(-lookDirection, cam.transform.rotation * Vector3.up);
+
 
             if (useSmoothRotation)
             {
@@ -73,7 +73,7 @@ public class Billboard : MonoBehaviour
             return;
 
         // Rotation cible
-        targetRotation = Quaternion.LookRotation(directionToCamera);
+        targetRotation = Quaternion.LookRotation(-directionToCamera);
 
         // Calculer l'angle de différence
         float angleDifference = Quaternion.Angle(transform.rotation, targetRotation);

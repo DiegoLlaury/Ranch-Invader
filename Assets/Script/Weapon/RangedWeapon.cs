@@ -14,7 +14,7 @@ public class RangedWeapon : BaseWeapon
     protected override void Awake()
     {
         base.Awake();
-        cachedUIController = Object.FindFirstObjectByType<WeaponUIController>();
+        cachedUIController = Object.FindAnyObjectByType<WeaponUIController>();
     }
 
     public override void Attack()
@@ -84,7 +84,7 @@ public class RangedWeapon : BaseWeapon
 
         if (cachedUIController == null)
         {
-            cachedUIController = Object.FindFirstObjectByType<WeaponUIController>();
+            cachedUIController = Object.FindAnyObjectByType<WeaponUIController>();
         }
 
         if (cachedUIController != null)

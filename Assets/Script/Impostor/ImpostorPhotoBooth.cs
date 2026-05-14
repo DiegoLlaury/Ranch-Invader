@@ -35,7 +35,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
     [Header("Capture Settings")]
     [Tooltip("Résolution de chaque RenderTexture (256 = bon compromis qualité/perf, max 4096)")]
     [Range(64, 4096)]
-    public int renderTextureSize = 128;
+    public int renderTextureSize = 512;
     public float paddingMultiplier = 1.2f;
     public float minOrthographicSize = 1f;
     public float maxOrthographicSize = 50f;
@@ -124,7 +124,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
             }
 
             boothCamera.clearFlags = CameraClearFlags.SolidColor;
-            boothCamera.backgroundColor = new Color(0, 1, 0, 0);
+            boothCamera.backgroundColor = Color.clear;
             boothCamera.cullingMask = 1 << boothLayer;
             boothCamera.nearClipPlane = 0.3f;
             boothCamera.farClipPlane = 1000f;
@@ -244,6 +244,13 @@ public class ImpostorPhotoBooth : MonoBehaviour
 
     void CaptureAtlas(ImpostorRequest request)
     {
+        if (usePerspective)
+        {
+            boothCamera.fieldOfView = request.customFieldOfView > 0
+                ? request.customFieldOfView
+                : fieldOfView;
+        }
+
         RenderTexture atlas = request.atlas;
 
         int gridX = 4;

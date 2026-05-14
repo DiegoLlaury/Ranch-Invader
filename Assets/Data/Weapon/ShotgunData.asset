@@ -25,7 +25,7 @@ MonoBehaviour:
   durabilityLossPerHit: 10
   idleSprite: {fileID: 21300000, guid: 4538e5379265cb544ac350d555abc756, type: 3}
   attackSprite: {fileID: 21300000, guid: d3a10062d289deb428fbf2e4477b2ffe, type: 3}
-  weaponIconSprite: {fileID: 0}
+  weaponIconSprite: {fileID: 21300000, guid: d310c8649c570c1418df1134c424db5d, type: 3}
   attackAnimation:
   - sprite: {fileID: 21300000, guid: d3a10062d289deb428fbf2e4477b2ffe, type: 3}
     positionOffset: {x: 0, y: 60}

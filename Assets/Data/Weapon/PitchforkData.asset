@@ -18,14 +18,14 @@ MonoBehaviour:
   range: 20
   attackCooldown: 0.8
   maxAmmo: 5
-  currentAmmo: 5
+  currentAmmo: 1
   reloadTime: 2
   maxDurability: 100
   currentDurability: 100
   durabilityLossPerHit: 10
   idleSprite: {fileID: 21300000, guid: 98aea57a8d9f17d408c3ff7d54d7d34a, type: 3}
   attackSprite: {fileID: 21300000, guid: 4dab66428b5be684fa037b6b8256c412, type: 3}
-  weaponIconSprite: {fileID: 0}
+  weaponIconSprite: {fileID: 21300000, guid: 298b4ae974bb507449c68efca2bde9bc, type: 3}
   attackAnimation:
   - sprite: {fileID: 21300000, guid: 4dab66428b5be684fa037b6b8256c412, type: 3}
     positionOffset: {x: -250, y: 350}

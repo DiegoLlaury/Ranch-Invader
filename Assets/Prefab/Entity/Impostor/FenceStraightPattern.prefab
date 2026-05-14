@@ -26,8 +26,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -148.7903, y: 0.45, z: 2.8}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6451382646423075857}
   - {fileID: 6192499176588746303}
@@ -45,11 +45,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.z
@@ -65,7 +65,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.6
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -95,6 +95,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2160575382835346065, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: manualSize.x
       value: 0
@@ -105,7 +109,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2160575382835346065, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: scaleMultiplier
-      value: 1.5
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 2632246656403067629, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_Enabled
@@ -174,8 +178,11 @@ MonoBehaviour:
   parallaxStrength: 0.03
   parallaxMinSamples: 8
   parallaxMaxSamples: 32
+  useBillboard: 0
+  positionOffset: {x: 0, y: 0, z: 0}
   useStaticFace: 1
   staticFaceIndex: 2
+  animatorController: {fileID: 0}
 --- !u!1001 &4676361806898868992
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -186,11 +193,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.z
@@ -206,7 +213,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -7.8
+      value: -6
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -236,6 +243,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2160575382835346065, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: manualSize.x
       value: 0
@@ -246,7 +257,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2160575382835346065, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: scaleMultiplier
-      value: 1.5
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 2632246656403067629, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_Enabled
@@ -310,8 +321,11 @@ MonoBehaviour:
   parallaxStrength: 0.03
   parallaxMinSamples: 8
   parallaxMaxSamples: 32
+  useBillboard: 0
+  positionOffset: {x: 0, y: 0, z: 0}
   useStaticFace: 1
   staticFaceIndex: 2
+  animatorController: {fileID: 0}
 --- !u!4 &6451382646423075857 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
@@ -327,11 +341,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.z
@@ -347,7 +361,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5.2
+      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -377,6 +391,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2160575382835346065, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: manualSize.x
       value: 0
@@ -387,7 +405,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2160575382835346065, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: scaleMultiplier
-      value: 1.5
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 2632246656403067629, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_Enabled
@@ -451,8 +469,11 @@ MonoBehaviour:
   parallaxStrength: 0.03
   parallaxMinSamples: 8
   parallaxMaxSamples: 32
+  useBillboard: 0
+  positionOffset: {x: 0, y: 0, z: 0}
   useStaticFace: 1
   staticFaceIndex: 2
+  animatorController: {fileID: 0}
 --- !u!4 &6192499176588746303 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
@@ -468,11 +489,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.z
@@ -518,6 +539,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2160575382835346065, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: manualSize.x
       value: 0
@@ -528,7 +553,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2160575382835346065, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: scaleMultiplier
-      value: 1.5
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 2632246656403067629, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_Enabled
@@ -592,8 +617,11 @@ MonoBehaviour:
   parallaxStrength: 0.03
   parallaxMinSamples: 8
   parallaxMaxSamples: 32
+  useBillboard: 0
+  positionOffset: {x: 0, y: 0, z: 0}
   useStaticFace: 1
   staticFaceIndex: 2
+  animatorController: {fileID: 0}
 --- !u!4 &8712854376949889684 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}

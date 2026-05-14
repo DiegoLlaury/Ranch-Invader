@@ -109,7 +109,7 @@ MonoBehaviour:
   animatedFPS: 8
   animatorController: {fileID: 9100000, guid: 20175518f0b32af4cbd9b5aa8f72f566, type: 2}
   captureScale: 1
-  meshRotationOffset: {x: 0, y: 180, z: 0}
+  meshRotationOffset: {x: 0, y: 0, z: 0}
   customCameraHeight: 3
   customLookAtRatio: -1
   customFieldOfView: -1

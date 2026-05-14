@@ -158,6 +158,7 @@ MonoBehaviour:
   parallaxMaxSamples: 32
   useBillboard: 1
   positionOffset: {x: 0, y: 0, z: 0}
+  directionHysteresis: 8
   useStaticFace: 0
   staticFaceIndex: 0
   animatorController: {fileID: 0}

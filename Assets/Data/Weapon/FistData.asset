@@ -25,7 +25,9 @@ MonoBehaviour:
   durabilityLossPerHit: 0
   idleSprite: {fileID: 21300000, guid: d0d45af2e91224246a28c6594213f0f9, type: 3}
   attackSprite: {fileID: 21300000, guid: 9c5520ebb3f445c4e916b615c1b1c4bc, type: 3}
-  weaponIconSprite: {fileID: 0}
+  weaponIconSprite: {fileID: 21300000, guid: 7fe0a981338c9fa498c0eefbfa97fccd, type: 3}
+  attackAnimation: []
+  reloadAnimation: []
   attackAnimationTrigger: Attack
   animationDuration: 0.3
   hitEffectPrefab: {fileID: 0}

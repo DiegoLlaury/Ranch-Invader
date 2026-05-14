@@ -71,6 +71,15 @@ public class WeaponController : MonoBehaviour
     private void Start()
     {
         InitializeWeapons();
+
+        // Désactive toutes les armes — l'inventaire les débloque au ramassage
+        foreach (BaseWeapon weapon in weaponInstances.Values)
+            weapon.gameObject.SetActive(false);
+
+        // Le joueur commence avec les poings débloqués
+        WeaponInventory inventory = GetComponent<WeaponInventory>();
+        inventory?.AddWeapon(WeaponType.Fist);
+
         SwitchWeapon(WeaponType.Fist);
     }
 
@@ -131,7 +140,15 @@ public class WeaponController : MonoBehaviour
     {
         if (!weaponInstances.ContainsKey(newWeaponType))
         {
-            Debug.LogWarning($"Arme {newWeaponType} non trouvée !");
+            Debug.LogWarning($"[WeaponController] Arme {newWeaponType} non trouvée !");
+            return;
+        }
+
+        // Vérifie que le joueur possède bien l'arme
+        WeaponInventory inventory = GetComponent<WeaponInventory>();
+        if (inventory != null && !inventory.HasWeapon(newWeaponType))
+        {
+            Debug.LogWarning($"[WeaponController] {newWeaponType} not in inventory.");
             return;
         }
 
@@ -228,5 +245,20 @@ public class WeaponController : MonoBehaviour
             return weaponInstances[weaponType].weaponData;
         }
         return null;
+    }
+
+    /// <summary>
+    /// Called by WeaponPickup when a new weapon is added to the inventory.
+    /// Enables the weapon object and equips it immediately.
+    /// </summary>
+    public void UnlockWeapon(WeaponType weaponType)
+    {
+        if (!weaponInstances.ContainsKey(weaponType))
+        {
+            Debug.LogWarning($"[WeaponController] No weapon instance found for {weaponType}.");
+            return;
+        }
+
+        SwitchWeapon(weaponType);
     }
 }

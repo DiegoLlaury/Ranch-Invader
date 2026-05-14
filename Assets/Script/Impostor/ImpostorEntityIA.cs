@@ -72,6 +72,11 @@ public class ImpostorEntityAI : MonoBehaviour
     [Tooltip("Verrouille l'impostor sur une face fixe, ignorant la position du joueur")]
     public bool useStaticFace = false;
 
+    [Header("Direction Hysteresis")]
+    [Tooltip("Zone morte en degrés autour de chaque frontière de face. 0 = désactivé, 20 = très stable.")]
+    [Range(0f, 20f)]
+    public float directionHysteresis = 8f;
+
     [Tooltip("Index de la face fixe (0=avant, 2=gauche, 4=arrière, 6=droite)")]
     [Range(0, 7)]
     public int staticFaceIndex = 0;
@@ -181,6 +186,7 @@ public class ImpostorEntityAI : MonoBehaviour
         impostorEntity.positionOffset = positionOffset;
         impostorEntity.useStaticFace = useStaticFace;
         impostorEntity.staticFaceIndex = staticFaceIndex;
+        impostorEntity.directionHysteresis = directionHysteresis;
 
         ImpostorQuadScaler scaler = impostorQuadInstance.GetComponent<ImpostorQuadScaler>();
         if (scaler == null)
@@ -210,25 +216,51 @@ public class ImpostorEntityAI : MonoBehaviour
 #if UNITY_EDITOR
     private void OnValidate()
     {
-        if (Application.isPlaying && impostorEntity != null)
+        if (!Application.isPlaying || impostorEntity == null) return;
+
+        // Paramètres de capture
+        impostorEntity.meshRotationOffset = meshRotationOffset;
+        impostorEntity.captureScale = captureScale;
+        impostorEntity.customCameraHeight = customCameraHeight;
+        impostorEntity.customLookAtRatio = customLookAtRatio;
+        impostorEntity.customFieldOfView = customFieldOfView;
+        impostorEntity.customDistanceMultiplier = customDistanceMultiplier;
+
+        // Paramètres billboard
+        impostorEntity.useStaticFace = useStaticFace;
+        impostorEntity.staticFaceIndex = staticFaceIndex;
+        impostorEntity.positionOffset = positionOffset;
+        impostorEntity.directionHysteresis = directionHysteresis;
+
+
+        // Billboard
+        Billboard billboard = impostorQuadInstance != null
+            ? impostorQuadInstance.GetComponent<Billboard>()
+            : null;
+        if (billboard != null)
         {
-            impostorEntity.meshRotationOffset = meshRotationOffset;
-            impostorEntity.useStaticFace = useStaticFace;
-            impostorEntity.staticFaceIndex = staticFaceIndex;
-
-            Billboard billboard = impostorQuadInstance != null
-                ? impostorQuadInstance.GetComponent<Billboard>()
-                : null;
-            if (billboard != null)
-                billboard.enabled = useBillboard;
-
-            var captureMethod = impostorEntity.GetType().GetMethod(
-                "CaptureImpostor",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
-            );
-
-            captureMethod?.Invoke(impostorEntity, null);
+            billboard.enabled = useBillboard;
+            billboard.rotationSpeed = rotationSpeed;
+            billboard.rotationDeadZone = rotationDeadZone;
         }
+
+        // QuadScaler
+        ImpostorQuadScaler scaler = impostorQuadInstance != null
+            ? impostorQuadInstance.GetComponent<ImpostorQuadScaler>()
+            : null;
+        if (scaler != null)
+        {
+            scaler.scaleMultiplier = quadScaleMultiplier;
+            scaler.manualSize = quadManualSize;
+            scaler.UpdateScale();
+        }
+
+        // Déclenche une recapture
+        var captureMethod = impostorEntity.GetType().GetMethod(
+            "CaptureImpostor",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
+        );
+        captureMethod?.Invoke(impostorEntity, null);
     }
 #endif
 
