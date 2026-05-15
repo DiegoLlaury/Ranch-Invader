@@ -35,7 +35,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
     [Header("Capture Settings")]
     [Tooltip("Résolution de chaque RenderTexture (256 = bon compromis qualité/perf, max 4096)")]
     [Range(64, 4096)]
-    public int renderTextureSize = 512;
+    public int renderTextureSize = 256;
     public float paddingMultiplier = 1.2f;
     public float minOrthographicSize = 1f;
     public float maxOrthographicSize = 50f;
@@ -260,9 +260,9 @@ public class ImpostorPhotoBooth : MonoBehaviour
         int cellHeight = atlas.height / gridY;
 
         Bounds meshBounds = CalculateBoundsFromRenderers(
-            request.cachedRenderers,
-            request.meshObject.transform
-        );
+    request.cachedRenderers,
+    request.meshObject.transform
+);
 
         float maxSize = Mathf.Max(meshBounds.size.x, meshBounds.size.y, meshBounds.size.z);
 
@@ -276,14 +276,20 @@ public class ImpostorPhotoBooth : MonoBehaviour
             ? request.customLookAtRatio
             : lookAtHeightRatio;
 
-        Vector3 basePos = request.meshObject.transform.position;
+        // Centre géométrique monde du mesh (indépendant du pivot FBX)
+        // meshBounds.center est en espace local → on repasse en monde
+        Vector3 meshWorldCenter = request.meshObject.transform.TransformPoint(meshBounds.center);
 
-        Vector3 lookAtPoint = basePos;
-        lookAtPoint.y += meshBounds.size.y * lookRatio;
+        // Le point de regard utilise X/Z du centre géométrique, Y ajustable via lookRatio
+        Vector3 lookAtPoint = new Vector3(
+            meshWorldCenter.x,
+            request.meshObject.transform.position.y + meshBounds.size.y * lookRatio,
+            meshWorldCenter.z
+        );
 
-        float camHeight = request.customCameraHeight >= 0
-            ? request.customCameraHeight
-            : cameraHeight;
+        float camHeight = request.customCameraHeight != -1f
+        ? request.customCameraHeight
+        : cameraHeight;
 
         Vector3[] directions = new Vector3[]
         {
@@ -313,8 +319,8 @@ public class ImpostorPhotoBooth : MonoBehaviour
 
             Vector3 dir = directions[i];
 
-            Vector3 camPos = basePos + dir * cameraDistance;
-            camPos.y = basePos.y + camHeight;
+            Vector3 camPos = meshWorldCenter + dir * cameraDistance;
+            camPos.y = meshWorldCenter.y + camHeight;
 
             boothCamera.transform.position = camPos;
             boothCamera.transform.LookAt(lookAtPoint);

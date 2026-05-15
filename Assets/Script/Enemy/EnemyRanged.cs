@@ -99,24 +99,27 @@ public class EnemyRanged : EnemyBase
             StopMovement();
         }
 
-        // Aim and fire when in range and cooldown is ready
+        // Begin aiming only once per attack cooldown — lock lastAttackTime immediately
+        // to prevent re-entering the aim window every frame until the shot lands.
         if (distanceToPlayer <= attackRange && CanAttack())
         {
-            isAiming = true;
+            if (!isAiming)
+            {
+                isAiming = true;
+                lastAttackTime = Time.time; // Reserve the attack slot immediately
+            }
 
-            // Measure current angle between forward and the player
             Vector3 toPlayer = playerTransform.position - transform.position;
             toPlayer.y = 0f;
             float angleToPlayer = Vector3.Angle(transform.forward, toPlayer);
 
-            // Only fire once properly facing the player
             if (angleToPlayer <= readyToFireAngle)
             {
                 isAiming = false;
                 FirePredictedProjectile();
             }
         }
-        else
+        else if (!CanAttack())
         {
             isAiming = false;
         }
@@ -124,19 +127,16 @@ public class EnemyRanged : EnemyBase
 
     private void FirePredictedProjectile()
     {
-        lastAttackTime = Time.time;
-
-        // Notify animator subscribers that an attack has been executed
         RaiseOnAttack();
-
-        // Feedback: fire sound
         soundEmitter?.Play(SoundOnAttack);
 
         Vector3 targetPos = PredictPlayerPosition();
-        Vector3 enemyCenter = transform.position + Vector3.up * projectileSpawnHeight;
 
-        // Spawn offset along the actual aim direction, not transform.forward,
-        // to stay accurate with predicted positions
+        // Offset the spawn height by navAgent.baseOffset so the projectile originates
+        // at the correct visual height regardless of the agent's baseOffset value.
+        float visualHeight = navAgent.baseOffset + projectileSpawnHeight;
+        Vector3 enemyCenter = transform.position + Vector3.up * visualHeight;
+
         Vector3 toTarget = (targetPos - enemyCenter).normalized;
         Vector3 spawnPos = enemyCenter + toTarget * projectileSpawnOffset;
 

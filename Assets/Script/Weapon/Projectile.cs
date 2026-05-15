@@ -23,29 +23,24 @@ public class Projectile : MonoBehaviour
 
         if (((1 << collision.gameObject.layer) & hitLayers) != 0)
         {
-            // GetComponentInParent couvre le cas où la collision touche un enfant
-            // (ex. ImpostorQuad) dont l'IDamageable est sur le root parent (EnemyBase).
             IDamageable damageable = collision.gameObject.GetComponentInParent<IDamageable>();
             if (damageable != null)
-            {
                 damageable.TakeDamage(damage);
-            }
+
+            // Transmit projectile position for directional knockback
+            IKnockbackable knockbackable = collision.gameObject.GetComponentInParent<IKnockbackable>();
+            knockbackable?.ReceiveKnockback(transform.position);
 
             if (impactEffect != null)
-            {
                 Instantiate(impactEffect, collision.contacts[0].point, Quaternion.LookRotation(collision.contacts[0].normal));
-            }
 
             if (stickToTarget)
-            {
                 StickToTarget(collision);
-            }
             else
-            {
                 Destroy(gameObject);
-            }
         }
     }
+
 
     private void StickToTarget(Collision collision)
     {

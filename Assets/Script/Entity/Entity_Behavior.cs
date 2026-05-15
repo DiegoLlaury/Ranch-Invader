@@ -119,12 +119,16 @@ public class Entity_Behavior : MonoBehaviour
     {
         if (ai != null)
         {
-            return ai.FacingDirection;
+            // Si l'IA est active et se déplace, on utilise sa direction déclarée.
+            // Sinon (pendant knockback/fuite) on se base sur le delta de position réel.
+            if (ai.IsMoving && ai.FacingDirection.sqrMagnitude > 0.001f)
+                return ai.FacingDirection;
+
+            if (ai.FacingDirection.sqrMagnitude > 0.001f)
+                return ai.FacingDirection;
         }
-        else
-        {
-            return movementDirection;
-        }
+
+        return movementDirection;
     }
 
     bool IsMoving()

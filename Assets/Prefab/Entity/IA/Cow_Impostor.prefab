@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 7739597063928777511}
   - component: {fileID: 5557647312367797721}
   - component: {fileID: -5756034229126316897}
+  - component: {fileID: 6230354565171377939}
+  - component: {fileID: 2920238319474270515}
   m_Layer: 3
   m_Name: Cow_Impostor
   m_TagString: Untagged
@@ -31,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.08715578, z: 0, w: 0.9961947}
   m_LocalPosition: {x: 0, y: -0, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_LocalScale: {x: 2.25, y: 2.25, z: 2.25}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -51,7 +53,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -96,8 +98,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2b20dec462ead341be8aef9b90df7a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EntityTarget
-  maxHealth: 50
-  health: 50
 --- !u!114 &5557647312367797721
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,7 +117,8 @@ MonoBehaviour:
   animatorController: {fileID: 0}
   captureScale: 3
   meshRotationOffset: {x: 0, y: 0, z: 0}
-  customCameraHeight: 2.5
+  overrideCameraHeight: 0
+  customCameraHeight: 2
   customLookAtRatio: -1
   customFieldOfView: -1
   customDistanceMultiplier: 2.5
@@ -135,8 +136,9 @@ MonoBehaviour:
   parallaxStrength: 0.06
   parallaxMinSamples: 8
   parallaxMaxSamples: 32
-  positionOffset: {x: 0, y: 0, z: 0}
+  positionOffset: {x: 0, y: 0.4, z: 0}
   useStaticFace: 0
+  directionHysteresis: 8
   staticFaceIndex: 0
   snapToGround: 1
   groundOffset: 0.75
@@ -159,3 +161,65 @@ MonoBehaviour:
   detectionDelay: 2
   samplesRequired: 3
   showDebug: 0
+--- !u!114 &6230354565171377939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6212800647891213506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a711e07ad056a14fb5c6c5f8c5b33a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CowKnockback
+  knockbackDistance: 3
+  knockbackDuration: 0.25
+  knockbackCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  fleeSpeedMultiplier: 2.5
+  fleeDistance: 8
+  fleePositionAttempts: 15
+  enemyDamage: 20
+  enemyDetectionRadius: 1
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  positionValidationRadius: 0.5
+--- !u!114 &2920238319474270515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6212800647891213506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02f7cc17ef10e334db65292b4575f2c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CowPlayerContact

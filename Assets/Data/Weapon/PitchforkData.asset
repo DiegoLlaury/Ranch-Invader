@@ -15,8 +15,8 @@ MonoBehaviour:
   weaponName: Pitchfork
   weaponType: 3
   damage: 12
-  range: 20
-  attackCooldown: 0.6
+  range: 35
+  attackCooldown: 0.4
   maxAmmo: 20
   currentAmmo: 14
   reloadTime: 2

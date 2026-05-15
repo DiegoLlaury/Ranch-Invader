@@ -40,7 +40,7 @@ public class RandomMovementAI : MonoBehaviour
     private bool isMoving = false;
     private Coroutine movementCoroutine;
 
-    public Vector3 FacingDirection { get; private set; }
+    public Vector3 FacingDirection { get; internal set; }
     public bool IsMoving => isMoving;
 
     private void Start()
@@ -184,6 +184,23 @@ public class RandomMovementAI : MonoBehaviour
     {
         zoneCenter = center;
         zoneSize = size;
+    }
+
+    /// <summary>Stops all active coroutines and freezes the AI in place.</summary>
+    public void Pause()
+    {
+        StopAllCoroutines();
+        movementCoroutine = null;
+        isMoving = false;
+    }
+
+    /// <summary>Restarts the behaviour loop from scratch after a Pause().</summary>
+    public void Resume()
+    {
+        StopAllCoroutines();
+        movementCoroutine = null;
+        FacingDirection = Vector3.zero;
+        StartCoroutine(BehaviourLoop());
     }
 
     private void OnDrawGizmos()

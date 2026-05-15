@@ -148,6 +148,7 @@ MonoBehaviour:
   meshRotationOffset: {x: 0, y: 185, z: 0}
   followParentRotation: 1
   captureScale: 2.02
+  overrideCameraHeight: 0
   customCameraHeight: 1.5
   customLookAtRatio: 0.6
   customFieldOfView: 20

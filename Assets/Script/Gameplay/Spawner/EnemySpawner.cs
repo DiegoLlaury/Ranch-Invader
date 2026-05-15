@@ -139,7 +139,6 @@ public class EnemySpawner : MonoBehaviour
 
         spawnPointIndex++;
 
-        // Try to find a free spot around the base position
         for (int attempt = 0; attempt < SpawnMaxAttempts; attempt++)
         {
             Vector3 candidate;
@@ -158,13 +157,9 @@ public class EnemySpawner : MonoBehaviour
                 );
             }
 
-            // Snap candidate to NavMesh
-            if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, SpawnOffsetRadius, NavMesh.AllAreas))
-            {
-                candidate = hit.position;
-            }
+            if (NavMesh.SamplePosition(candidate, out NavMeshHit navHit, SpawnOffsetRadius, NavMesh.AllAreas))
+                candidate = navHit.position;
 
-            // Check if any alive enemy is too close
             bool occupied = false;
             foreach (GameObject enemy in aliveEnemies)
             {
@@ -180,9 +175,10 @@ public class EnemySpawner : MonoBehaviour
                 return candidate;
         }
 
-        // Fallback: return base position even if occupied
         return basePosition;
     }
+
+
 
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()

@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 6767163022675517099}
   - component: {fileID: -106357231090502156}
   - component: {fileID: -2756450750026438067}
+  - component: {fileID: -3542314218822302539}
   m_Layer: 3
   m_Name: EnemyRanged
   m_TagString: Untagged
@@ -73,7 +74,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyRanged
   playerTransform: {fileID: 0}
-  maxHealth: 30
+  maxHealth: 60
   detectionRange: 30
   attackRange: 2
   attackDamage: 10
@@ -93,7 +94,7 @@ MonoBehaviour:
   preferredDistance: 10
   retreatDistance: 4
   projectileSpawnOffset: 0.5
-  projectileSpawnHeight: 1
+  projectileSpawnHeight: -2.5
   readyToFireAngle: 10
 --- !u!114 &8827905846739349660
 MonoBehaviour:
@@ -114,6 +115,7 @@ MonoBehaviour:
   animatorController: {fileID: 0}
   captureScale: 1
   meshRotationOffset: {x: 0, y: 180, z: 0}
+  overrideCameraHeight: 0
   customCameraHeight: 0
   customLookAtRatio: -1
   customFieldOfView: -1
@@ -222,3 +224,41 @@ MonoBehaviour:
     soundKey: Projectile_Enemy
   - eventName: OnHit
     soundKey: Cow_Hurt
+--- !u!114 &-3542314218822302539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6909288369959468198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1350a0954157b3478eb6a8bdbc6fcf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyKnockback
+  knockbackDistance: 5
+  knockbackDuration: 0.35
+  knockbackCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

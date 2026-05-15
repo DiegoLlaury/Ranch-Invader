@@ -21,6 +21,9 @@ public class RangedWeapon : BaseWeapon
     {
         if (isReloading) return;
 
+        // Bloque aussi pendant que l'animation UI joue (couvre la fenêtre fin de reload)
+        if (cachedUIController != null && cachedUIController.IsAnimating) return;
+
         if (weaponData.RuntimeCurrentAmmo <= 0)
         {
             int reserve = weaponData.RuntimeMaxAmmo - weaponData.RuntimeCurrentAmmo;
@@ -71,15 +74,20 @@ public class RangedWeapon : BaseWeapon
 
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
-        if (Physics.Raycast(ray, out RaycastHit hit, weaponData.range, hitLayers))
+        if (Physics.Raycast(ray, out RaycastHit hit, weaponData.range, hitLayers, QueryTriggerInteraction.Collide))
         {
             IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
             if (damageable != null)
                 damageable.TakeDamage(GetFinalDamage());
 
+            // Transmit shooter position for directional knockback
+            IKnockbackable knockbackable = hit.collider.GetComponentInParent<IKnockbackable>();
+            knockbackable?.ReceiveKnockback(shootPoint != null ? shootPoint.position : transform.position);
+
             if (weaponData.hitEffectPrefab != null)
                 Instantiate(weaponData.hitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
         }
+
 
         if (weaponData.muzzleFlashPrefab != null && shootPoint != null)
             Instantiate(weaponData.muzzleFlashPrefab, shootPoint.position, shootPoint.rotation);

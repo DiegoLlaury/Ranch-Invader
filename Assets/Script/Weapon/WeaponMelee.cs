@@ -27,26 +27,26 @@ public class MeleeWeapon : BaseWeapon
 
     protected virtual void DealDamage(GameObject target)
     {
-        // Search on the hit object AND up the hierarchy to handle child colliders
         IDamageable damageable = target.GetComponentInParent<IDamageable>();
         if (damageable != null)
         {
             float finalDamage = GetFinalDamage();
             damageable.TakeDamage(finalDamage);
 
+            IKnockbackable knockbackable = target.GetComponentInParent<IKnockbackable>();
+            knockbackable?.ReceiveKnockback(attackPoint != null ? attackPoint.position : transform.position);
+
 #if UNITY_EDITOR
             if (drunkEffect != null && drunkEffect.IsDrunk())
-            {
-                Debug.Log($"Dégâts avec bonus bourré ! Dégâts de base: {weaponData.damage}, Dégâts finaux: {finalDamage}");
-            }
+                Debug.Log($"Dégâts avec bonus bourré ! Base: {weaponData.damage}, Final: {finalDamage}");
 #endif
         }
 
         if (weaponData.hitEffectPrefab != null)
-        {
             Instantiate(weaponData.hitEffectPrefab, target.transform.position, Quaternion.identity);
-        }
     }
+
+
 
     protected void ReduceDurability()
     {

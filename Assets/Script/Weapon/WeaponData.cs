@@ -93,13 +93,17 @@ public class WeaponData : ScriptableObject
 
         if (affectReserveOnly)
         {
-            int maxReserve = maxAmmo - runtimeCurrentAmmo;
-            int effectiveAdd = Mathf.Min(toAdd, maxReserve);
+            // Fusil : réserve totale autorisée = maxAmmo - chargeur actuel
+            int maxAllowedReserve = maxAmmo - runtimeCurrentAmmo;
+            int currentReserve = runtimeMaxAmmo - runtimeCurrentAmmo;
+            int spaceLeft = maxAllowedReserve - currentReserve;
+            int effectiveAdd = Mathf.Max(0, Mathf.Min(toAdd, spaceLeft));
             runtimeMaxAmmo += effectiveAdd;
             return effectiveAdd;
         }
         else
         {
+            // Fourche : plafonné à maxAmmo strict
             int effectiveAdd = Mathf.Min(toAdd, maxAmmo - runtimeCurrentAmmo);
             runtimeCurrentAmmo += effectiveAdd;
             return effectiveAdd;

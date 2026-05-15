@@ -31,6 +31,12 @@ public class EnemyDropper : MonoBehaviour
     [Range(0f, 3f)]
     public float scatterRadius = 0.5f;
 
+    [Header("Références")]
+    [Tooltip("L'inventaire du joueur — utilisé pour conditionner le drop de munitions")]
+    public WeaponInventory playerInventory;
+
+    private static readonly WeaponType[] AmmoWeapons = { WeaponType.Shotgun, WeaponType.Pitchfork };
+
     private void OnEnable()
     {
         EnemyBase.OnEnemyDied += HandleEnemyDied;
@@ -46,7 +52,26 @@ public class EnemyDropper : MonoBehaviour
         Vector3 dropPosition = deathPosition + Vector3.up * dropHeightOffset;
 
         TryDrop(beerPrefab, beerDropChance, dropPosition);
-        TryDrop(ammoPrefab, ammoDropChance, dropPosition);
+
+        // Les munitions n'apparaissent que si le joueur possède au moins une arme à munitions
+        if (PlayerHasAmmoWeapon())
+            TryDrop(ammoPrefab, ammoDropChance, dropPosition);
+    }
+
+    /// <summary>
+    /// Retourne true si le joueur possède au moins une arme consommant des munitions.
+    /// </summary>
+    private bool PlayerHasAmmoWeapon()
+    {
+        if (playerInventory == null) return false;
+
+        foreach (WeaponType type in AmmoWeapons)
+        {
+            if (playerInventory.HasWeapon(type))
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>

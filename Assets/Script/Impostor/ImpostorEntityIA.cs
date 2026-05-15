@@ -25,7 +25,9 @@ public class ImpostorEntityAI : MonoBehaviour
     public Vector3 meshRotationOffset = Vector3.zero;
 
     [Header("Camera Perspective Settings")]
-    public float customCameraHeight = -1f;
+    [Tooltip("Active la hauteur de caméra personnalisée. Si désactivé, utilise la valeur par défaut du PhotoBooth.")]
+    public bool overrideCameraHeight = false;
+    public float customCameraHeight = 0f;
     [Range(-1f, 1f)]
     public float customLookAtRatio = -1f;
     [Range(-1f, 120f)]
@@ -134,8 +136,13 @@ public class ImpostorEntityAI : MonoBehaviour
     private void HandleAttack(EnemyBase attacker)
     {
         if (attacker != enemyBase) return;
+
+        // Reset first to clear any queued trigger from a previous frame
+        // before firing the new one — prevents stacked attack animations.
+        impostorEntity?.ResetAttackTrigger();
         impostorEntity?.TriggerAttack();
     }
+
 
     private void SetupImpostor()
     {
@@ -165,6 +172,7 @@ public class ImpostorEntityAI : MonoBehaviour
         impostorEntity.followParentRotation = followParentRotation;
 
         impostorEntity.customCameraHeight = customCameraHeight;
+        impostorEntity.overrideCameraHeight = overrideCameraHeight;
         impostorEntity.customLookAtRatio = customLookAtRatio;
         impostorEntity.customFieldOfView = customFieldOfView;
         impostorEntity.customDistanceMultiplier = customDistanceMultiplier;
@@ -222,6 +230,7 @@ public class ImpostorEntityAI : MonoBehaviour
         impostorEntity.meshRotationOffset = meshRotationOffset;
         impostorEntity.captureScale = captureScale;
         impostorEntity.customCameraHeight = customCameraHeight;
+        impostorEntity.overrideCameraHeight = overrideCameraHeight;
         impostorEntity.customLookAtRatio = customLookAtRatio;
         impostorEntity.customFieldOfView = customFieldOfView;
         impostorEntity.customDistanceMultiplier = customDistanceMultiplier;

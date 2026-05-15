@@ -1,0 +1,225 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7010912671045937819
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9138972307283230965}
+  - component: {fileID: 2077333451142669431}
+  - component: {fileID: 6690609590980844287}
+  - component: {fileID: 4362733595314833005}
+  - component: {fileID: 298094375842939608}
+  - component: {fileID: 403897116753298617}
+  - component: {fileID: 3857310848348684397}
+  - component: {fileID: 5381763623567052576}
+  m_Layer: 3
+  m_Name: Cow_Impostor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9138972307283230965
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7010912671045937819}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.08715578, z: 0, w: 0.9961947}
+  m_LocalPosition: {x: -132.48042, y: 0.010009698, z: 33.267567}
+  m_LocalScale: {x: 2.25, y: 2.25, z: 2.25}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 10, z: 0}
+--- !u!135 &2077333451142669431
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7010912671045937819}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6690609590980844287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7010912671045937819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b70c56879b4f0d440b9fea1599b53a26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RandomMovementAI
+  moveSpeed: 2
+  rotationSpeed: 360
+  zoneCenter: {x: 0, y: 0, z: 0}
+  zoneSize: {x: 20, y: 20}
+  waitTimeMin: 1
+  waitTimeMax: 1.5
+  maxAttempts: 10
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  obstacleDetectionDistance: 1
+  validationRadius: 0.5
+  showDebugGizmos: 1
+  zoneColor: {r: 0, g: 1, b: 0, a: 0.3}
+  targetColor: {r: 1, g: 0, b: 0, a: 1}
+--- !u!114 &4362733595314833005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7010912671045937819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b20dec462ead341be8aef9b90df7a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EntityTarget
+--- !u!114 &298094375842939608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7010912671045937819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67f43a6755cbb9840853e80f3ebd6112, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ImpostorEntityAI
+  meshPrefab: {fileID: 73284592428818202, guid: 251df5020fb58e54cbe16b263adc6748, type: 3}
+  impostorMaterial: {fileID: 2100000, guid: 72eb5e46e3896b04090d4bf67ff51474, type: 2}
+  impostorQuadPrefab: {fileID: 6608268022857075241, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
+  animatedFPS: 1
+  animatorController: {fileID: 0}
+  captureScale: 3
+  meshRotationOffset: {x: 0, y: 0, z: 0}
+  overrideCameraHeight: 0
+  customCameraHeight: 2
+  customLookAtRatio: -1
+  customFieldOfView: -1
+  customDistanceMultiplier: 2.5
+  quadScaleMultiplier: 1.5
+  quadManualSize: {x: 0, y: 0}
+  autoGenerateCollider: 0
+  colliderSize: {x: 0, y: 0, z: 0}
+  colliderCenter: {x: 0, y: 0, z: 0}
+  useBillboard: 1
+  useSmoothRotation: 1
+  rotationSpeed: 8
+  rotationDeadZone: 12.5
+  followParentRotation: 1
+  useParallax: 1
+  parallaxStrength: 0.06
+  parallaxMinSamples: 8
+  parallaxMaxSamples: 32
+  positionOffset: {x: 0, y: 0.4, z: 0}
+  useStaticFace: 0
+  directionHysteresis: 8
+  staticFaceIndex: 0
+  snapToGround: 1
+  groundOffset: 0.75
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 512
+--- !u!114 &403897116753298617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7010912671045937819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e93fcfc756b424e44a739693d0294edc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ImpostorMeshAutoRotation
+  autoDetectOrientation: 1
+  detectionDelay: 2
+  samplesRequired: 3
+  showDebug: 0
+--- !u!114 &3857310848348684397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7010912671045937819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a711e07ad056a14fb5c6c5f8c5b33a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CowKnockback
+  knockbackDistance: 5.5
+  knockbackDuration: 0.55
+  knockbackCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  fleeSpeedMultiplier: 2.5
+  fleeDistance: 15
+  fleePositionAttempts: 15
+  enemyDamage: 20
+  enemyDetectionRadius: 1
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  positionValidationRadius: 0.5
+--- !u!114 &5381763623567052576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7010912671045937819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02f7cc17ef10e334db65292b4575f2c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CowPlayerContact

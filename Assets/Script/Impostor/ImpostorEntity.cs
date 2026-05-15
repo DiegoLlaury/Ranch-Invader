@@ -53,7 +53,8 @@ public class ImpostorEntity : MonoBehaviour
     [Range(0.5f, 3f)]
     public float captureScale = 1f;
 
-    [Tooltip("Hauteur de cam�ra personnalis�e (0 = utilise le d�faut)")]
+    [Tooltip("Active la hauteur de caméra personnalisée. Si désactivé, utilise la valeur par défaut du PhotoBooth.")]
+    public bool overrideCameraHeight = false;
     public float customCameraHeight = 0f;
 
     [Tooltip("Point de regard personnalis� (0-1, n�gatif = utilise le d�faut)")]
@@ -180,19 +181,6 @@ public class ImpostorEntity : MonoBehaviour
             return;
         }
 
-        if (impostorMaterial == null)
-        {
-            Shader shader = Shader.Find("Custom/ImpostorAtlas");
-
-            if (shader == null)
-            {
-                Debug.LogError("Shader Custom/ImpostorAtlas introuvable !");
-                return;
-            }
-
-            impostorMaterial = new Material(shader);
-        }
-
         // Récupère le transform du parent ennemi pour le calcul de direction
         // (le quad lui-même est écrasé par Billboard, il faut la rotation du root)
         enemyRootTransform = transform.parent != null ? transform.parent : transform;
@@ -242,7 +230,7 @@ public class ImpostorEntity : MonoBehaviour
         // Création atlas
         int cellSize = ImpostorPhotoBooth.Instance.renderTextureSize;
         atlas = new RenderTexture(cellSize * 4, cellSize * 2, 24, RenderTextureFormat.ARGB32);
-        atlas.antiAliasing = 4;
+        atlas.antiAliasing = 1;
         atlas.filterMode = FilterMode.Trilinear;
         atlas.anisoLevel = 4;
         atlas.name = gameObject.name + "_Atlas";
@@ -322,7 +310,7 @@ public class ImpostorEntity : MonoBehaviour
             atlas,
             captureScale,
             captureRotation,
-            customCameraHeight,
+            overrideCameraHeight ? customCameraHeight : -1f,
             customLookAtRatio,
             customFieldOfView,
             customDistanceMultiplier,
@@ -497,6 +485,16 @@ public class ImpostorEntity : MonoBehaviour
         if (meshAnimator == null || meshAnimator.runtimeAnimatorController == null) return;
         meshAnimator.SetTrigger(AttackHash);
     }
+
+    /// <summary>
+    /// Resets the Attack trigger on the hidden mesh Animator to clear any queued trigger.
+    /// </summary>
+    public void ResetAttackTrigger()
+    {
+        if (meshAnimator == null || meshAnimator.runtimeAnimatorController == null) return;
+        meshAnimator.ResetTrigger(AttackHash);
+    }
+
 
     void OnDestroy()
     {

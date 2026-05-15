@@ -72,6 +72,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     protected float lastNavUpdateTime;
     protected bool isDead;
     private EnemyHitFlash hitFlash;
+    private EnemyKnockback knockback;
     private PlayerHealth cachedPlayerHealth;
 
     private const float SlopeRaycastInterval = 0.1f;
@@ -83,7 +84,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
 
 
     public Vector3 FacingDirection { get; private set; }
-    public bool IsMoving => navAgent != null && navAgent.velocity.sqrMagnitude > 0.01f;
+    public bool IsMoving => navAgent != null && navAgent.hasPath && !navAgent.isStopped;
 
     protected virtual void Awake()
     {
@@ -93,6 +94,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
         soundEmitter = GetComponent<SoundEmitter>();
 
         hitFlash = GetComponent<EnemyHitFlash>();
+        knockback = GetComponent<EnemyKnockback>();
 
         // The NavMeshAgent owns movement — Rigidbody must be kinematic
         // to prevent physics forces from conflicting with agent steering.
@@ -128,6 +130,12 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
         if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, navMeshSnapRadius, NavMesh.AllAreas))
         {
             navAgent.Warp(hit.position);
+
+            // Raycast from well above to find the true ground surface,
+            // preventing the enemy from sinking into geometry baked below the terrain mesh.
+            Vector3 rayOrigin = hit.position + Vector3.up * 5f;
+            if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit groundHit, 10f, groundLayer))
+                navAgent.Warp(new Vector3(hit.position.x, groundHit.point.y, hit.position.z));
         }
         else
         {
@@ -297,10 +305,11 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
 
         currentHealth -= damage;
 
-        // Feedback: hit reaction sound
         soundEmitter?.Play(SoundOnHit);
         hitFlash?.Flash();
-
+        knockback?.ApplyKnockback(
+            playerTransform != null ? playerTransform.position : transform.position - transform.forward
+        );
 
         if (currentHealth <= 0f)
             Die();

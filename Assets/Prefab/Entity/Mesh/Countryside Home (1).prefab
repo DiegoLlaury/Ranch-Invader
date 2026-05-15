@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Countryside Home (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 1791066042098376346, guid: 0190a2cf3e3a22741925c1d44b048307, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 6467317871768667104, guid: 0190a2cf3e3a22741925c1d44b048307, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.25
@@ -67,6 +71,10 @@ PrefabInstance:
     - target: {fileID: 6467317871768667104, guid: 0190a2cf3e3a22741925c1d44b048307, type: 3}
       propertyPath: m_ConstrainProportionsScale
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8720983135983365014, guid: 0190a2cf3e3a22741925c1d44b048307, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

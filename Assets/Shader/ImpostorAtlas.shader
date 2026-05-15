@@ -6,6 +6,7 @@ Shader "Custom/ImpostorAtlas"
         _Direction ("Direction", Float) = 0
         _Columns ("Columns", Float) = 4
         _Rows ("Rows", Float) = 2
+        _HitIntensity ("Hit Intensity", Range(0, 1)) = 0
     }
 
     SubShader
@@ -42,6 +43,7 @@ Shader "Custom/ImpostorAtlas"
             float _Direction;
             float _Columns;
             float _Rows;
+            float _HitIntensity;
 
             Varyings vert (Attributes IN)
             {
@@ -59,12 +61,15 @@ Shader "Custom/ImpostorAtlas"
                 int row = index / (int)_Columns;
 
                 float2 atlasUV = IN.uv;
-
                 atlasUV.x = (atlasUV.x + col) / _Columns;
                 atlasUV.y = (atlasUV.y + row) / _Rows;
 
                 half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, atlasUV);
-                clip(color.a - 0.01); // Supprime les pixels fantômes de bordure
+                clip(color.a - 0.01);
+
+                // Blend vers le rouge en fonction de _HitIntensity
+                color.rgb = lerp(color.rgb, half3(1.0, 0.0, 0.0), _HitIntensity);
+
                 return color;
             }
 

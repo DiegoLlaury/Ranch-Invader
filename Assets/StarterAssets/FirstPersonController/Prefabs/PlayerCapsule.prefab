@@ -566,8 +566,9 @@ MonoBehaviour:
   weaponData: {fileID: 11400000, guid: 58c3ce7a0f28aae4c8ccd22f2ca5dce9, type: 2}
   projectilePrefab: {fileID: 267079161953346413, guid: a12ec96d73d7150418d39b9893dc1c40, type: 3}
   throwPoint: {fileID: 1655638587215828023}
-  throwForce: 20
+  throwForce: 35
   playerCamera: {fileID: 2601449335975220456}
+  handMeshObject: {fileID: 0}
 --- !u!1 &8162934231821646322
 GameObject:
   m_ObjectHideFlags: 0

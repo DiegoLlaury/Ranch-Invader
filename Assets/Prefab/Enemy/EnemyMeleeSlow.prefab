@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: -7404051352133641543}
   - component: {fileID: 3705728864484956274}
   - component: {fileID: 8744390416158987098}
+  - component: {fileID: -2308567606118293245}
   m_Layer: 3
   m_Name: EnemyMeleeSlow
   m_TagString: Untagged
@@ -74,7 +75,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMeleeSlow
   playerTransform: {fileID: 0}
-  maxHealth: 45
+  maxHealth: 90
   detectionRange: 20
   attackRange: 1.5
   attackDamage: 10
@@ -110,6 +111,7 @@ MonoBehaviour:
   animatorController: {fileID: 9100000, guid: 20175518f0b32af4cbd9b5aa8f72f566, type: 2}
   captureScale: 1
   meshRotationOffset: {x: 0, y: 0, z: 0}
+  overrideCameraHeight: 0
   customCameraHeight: 3
   customLookAtRatio: -1
   customFieldOfView: -1
@@ -130,6 +132,7 @@ MonoBehaviour:
   parallaxMaxSamples: 32
   positionOffset: {x: 0, y: 1, z: 0}
   useStaticFace: 0
+  directionHysteresis: 8
   staticFaceIndex: 0
   snapToGround: 1
   groundOffset: 0
@@ -239,3 +242,41 @@ MonoBehaviour:
     soundKey: Projectile_Enemy
   - eventName: OnHit
     soundKey: Cow_Hurt
+--- !u!114 &-2308567606118293245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3909079956193900187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1350a0954157b3478eb6a8bdbc6fcf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyKnockback
+  knockbackDistance: 2
+  knockbackDuration: 0.2
+  knockbackCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
