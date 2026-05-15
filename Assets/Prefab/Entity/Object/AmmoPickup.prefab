@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &4653756628201395299
+--- !u!1 &2568686453457368232
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,42 +8,63 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4741589163665379834}
-  - component: {fileID: 23750448217493453}
-  - component: {fileID: 626867996243298290}
-  - component: {fileID: 3338563283267955582}
-  - component: {fileID: 300097268828304139}
+  - component: {fileID: 1514013628450383099}
+  - component: {fileID: 1278857166194808122}
+  - component: {fileID: 2799808461445416874}
+  - component: {fileID: 5011752570864576294}
+  - component: {fileID: 1834211460805476872}
   m_Layer: 0
-  m_Name: BeerCanPickup
+  m_Name: AmmoPickup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4741589163665379834
+--- !u!4 &1514013628450383099
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4653756628201395299}
+  m_GameObject: {fileID: 2568686453457368232}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2, y: 0.67, z: -1}
+  m_LocalPosition: {x: -90.42, y: 1.22, z: -10.90359}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 3007804356650638117}
+  - {fileID: 3374791732398484770}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &23750448217493453
+--- !u!135 &1278857166194808122
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2568686453457368232}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!212 &2799808461445416874
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4653756628201395299}
+  m_GameObject: {fileID: 2568686453457368232}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -85,67 +106,44 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 76748b460ffee134aba8d2a25ba06601, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 19f88d2de9d3fe247a8697c6d3006458, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 7.14, y: 13.18}
+  m_Size: {x: 6, y: 6}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &626867996243298290
+--- !u!114 &5011752570864576294
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4653756628201395299}
+  m_GameObject: {fileID: 2568686453457368232}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e855f2e05670f7a4bb5b1dccee621aa4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AmmoPickup
+  refillPercent: 0.75
+  pickupSoundName: AmmoPickup
+--- !u!114 &1834211460805476872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2568686453457368232}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b36ca49fcd525104fb52bc451024611f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FaceCameraScript
-  spriteRenderer: {fileID: 23750448217493453}
---- !u!135 &3338563283267955582
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4653756628201395299}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.3661111
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &300097268828304139
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4653756628201395299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce86aa1ae7aa13041a9ea21f2cccfea4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BeerPickup
-  healthRestore: 20
-  damageBoost: 10
-  drunkDuration: 10
-  pickupSound: {fileID: 8300000, guid: a7863822b82e2824aae36984a370e3df, type: 3}
---- !u!1 &6888200375170393279
+  spriteRenderer: {fileID: 2799808461445416874}
+--- !u!1 &3621227447489542554
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -153,9 +151,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3007804356650638117}
-  - component: {fileID: 4112727262670636966}
-  - component: {fileID: 1189151077173014426}
+  - component: {fileID: 3374791732398484770}
+  - component: {fileID: 8865927788138308171}
+  - component: {fileID: 265727000371232869}
   m_Layer: 0
   m_Name: T_HaloLight
   m_TagString: Untagged
@@ -163,29 +161,29 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3007804356650638117
+--- !u!4 &3374791732398484770
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6888200375170393279}
+  m_GameObject: {fileID: 3621227447489542554}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.05, y: 0, z: 0.05}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.1}
+  m_LocalScale: {x: 0.20000002, y: 0.20000002, z: 0.20000002}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 4741589163665379834}
+  m_Father: {fileID: 1514013628450383099}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &4112727262670636966
+--- !u!212 &8865927788138308171
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6888200375170393279}
+  m_GameObject: {fileID: 3621227447489542554}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -237,13 +235,13 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &1189151077173014426
+--- !u!114 &265727000371232869
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6888200375170393279}
+  m_GameObject: {fileID: 3621227447489542554}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b6b9002f4e6d4324286b726300fbbcdb, type: 3}

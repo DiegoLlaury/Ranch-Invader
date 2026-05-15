@@ -59,6 +59,8 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     /// </summary>
     public static event System.Action<EnemyBase> OnEnemyAttack;
 
+    public static event System.Action<Vector3> OnEnemyDied;
+
     /// <summary>
     /// Raises the OnEnemyAttack event for this instance. Call from subclasses when an attack is executed.
     /// </summary>
@@ -315,6 +317,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
         if (deathVfxPrefab != null)
             Instantiate(deathVfxPrefab, transform.position, Quaternion.identity);
 
+        OnEnemyDied?.Invoke(transform.position);
 
         Destroy(gameObject);
     }

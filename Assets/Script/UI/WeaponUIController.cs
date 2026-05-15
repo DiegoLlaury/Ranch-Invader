@@ -59,6 +59,8 @@ public class WeaponUIController : MonoBehaviour
     private Vector3 rightFistStartScale;
 
     private bool isAnimating;
+    /// <summary>True while a weapon animation (attack or reload) is playing.</summary>
+    public bool IsAnimating => isAnimating;
     private FistWeapon currentFistWeapon;
     private float updateTimer = 0f;
 
@@ -264,7 +266,7 @@ public class WeaponUIController : MonoBehaviour
 
         if (showAmmo && data != null && ammoText != null)
         {
-            ammoText.text = $"{data.currentAmmo} / {data.maxAmmo}";
+            ammoText.text = $"{data.RuntimeCurrentAmmo} / {data.RuntimeMaxAmmo}";
         }
     }
 
@@ -489,7 +491,7 @@ public class WeaponUIController : MonoBehaviour
         WeaponData data = weaponController.GetWeaponData(weaponController.GetCurrentWeaponType());
         if (data != null && ammoText != null)
         {
-            ammoText.text = $"{newAmmo} / {data.maxAmmo}";
+            ammoText.text = $"{newAmmo} / {data.RuntimeMaxAmmo}";
         }
     }
 

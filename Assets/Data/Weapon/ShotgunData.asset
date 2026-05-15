@@ -16,10 +16,11 @@ MonoBehaviour:
   weaponType: 2
   damage: 30
   range: 75
-  attackCooldown: 0.5
-  maxAmmo: 2
+  attackCooldown: 0.4
+  maxAmmo: 6
   currentAmmo: 2
-  reloadTime: 0.4
+  reloadTime: 1
+  ammoPerReload: 2
   maxDurability: 100
   currentDurability: 100
   durabilityLossPerHit: 10

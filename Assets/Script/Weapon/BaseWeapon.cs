@@ -25,6 +25,9 @@ public abstract class BaseWeapon : MonoBehaviour
     {
         drunkEffect = GetComponentInParent<DrunkEffect>();
         soundEmitter = GetComponent<SoundEmitter>();
+
+        // Mémorise les valeurs d'ammo définies dans l'asset avant toute modification runtime
+        weaponData?.InitializeRuntimeAmmo();
     }
 
     public bool CanAttack()
@@ -82,5 +85,10 @@ public abstract class BaseWeapon : MonoBehaviour
     {
         soundEmitter?.Play(SoundOnEmpty);
         OnWeaponBroken?.Invoke();
+    }
+
+    public void NotifyAmmoChanged()
+    {
+        RaiseAmmoChanged(weaponData.currentAmmo);
     }
 }

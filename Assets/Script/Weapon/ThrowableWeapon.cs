@@ -7,10 +7,12 @@ public class ThrowableWeapon : BaseWeapon
     public GameObject projectilePrefab;
     public Transform throwPoint;
     public float throwForce = 20f;
-
     public Camera playerCamera;
 
-    private bool isReloading;
+    [Header("Visuel en main")]
+    [Tooltip("Le mesh de la fourche tenu en main — masqué quand les munitions sont épuisées")]
+    public GameObject handMeshObject;
+
     private WeaponUIController cachedUIController;
 
     protected override void Awake()
@@ -19,80 +21,82 @@ public class ThrowableWeapon : BaseWeapon
         cachedUIController = Object.FindAnyObjectByType<WeaponUIController>();
     }
 
+    public override void OnEquip()
+    {
+        base.OnEquip();
+        RefreshHandMesh();
+    }
+
     public override void Attack()
     {
-        if (weaponData.currentAmmo <= 0)
+        if (weaponData.RuntimeCurrentAmmo <= 0)
         {
-            Reload();
+            soundEmitter?.Play(SoundOnEmpty);
             return;
         }
-
-        if (!CanAttack() || isReloading)
-            return;
-
+        if (!CanAttack()) return;
         base.Attack();
     }
 
     protected override void PerformAttack()
     {
-        weaponData.currentAmmo--;
-        RaiseAmmoChanged(weaponData.currentAmmo);
-
-        if (projectilePrefab != null && throwPoint != null)
-        {
-            if (playerCamera == null)
-                playerCamera = Camera.main;
-
-            Vector3 throwDirection = playerCamera.transform.forward;
-
-            GameObject projectile = Instantiate(projectilePrefab, throwPoint.position, Quaternion.LookRotation(throwDirection));
-
-            Rigidbody rb = projectile.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                rb.linearVelocity = throwDirection * throwForce;
-            }
-
-            Projectile projectileScript = projectile.GetComponent<Projectile>();
-            if (projectileScript != null)
-            {
-                projectileScript.damage = weaponData.damage;
-            }
-        }
-
-        if (weaponData.currentAmmo <= 0)
-        {
-            Invoke(nameof(Reload), weaponData.animationDuration);
-        }
+        weaponData.RuntimeCurrentAmmo--;
+        RaiseAmmoChanged(weaponData.RuntimeCurrentAmmo);
+        ThrowProjectile();
+        RefreshHandMesh();
     }
 
-    public void Reload()
+    /// <summary>
+    /// Override : bloque isAttacking jusqu'à la fin de l'animation UI,
+    /// empêchant tout lancer pendant qu'elle joue.
+    /// </summary>
+    protected override void ResetAttackState()
     {
-        if (isReloading || weaponData.currentAmmo == weaponData.maxAmmo)
-            return;
-
-        CancelInvoke(nameof(Reload));
-        StartCoroutine(ReloadCoroutine());
+        // Ne remet pas isAttacking à false immédiatement — attend la fin de l'anim UI
+        StartCoroutine(WaitForAnimationThenReset());
     }
 
-    private IEnumerator ReloadCoroutine()
+    private IEnumerator WaitForAnimationThenReset()
     {
-        isReloading = true;
-
         if (cachedUIController == null)
-        {
             cachedUIController = Object.FindAnyObjectByType<WeaponUIController>();
-        }
 
-        if (cachedUIController != null)
-        {
-            cachedUIController.PlayReloadAnimation();
-        }
+        // Attend une frame pour laisser l'animation démarrer
+        yield return null;
 
-        yield return new WaitForSeconds(weaponData.reloadTime);
+        // Attend que l'animation UI soit terminée
+        while (cachedUIController != null && cachedUIController.IsAnimating)
+            yield return null;
 
-        weaponData.currentAmmo = weaponData.maxAmmo;
-        RaiseAmmoChanged(weaponData.currentAmmo);
-        isReloading = false;
+        isAttacking = false;
+    }
+
+    private void ThrowProjectile()
+    {
+        if (projectilePrefab == null || throwPoint == null) return;
+
+        if (playerCamera == null)
+            playerCamera = Camera.main;
+
+        Vector3 throwDirection = playerCamera.transform.forward;
+        GameObject projectile = Instantiate(
+            projectilePrefab,
+            throwPoint.position,
+            Quaternion.LookRotation(throwDirection)
+        );
+
+        Rigidbody rb = projectile.GetComponent<Rigidbody>();
+        if (rb != null)
+            rb.linearVelocity = throwDirection * throwForce;
+
+        Projectile projectileScript = projectile.GetComponent<Projectile>();
+        if (projectileScript != null)
+            projectileScript.damage = weaponData.damage;
+    }
+
+    private void RefreshHandMesh()
+    {
+        if (handMeshObject != null)
+            handMeshObject.SetActive(weaponData.RuntimeCurrentAmmo > 0);
     }
 }

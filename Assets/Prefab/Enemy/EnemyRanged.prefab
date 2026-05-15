@@ -57,7 +57,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
-  m_BaseOffset: 0
+  m_BaseOffset: 2.5
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!114 &4521124159368953855
@@ -107,18 +107,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67f43a6755cbb9840853e80f3ebd6112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ImpostorEntityAI
-  meshPrefab: {fileID: 73284592428818202, guid: 251df5020fb58e54cbe16b263adc6748, type: 3}
+  meshPrefab: {fileID: 4381246824616134613, guid: 0fdc2bb2cb9a8414f9cc03d87a49f007, type: 3}
   impostorMaterial: {fileID: 2100000, guid: 72eb5e46e3896b04090d4bf67ff51474, type: 2}
   impostorQuadPrefab: {fileID: 6608268022857075241, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
-  animatedFPS: 2
+  animatedFPS: 8
+  animatorController: {fileID: 0}
   captureScale: 1
-  meshRotationOffset: {x: 0, y: 0, z: 0}
-  customCameraHeight: 3
+  meshRotationOffset: {x: 0, y: 180, z: 0}
+  customCameraHeight: 0
   customLookAtRatio: -1
   customFieldOfView: -1
   customDistanceMultiplier: -1
   quadScaleMultiplier: 1
-  quadManualSize: {x: 0, y: 0}
+  quadManualSize: {x: 5, y: 5}
   autoGenerateCollider: 0
   colliderSize: {x: 0, y: 0, z: 0}
   colliderCenter: {x: 0, y: 0, z: 0}
@@ -133,12 +134,13 @@ MonoBehaviour:
   parallaxMaxSamples: 32
   positionOffset: {x: 0, y: 0, z: 0}
   useStaticFace: 0
+  directionHysteresis: 8
   staticFaceIndex: 0
   snapToGround: 1
-  groundOffset: 0
+  groundOffset: 2
   groundLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 512
 --- !u!136 &-7144714219970064081
 CapsuleCollider:
   m_ObjectHideFlags: 0

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3323493609394757946}
   m_Layer: 0
-  m_Name: FenceStraightPattern
+  m_Name: FenceStraightPattern_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26,7 +26,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -148.7903, y: 0.45, z: 2.8}
-  m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6451382646423075857}
@@ -45,11 +45,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.75
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.75
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.z
@@ -65,7 +65,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2
+      value: -2.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -109,7 +109,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2160575382835346065, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: scaleMultiplier
-      value: 1.75
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 2632246656403067629, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_Enabled
@@ -180,6 +180,7 @@ MonoBehaviour:
   parallaxMaxSamples: 32
   useBillboard: 0
   positionOffset: {x: 0, y: 0, z: 0}
+  directionHysteresis: 8
   useStaticFace: 1
   staticFaceIndex: 2
   animatorController: {fileID: 0}
@@ -193,11 +194,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.75
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.75
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.z
@@ -213,7 +214,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -6
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -257,7 +258,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2160575382835346065, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: scaleMultiplier
-      value: 1.75
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 2632246656403067629, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_Enabled
@@ -323,6 +324,7 @@ MonoBehaviour:
   parallaxMaxSamples: 32
   useBillboard: 0
   positionOffset: {x: 0, y: 0, z: 0}
+  directionHysteresis: 8
   useStaticFace: 1
   staticFaceIndex: 2
   animatorController: {fileID: 0}
@@ -341,11 +343,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.75
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.75
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.z
@@ -361,7 +363,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4
+      value: -8.25
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -405,7 +407,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2160575382835346065, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: scaleMultiplier
-      value: 1.75
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 2632246656403067629, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_Enabled
@@ -471,6 +473,7 @@ MonoBehaviour:
   parallaxMaxSamples: 32
   useBillboard: 0
   positionOffset: {x: 0, y: 0, z: 0}
+  directionHysteresis: 8
   useStaticFace: 1
   staticFaceIndex: 2
   animatorController: {fileID: 0}
@@ -489,11 +492,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.75
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.75
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalScale.z
@@ -553,7 +556,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2160575382835346065, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: scaleMultiplier
-      value: 1.75
+      value: 2.75
       objectReference: {fileID: 0}
     - target: {fileID: 2632246656403067629, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_Enabled
@@ -619,6 +622,7 @@ MonoBehaviour:
   parallaxMaxSamples: 32
   useBillboard: 0
   positionOffset: {x: 0, y: 0, z: 0}
+  directionHysteresis: 8
   useStaticFace: 1
   staticFaceIndex: 2
   animatorController: {fileID: 0}

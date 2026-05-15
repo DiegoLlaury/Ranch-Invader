@@ -19,84 +19,84 @@ public class RangedWeapon : BaseWeapon
 
     public override void Attack()
     {
-        if (weaponData.currentAmmo <= 0)
+        if (isReloading) return;
+
+        if (weaponData.RuntimeCurrentAmmo <= 0)
         {
-            Reload();
+            int reserve = weaponData.RuntimeMaxAmmo - weaponData.RuntimeCurrentAmmo;
+            if (reserve > 0)
+                StartCoroutine(ReloadCoroutine());
+            else
+                soundEmitter?.Play(SoundOnEmpty);
             return;
         }
 
-        if (!CanAttack() || isReloading)
-            return;
-
+        if (!CanAttack()) return;
         base.Attack();
     }
 
     protected override void PerformAttack()
     {
-        weaponData.currentAmmo--;
-        RaiseAmmoChanged(weaponData.currentAmmo);
+        weaponData.RuntimeCurrentAmmo--;
+        RaiseAmmoChanged(weaponData.RuntimeCurrentAmmo);
+        Shoot();
+    }
 
+    /// <summary>
+    /// Bloque isAttacking jusqu'à la fin de l'animation UI, comme ThrowableWeapon.
+    /// Empêche un second tir de partir pendant que l'animation du premier joue.
+    /// </summary>
+    protected override void ResetAttackState()
+    {
+        StartCoroutine(WaitForAnimationThenReset());
+    }
+
+    private IEnumerator WaitForAnimationThenReset()
+    {
+        if (cachedUIController == null)
+            cachedUIController = Object.FindAnyObjectByType<WeaponUIController>();
+
+        yield return null; // laisse l'animation démarrer
+
+        while (cachedUIController != null && cachedUIController.IsAnimating)
+            yield return null;
+
+        isAttacking = false;
+    }
+
+    private void Shoot()
+    {
         if (playerCamera == null)
             playerCamera = Camera.main;
 
-        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
         if (Physics.Raycast(ray, out RaycastHit hit, weaponData.range, hitLayers))
         {
-            // GetComponentInParent couvre le cas où le collider touché est sur un enfant
-            // (ex. ImpostorQuad) dont l'IDamageable est sur le root parent (EnemyBase).
             IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
             if (damageable != null)
-            {
-                float finalDamage = GetFinalDamage();
-                damageable.TakeDamage(finalDamage);
-            }
+                damageable.TakeDamage(GetFinalDamage());
 
             if (weaponData.hitEffectPrefab != null)
-            {
                 Instantiate(weaponData.hitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-            }
         }
 
         if (weaponData.muzzleFlashPrefab != null && shootPoint != null)
-        {
             Instantiate(weaponData.muzzleFlashPrefab, shootPoint.position, shootPoint.rotation);
-        }
-
-        if (weaponData.currentAmmo <= 0)
-        {
-            Invoke(nameof(Reload), weaponData.animationDuration);
-        }
-    }
-
-    public void Reload()
-    {
-        if (isReloading || weaponData.currentAmmo == weaponData.maxAmmo)
-            return;
-
-        CancelInvoke(nameof(Reload));
-        StartCoroutine(ReloadCoroutine());
     }
 
     private IEnumerator ReloadCoroutine()
     {
         isReloading = true;
-
-        if (cachedUIController == null)
-        {
-            cachedUIController = Object.FindAnyObjectByType<WeaponUIController>();
-        }
-
-        if (cachedUIController != null)
-        {
-            cachedUIController.PlayReloadAnimation();
-        }
-
+        cachedUIController?.PlayReloadAnimation();
         yield return new WaitForSeconds(weaponData.reloadTime);
 
-        weaponData.currentAmmo = weaponData.maxAmmo;
-        RaiseAmmoChanged(weaponData.currentAmmo);
+        int toReload = Mathf.Min(weaponData.ammoPerReload,
+                                 weaponData.RuntimeMaxAmmo - weaponData.RuntimeCurrentAmmo);
+        weaponData.RuntimeCurrentAmmo += toReload;
+        weaponData.RuntimeMaxAmmo -= toReload;
+
+        RaiseAmmoChanged(weaponData.RuntimeCurrentAmmo);
         isReloading = false;
     }
 }
-
