@@ -32,6 +32,7 @@ Shader "Custom/ImpostorParallax"
 
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
+        ZTest LEqual 
         Cull Off
 
         Pass

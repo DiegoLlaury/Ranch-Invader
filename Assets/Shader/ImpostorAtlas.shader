@@ -15,6 +15,7 @@ Shader "Custom/ImpostorAtlas"
 
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
+        ZTest LEqual 
         Cull Off
 
         Pass

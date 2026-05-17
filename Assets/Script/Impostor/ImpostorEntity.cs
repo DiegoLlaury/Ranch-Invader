@@ -98,6 +98,11 @@ public class ImpostorEntity : MonoBehaviour
     [Range(0f, 20f)]
     public float directionHysteresis = 8f;
 
+    [Header("Face Weights")]
+    [Tooltip("Poids angulaire de chaque face : 0=avant, 1=diag NE, 2=gauche, 3=diag SE, 4=arrière, 5=diag SO, 6=droite, 7=diag NO. " +
+             "Augmenter le poids d'une face élargit son arc. Diminuer le rétrécit. Valeur uniforme = 1. Taille du tableau : 8 exactement.")]
+    public float[] faceWeights = { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f };
+
     [Header("Static Face Settings")]
     [Tooltip("Verrouille l'impostor sur une face fixe, ignorant la position de la cam�ra")]
     public bool useStaticFace = false;
@@ -120,6 +125,7 @@ public class ImpostorEntity : MonoBehaviour
     private bool isInitialized = false;
     private RenderTexture atlas;
     private int currentDirectionIndex = 0;
+    private float[] faceBoundaries;
 
     // Transform du root ennemi (parent du quad) — utilisé pour le calcul de direction
     private Transform enemyRootTransform;
@@ -257,6 +263,12 @@ public class ImpostorEntity : MonoBehaviour
         if (billboard != null)
             billboard.enabled = useBillboard;
 
+        // Précalcule les frontières angulaires custom si les poids ne sont pas uniformes.
+        // null = chemin uniforme d'origine (aucun overhead).
+        faceBoundaries = IsUniformFaceWeights(faceWeights)
+            ? null
+            : ImpostorDirectionHelper.BuildFaceBoundaries(faceWeights);
+
         CaptureImpostor();
 
         isInitialized = true;
@@ -340,7 +352,8 @@ public class ImpostorEntity : MonoBehaviour
             candidateIndex = ImpostorDirectionHelper.GetDirectionIndexForRotatingEntity(
                 rotationSource,
                 playerTransform.position,
-                meshRotationOffset
+                meshRotationOffset,
+                faceBoundaries
             );
         }
         else
@@ -348,7 +361,8 @@ public class ImpostorEntity : MonoBehaviour
             candidateIndex = ImpostorDirectionHelper.GetDirectionIndexFromRotation(
                 rotationSource,
                 playerTransform.position,
-                meshRotationOffset
+                meshRotationOffset,
+                faceBoundaries
             );
         }
 
@@ -357,9 +371,19 @@ public class ImpostorEntity : MonoBehaviour
         if (directionHysteresis > 0f && candidateIndex != currentDirectionIndex)
         {
             float rawAngle = GetRawAngle(rotationSource, playerTransform.position);
-            float boundary = currentDirectionIndex * 45f + 22.5f; // frontière droite de la face courante
-            float delta = Mathf.DeltaAngle(rawAngle, boundary);   // signé, en degrés
-                                                                  // On accepte le changement uniquement si on dépasse la zone morte
+
+            // Calcule la frontière droite de la face courante selon le mode actif.
+            float boundary;
+            if (faceBoundaries != null)
+            {
+                boundary = faceBoundaries[currentDirectionIndex];
+            }
+            else
+            {
+                boundary = currentDirectionIndex * 45f + 22.5f;
+            }
+
+            float delta = Mathf.DeltaAngle(rawAngle, boundary);
             if (Mathf.Abs(delta) < directionHysteresis)
                 candidateIndex = currentDirectionIndex;
         }
@@ -380,11 +404,20 @@ public class ImpostorEntity : MonoBehaviour
         dir.Normalize();
 
         if (!followParentRotation && meshRotationOffset != Vector3.zero)
-            dir = Quaternion.Inverse(Quaternion.Euler(meshRotationOffset)) * dir;
+            dir = Quaternion.Euler(meshRotationOffset) * dir;
 
         float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
         if (angle < 0f) angle += 360f;
         return angle;
+    }
+
+    // Retourne true si tous les poids sont à 1 (frontières uniformes) → chemin rapide sans overhead.
+    private bool IsUniformFaceWeights(float[] weights)
+    {
+        if (weights == null || weights.Length != 8) return true;
+        foreach (float w in weights)
+            if (!Mathf.Approximately(w, 1f)) return false;
+        return true;
     }
 
     void AlignToGround()

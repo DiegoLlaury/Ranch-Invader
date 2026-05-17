@@ -83,6 +83,11 @@ public class ImpostorEntityAI : MonoBehaviour
     [Range(0, 7)]
     public int staticFaceIndex = 0;
 
+    [Header("Face Weights")]
+    [Tooltip("Poids angulaire de chaque face : 0=avant, 1=diag NE, 2=gauche, 3=diag SE, 4=arrière, 5=diag SO, 6=droite, 7=diag NO. " +
+             "Augmenter le poids élargit l'arc de la face. Valeur uniforme = 1. Ex: avant=2, diagonales=0.5 → avant visible ~80° au lieu de 45°.")]
+    public float[] faceWeights = { 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f };
+
     [Header("Ground Alignment")]
     [Tooltip("Aligne automatiquement l'impostor sur le sol au d�marrage.")]
     public bool snapToGround = true;
@@ -195,6 +200,7 @@ public class ImpostorEntityAI : MonoBehaviour
         impostorEntity.useStaticFace = useStaticFace;
         impostorEntity.staticFaceIndex = staticFaceIndex;
         impostorEntity.directionHysteresis = directionHysteresis;
+        impostorEntity.faceWeights = faceWeights;
 
         ImpostorQuadScaler scaler = impostorQuadInstance.GetComponent<ImpostorQuadScaler>();
         if (scaler == null)
@@ -240,6 +246,7 @@ public class ImpostorEntityAI : MonoBehaviour
         impostorEntity.staticFaceIndex = staticFaceIndex;
         impostorEntity.positionOffset = positionOffset;
         impostorEntity.directionHysteresis = directionHysteresis;
+        impostorEntity.faceWeights = faceWeights;
 
 
         // Billboard

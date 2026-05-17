@@ -18,6 +18,7 @@ Shader "Custom/ImpostorClean"
 
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
+        ZTest LEqual 
         Cull Off
 
         Pass

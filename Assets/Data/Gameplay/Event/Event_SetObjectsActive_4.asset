@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SetObjectsActiveEventSO
   delay: 0.5
   targets:
-  - gameObjectName: ForceField_Farm
+  - gameObjectName: ForceField_Farm_Final
     setActive: 0
