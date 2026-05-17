@@ -83,6 +83,7 @@ MonoBehaviour:
   rotationSpeed: 8
   attackVfxPrefab: {fileID: 4021103657954561961, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
   deathVfxPrefab: {fileID: 2433282508537954060, guid: 3ef3ae421f71c5c4e97fe12dc2fc6312, type: 3}
+  spawnVfxPrefab: {fileID: 7012661820490644895, guid: 2c60bd29283799b43ac9286b0dabafc8, type: 3}
   navMeshSnapRadius: 5
   alignToSlope: 0
   slopeAlignSpeed: 8

@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Gameplay/Events/Set Objects Active", fileName = "Event_SetObjectsActive")]
@@ -16,7 +17,9 @@ public class SetObjectsActiveEventSO : GameplayEventSO
 
     public override void Execute(MonoBehaviour caller)
     {
-        caller.StartCoroutine(ExecuteDelayed());
+        // Utilise le CoroutineRunner persistant plutôt que le caller
+        // qui peut être détruit avant la fin du délai.
+        CoroutineRunner.Instance.Run(ExecuteDelayed());
     }
 
     private IEnumerator ExecuteDelayed()

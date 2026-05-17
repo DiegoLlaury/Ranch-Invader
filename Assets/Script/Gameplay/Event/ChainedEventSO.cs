@@ -9,8 +9,9 @@ public class ChainedEventSO : GameplayEventSO
 
     public override void Execute(MonoBehaviour caller)
     {
-        caller.StartCoroutine(ExecuteChain(caller));
+        CoroutineRunner.Instance.Run(ExecuteChain(caller));
     }
+
 
     private IEnumerator ExecuteChain(MonoBehaviour caller)
     {

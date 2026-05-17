@@ -12,8 +12,9 @@ public class UnityEventSO : GameplayEventSO
 
     public override void Execute(MonoBehaviour caller)
     {
-        caller.StartCoroutine(ExecuteDelayed());
+        CoroutineRunner.Instance.Run(ExecuteDelayed());
     }
+
 
     private IEnumerator ExecuteDelayed()
     {

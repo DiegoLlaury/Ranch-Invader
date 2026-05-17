@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// Destructible generator object that sustains a force field.
 /// Implements IDamageable with HitFlash feedback (no knockback).
-/// Fires a GameplayEventSO on death and notifies its linked ElectricArcRenderer.
+/// Notifies a GeneratorGroupSO on death (shared event) and/or fires a solo GameplayEventSO.
 /// </summary>
 public class GeneratorObject : MonoBehaviour, IDamageable
 {
@@ -11,8 +11,12 @@ public class GeneratorObject : MonoBehaviour, IDamageable
     [Tooltip("Maximum hit points of the generator.")]
     [SerializeField] private float maxHealth = 100f;
 
-    [Header("On Death Event")]
-    [Tooltip("GameplayEventSO to fire when the generator is destroyed.")]
+    [Header("Group")]
+    [Tooltip("Shared group SO. The group event fires only when all generators in the group are destroyed.")]
+    [SerializeField] private GeneratorGroupSO generatorGroup;
+
+    [Header("Solo Event (optional)")]
+    [Tooltip("GameplayEventSO fired immediately when THIS generator is destroyed, regardless of the group.")]
     [SerializeField] private GameplayEventSO onDeathEvent;
 
     [Header("VFX")]
@@ -35,11 +39,15 @@ public class GeneratorObject : MonoBehaviour, IDamageable
     {
         hitFlash = GetComponent<EnemyHitFlash>();
         soundEmitter = GetComponent<SoundEmitter>();
+
+        // Reset avant toute inscription — Awake est garanti avant Start sur tous les objets
+        generatorGroup?.ResetCount();
     }
 
     private void Start()
     {
         currentHealth = maxHealth;
+        generatorGroup?.Register();
     }
 
     /// <summary>
@@ -70,7 +78,11 @@ public class GeneratorObject : MonoBehaviour, IDamageable
         if (electricArc != null)
             electricArc.Deactivate();
 
+        // Solo event — fires immediately on this generator's death
         onDeathEvent?.Execute(this);
+
+        // Group event — fires only when all generators in the group are down
+        generatorGroup?.NotifyDestroyed(this);
 
         Destroy(gameObject);
     }

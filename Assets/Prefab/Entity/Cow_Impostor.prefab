@@ -173,7 +173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a711e07ad056a14fb5c6c5f8c5b33a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CowKnockback
-  knockbackDistance: 5.5
+  knockbackDistance: 22
   knockbackDuration: 0.55
   knockbackCurve:
     serializedVersion: 2
@@ -203,7 +203,7 @@ MonoBehaviour:
   fleeDistance: 15
   fleePositionAttempts: 15
   enemyDamage: 20
-  enemyDetectionRadius: 1
+  enemyDetectionRadius: 1.93
   enemyLayer:
     serializedVersion: 2
     m_Bits: 8

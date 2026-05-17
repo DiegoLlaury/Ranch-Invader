@@ -32,6 +32,9 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     [Tooltip("Particle prefab played at the enemy position when it dies.")]
     public GameObject deathVfxPrefab;
 
+    [Tooltip("Particle prefab played at the enemy position when it spawns (teleport effect).")]
+    public GameObject spawnVfxPrefab;
+
     [Tooltip("Rayon de recherche du NavMesh au spawn si l'ennemi apparaît hors du NavMesh")]
     public float navMeshSnapRadius = 5f;
 
@@ -78,6 +81,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     private const float SlopeRaycastInterval = 0.1f;
     private float lastSlopeRaycastTime;
 
+
     private bool hasDetectedPlayer;
     private Quaternion targetSlopeRotation = Quaternion.identity;
     private const float MinVelocityToRotate = 0.3f;
@@ -122,7 +126,9 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
         if (playerTransform != null)
             cachedPlayerHealth = playerTransform.GetComponent<PlayerHealth>();
 
-        SnapToNavMesh(); // ← ajouter cette ligne
+        SnapToNavMesh(); 
+        if (spawnVfxPrefab != null)
+            Instantiate(spawnVfxPrefab, transform.position, Quaternion.identity);
     }
 
     private void SnapToNavMesh()
