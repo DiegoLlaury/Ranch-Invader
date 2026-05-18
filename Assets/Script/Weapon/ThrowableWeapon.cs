@@ -61,12 +61,17 @@ public class ThrowableWeapon : BaseWeapon
         if (cachedUIController == null)
             cachedUIController = Object.FindAnyObjectByType<WeaponUIController>();
 
-        // Attend une frame pour laisser l'animation d�marrer
+        // Attend une frame pour laisser l'animation démarrer
         yield return null;
 
-        // Attend que l'animation UI soit termin�e
-        while (cachedUIController != null && cachedUIController.IsAnimating)
+        // Attend que l'animation UI soit terminée, avec un timeout de sécurité
+        float timeout = 3f;
+        float elapsed = 0f;
+        while (cachedUIController != null && cachedUIController.IsAnimating && elapsed < timeout)
+        {
+            elapsed += Time.deltaTime;
             yield return null;
+        }
 
         isAttacking = false;
     }

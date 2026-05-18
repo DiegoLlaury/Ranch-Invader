@@ -3,16 +3,20 @@ using UnityEngine.Audio;
 using UnityEngine.UI;
 
 /// <summary>
-/// Panneau audio ó contrÙle les quatre sliders de volume via l'AudioMixer exposÈ.
+/// Panneau audio ‚Äî contr√¥le les quatre sliders de volume via l'AudioMixer expos√©.
+/// Les valeurs du mixer sont appliqu√©es une seule fois au d√©marrage via AudioVolumeInitializer,
+/// puis mises √† jour uniquement quand un slider change. Cela √©vite de baisser la musique
+/// √† chaque ouverture du panneau.
 /// </summary>
 public class AudioOptionsPanel : MonoBehaviour
 {
     private const float MinDb = -80f;
     private const float MaxDb = 0f;
-    private const string KeyMaster = "MasterVolume_Pref";
-    private const string KeyMusic = "MusicVolume_Pref";
-    private const string KeyVoice = "VoiceVolume_Pref";
-    private const string KeySFX = "SFXVolume_Pref";
+
+    public const string KeyMaster = "MasterVolume_Pref";
+    public const string KeyMusic  = "MusicVolume_Pref";
+    public const string KeyVoice  = "VoiceVolume_Pref";
+    public const string KeySFX    = "SFXVolume_Pref";
 
     [Header("Mixer")]
     [SerializeField] private AudioMixer audioMixer;
@@ -23,23 +27,27 @@ public class AudioOptionsPanel : MonoBehaviour
     [SerializeField] private Slider voiceSlider;
     [SerializeField] private Slider sfxSlider;
 
-    // Noms des paramËtres exposÈs dans MixerAudio
-    private const string ParamMaster = "MainVolume";   // dÈj‡ exposÈ
-    private const string ParamMusic = "MusicVolume";  // ‡ exposer
-    private const string ParamVoice = "VoiceVolume";  // ‡ exposer
-    private const string ParamSFX = "SFXVolume";    // ‡ exposer
+    // Noms des param√®tres expos√©s dans MixerAudio
+    public const string ParamMaster = "MainVolume";
+    public const string ParamMusic  = "MusicVolume";
+    public const string ParamVoice  = "VoiceVolume";
+    public const string ParamSFX    = "SFXVolume";
 
     private void OnEnable()
     {
-        LoadAndApply(masterSlider, KeyMaster, ParamMaster);
-        LoadAndApply(musicSlider, KeyMusic, ParamMusic);
-        LoadAndApply(voiceSlider, KeyVoice, ParamVoice);
-        LoadAndApply(sfxSlider, KeySFX, ParamSFX);
+        // Synchronise uniquement les sliders avec les valeurs sauvegard√©es.
+        // On N'applique PAS au mixer ici : le mixer est d√©j√† initialis√© au d√©marrage
+        // par AudioVolumeInitializer, et le modifier √† chaque OnEnable causait un
+        // abaissement permanent du volume de la musique.
+        masterSlider.SetValueWithoutNotify(PlayerPrefs.GetFloat(KeyMaster, 1f));
+        musicSlider.SetValueWithoutNotify(PlayerPrefs.GetFloat(KeyMusic, 1f));
+        voiceSlider.SetValueWithoutNotify(PlayerPrefs.GetFloat(KeyVoice, 1f));
+        sfxSlider.SetValueWithoutNotify(PlayerPrefs.GetFloat(KeySFX, 1f));
 
         masterSlider.onValueChanged.AddListener(v => SetVolume(ParamMaster, KeyMaster, v));
-        musicSlider.onValueChanged.AddListener(v => SetVolume(ParamMusic, KeyMusic, v));
-        voiceSlider.onValueChanged.AddListener(v => SetVolume(ParamVoice, KeyVoice, v));
-        sfxSlider.onValueChanged.AddListener(v => SetVolume(ParamSFX, KeySFX, v));
+        musicSlider.onValueChanged.AddListener(v => SetVolume(ParamMusic,  KeyMusic,  v));
+        voiceSlider.onValueChanged.AddListener(v => SetVolume(ParamVoice,  KeyVoice,  v));
+        sfxSlider.onValueChanged.AddListener(v => SetVolume(ParamSFX,    KeySFX,    v));
     }
 
     private void OnDisable()
@@ -50,21 +58,14 @@ public class AudioOptionsPanel : MonoBehaviour
         sfxSlider.onValueChanged.RemoveAllListeners();
     }
 
-    private void LoadAndApply(Slider slider, string prefKey, string mixerParam)
-    {
-        float normalized = PlayerPrefs.GetFloat(prefKey, 1f);
-        slider.SetValueWithoutNotify(normalized);
-        ApplyToMixer(mixerParam, normalized);
-    }
-
     private void SetVolume(string mixerParam, string prefKey, float normalizedValue)
     {
         ApplyToMixer(mixerParam, normalizedValue);
         PlayerPrefs.SetFloat(prefKey, normalizedValue);
     }
 
-    // Convertit [0,1] en dÈcibels de maniËre logarithmique
-    private void ApplyToMixer(string param, float normalized)
+    /// <summary>Convertit [0,1] en d√©cibels de mani√®re logarithmique et applique au mixer.</summary>
+    public void ApplyToMixer(string param, float normalized)
     {
         float db = normalized > 0.0001f
             ? Mathf.Lerp(MinDb, MaxDb, Mathf.Log10(1f + normalized * 9f) / Mathf.Log10(10f))

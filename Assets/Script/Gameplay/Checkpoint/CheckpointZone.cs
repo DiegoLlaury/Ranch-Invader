@@ -1,24 +1,29 @@
 using UnityEngine;
 
 /// <summary>
-/// Zone de sauvegarde de position. Lorsque le joueur entre dans le collider trigger,
-/// la position de ce GameObject devient la nouvelle position de respawn.
-/// Aucun lien avec les GameplayEventSO — cette zone gère uniquement la position.
+/// Zone de checkpoint identifiée par un index entier unique.
+/// Lorsque le joueur entre dans le collider trigger, l'index de ce checkpoint
+/// est envoyé au CheckpointManager. Le spawn se fait à la position du respawnPoint
+/// (ou du Transform de ce GameObject si non assigné).
+/// Les index doivent être uniques et croissants dans le niveau (0, 1, 2, …).
 /// </summary>
 [RequireComponent(typeof(Collider))]
 public class CheckpointZone : MonoBehaviour
 {
     private const string PlayerTag = "Player";
 
-    [Tooltip("Override optionnel : si assigné, c'est cette position qui est enregistrée plutôt que celle du GameObject.")]
+    [Tooltip("Index unique de ce checkpoint dans le niveau. Doit être croissant (0, 1, 2, …).")]
+    [SerializeField] private int checkpointIndex = 0;
+
+    [Tooltip("Point de spawn exact. Si non assigné, utilise la position de ce GameObject.")]
     [SerializeField] private Transform respawnPoint;
 
     private bool hasActivated = false;
 
     private void Awake()
     {
-        Collider col = GetComponent<Collider>();
-        col.isTrigger = true;
+        GetComponent<Collider>().isTrigger = true;
+        CheckpointManager.Instance?.RegisterCheckpoint(checkpointIndex, this);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -27,12 +32,17 @@ public class CheckpointZone : MonoBehaviour
         if (!other.CompareTag(PlayerTag)) return;
 
         hasActivated = true;
+        CheckpointManager.Instance?.ActivateCheckpoint(checkpointIndex);
 
-        Vector3 position = respawnPoint != null ? respawnPoint.position : transform.position;
-        CheckpointManager.Instance?.RegisterCheckpointPosition(position);
-
-        Debug.Log($"[CheckpointZone] Checkpoint activé : {name} → position {position}");
+        Debug.Log($"[CheckpointZone] '{name}' activé → index {checkpointIndex}, spawn : {GetSpawnPosition()}");
     }
+
+    /// <summary>Retourne la position de spawn de ce checkpoint.</summary>
+    public Vector3 GetSpawnPosition()
+        => respawnPoint != null ? respawnPoint.position : transform.position;
+
+    /// <summary>Index de ce checkpoint.</summary>
+    public int Index => checkpointIndex;
 
 #if UNITY_EDITOR
     private void OnDrawGizmos()
@@ -53,9 +63,14 @@ public class CheckpointZone : MonoBehaviour
             Gizmos.DrawSphere(transform.position, 1f);
         }
 
+        // Affiche la position de spawn et l'index
         Vector3 spawnPos = respawnPoint != null ? respawnPoint.position : transform.position;
         Gizmos.color = Color.yellow;
         Gizmos.DrawSphere(spawnPos, 0.3f);
+
+        UnityEditor.Handles.Label(
+            transform.position + Vector3.up * 1.5f,
+            $"CP [{checkpointIndex}]");
     }
 #endif
 }

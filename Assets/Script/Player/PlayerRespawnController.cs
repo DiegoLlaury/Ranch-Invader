@@ -58,10 +58,11 @@ public class PlayerRespawnController : MonoBehaviour
     {
         if (checkpointManager == null || playerTransform == null) return;
 
-        Vector3 savedPosition = checkpointManager.GetCheckpointPosition();
+        // Utilise l'index sauvegardé pour retrouver le point de spawn exact
+        Vector3 spawnPosition = checkpointManager.GetSpawnPosition();
 
-        if (savedPosition != Vector3.zero)
-            playerTransform.position = savedPosition;
+        if (spawnPosition != Vector3.zero)
+            playerTransform.position = spawnPosition;
 
         sceneStateRestorer?.RestoreStateAtCheckpoint();
     }

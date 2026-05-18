@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Composant ajouté dynamiquement par EnemySpawner sur chaque ennemi spawné.
-/// Notifie le spawner quand l'ennemi est détruit.
+/// Composant ajoutï¿½ dynamiquement par EnemySpawner sur chaque ennemi spawnï¿½.
+/// Notifie le spawner quand l'ennemi est dï¿½truit.
 /// </summary>
 public class EnemyDeathNotifier : MonoBehaviour
 {
@@ -16,8 +16,11 @@ public class EnemyDeathNotifier : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Ne notifie pas si c'est un unload de scène
+        // Ne notifie pas si c'est un unload de scï¿½ne
         if (spawner != null && gameObject.scene.isLoaded)
+        {
             spawner.OnEnemyDied(gameObject);
+            VoiceManager.Instance?.PlayVoice("Voice_Combat", VoicePriority.Normal);
+        }
     }
 }

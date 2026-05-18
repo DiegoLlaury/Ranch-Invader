@@ -34,6 +34,8 @@ public class PlayerHealth : MonoBehaviour
         currentHealth -= damage;
         currentHealth = Mathf.Max(currentHealth, 0);
 
+        SoundManager.Instance?.PlaySound2D("Player_Hurt");
+
         OnHealthChanged?.Invoke(currentHealth / maxHealth);
 
         if (currentHealth <= 0)
@@ -55,6 +57,7 @@ public class PlayerHealth : MonoBehaviour
     private void Die()
     {
         isDead = true;
+        VoiceManager.Instance?.PlayVoiceForced("Voice_Death", VoicePriority.Objective);
         OnDeath?.Invoke();
     }
 

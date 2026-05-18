@@ -250,6 +250,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4873126666360923103}
   - component: {fileID: 7682424509888769347}
+  - component: {fileID: 6393765907304097834}
   m_Layer: 0
   m_Name: ShotgunWeapon
   m_TagString: Untagged
@@ -291,6 +292,23 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   playerCamera: {fileID: 2601449335975220456}
+--- !u!114 &6393765907304097834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3303001833062860928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f74830321784fe4282953449c80497f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoundEmitter
+  bindings:
+  - eventName: OnSwing
+    soundKey: Weapon_ShotgunShoot
+  - eventName: OnReload
+    soundKey: Weapon_ShotgunReload
 --- !u!1 &3763101284294739042
 GameObject:
   m_ObjectHideFlags: 0
@@ -301,6 +319,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6708940324725386444}
   - component: {fileID: 1878804485300975328}
+  - component: {fileID: 265316523051096306}
   m_Layer: 8
   m_Name: ShovelWeapon
   m_TagString: Untagged
@@ -341,6 +360,23 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   attackPoint: {fileID: 816536786740129339}
+--- !u!114 &265316523051096306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3763101284294739042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f74830321784fe4282953449c80497f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoundEmitter
+  bindings:
+  - eventName: OnSwing
+    soundKey: Weapon_ShovelHit
+  - eventName: OnHit
+    soundKey: Weapon_ShovelHit
 --- !u!1 &4135013735270702863
 GameObject:
   m_ObjectHideFlags: 0
@@ -528,6 +564,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5843158012212855584}
   - component: {fileID: 6320785470616724735}
+  - component: {fileID: 7366618774061793155}
   m_Layer: 0
   m_Name: PitchforkWeapon
   m_TagString: Untagged
@@ -569,6 +606,21 @@ MonoBehaviour:
   throwForce: 35
   playerCamera: {fileID: 2601449335975220456}
   handMeshObject: {fileID: 0}
+--- !u!114 &7366618774061793155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6147553938724154451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f74830321784fe4282953449c80497f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoundEmitter
+  bindings:
+  - eventName: OnSwing
+    soundKey: Weapon_ForkThrow
 --- !u!1 &8162934231821646322
 GameObject:
   m_ObjectHideFlags: 0
@@ -704,6 +756,7 @@ MonoBehaviour:
   TopClamp: 30
   BottomClamp: -30
   externalRotationOffset: {x: 0, y: 0, z: 0}
+  IsControlEnabled: 1
 --- !u!114 &1978471637655604388
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -933,6 +986,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   maxHealth: 100
   currentHealth: 100
+  damageCooldown: 0.5
   OnHealthChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1070,6 +1124,8 @@ MonoBehaviour:
   bindings:
   - eventName: OnSwing
     soundKey: Throw_Punch
+  - eventName: OnHit
+    soundKey: Weapon_PunchHit
 --- !u!1001 &6404906028758166285
 PrefabInstance:
   m_ObjectHideFlags: 0

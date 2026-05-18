@@ -6,18 +6,18 @@ using UnityEngine.Rendering.Universal;
 
 public class DrunkEffect : MonoBehaviour
 {
-    [Header("Références")]
+    [Header("Rï¿½fï¿½rences")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private GameObject cameraRoot;
     [SerializeField] private FirstPersonController playerController;
     [SerializeField] private Volume drunkVolume;
 
-    [Header("Paramètres de Shake - Position")]
+    [Header("Paramï¿½tres de Shake - Position")]
     [SerializeField] private float baseShakeIntensity = 0.1f;
     [SerializeField] private float shakeFrequency = 2f;
     [SerializeField] private float maxShakeIntensity = 0.4f;
 
-    [Header("Paramètres de Shake - Rotation")]
+    [Header("Paramï¿½tres de Shake - Rotation")]
     [SerializeField] private float baseRotationIntensity = 2f;
     [SerializeField] private float rotationFrequency = 1.5f;
     [SerializeField] private float maxRotationIntensity = 8f;
@@ -38,6 +38,9 @@ public class DrunkEffect : MonoBehaviour
     [SerializeField] private int maxBeerStack = 5;
     [SerializeField] private float stackIntensityMultiplier = 0.3f;
     private float totalDuration = 0f;
+
+    private const int DrunkVoiceStack1 = 3;
+    private const int DrunkVoiceStack2 = 5;
 
     private bool isDrunk = false;
     private float baseDamageBoost = 0f;
@@ -85,11 +88,11 @@ public class DrunkEffect : MonoBehaviour
             UpdateVolumeEffects(0f);
             drunkVolume.weight = 0f;
 
-            Debug.Log("DrunkEffect initialisé avec succès");
+            Debug.Log("DrunkEffect initialisï¿½ avec succï¿½s");
         }
         else
         {
-            Debug.LogWarning("DrunkVolume n'est pas assigné correctement !");
+            Debug.LogWarning("DrunkVolume n'est pas assignï¿½ correctement !");
         }
     }
 
@@ -101,7 +104,12 @@ public class DrunkEffect : MonoBehaviour
         {
             currentBeerStack = Mathf.Min(currentBeerStack + 1, maxBeerStack);
             remainingDuration = duration;
-            Debug.Log($"Bière supplémentaire ! Stack : {currentBeerStack}/{maxBeerStack}");
+            Debug.Log($"Biï¿½re supplï¿½mentaire ! Stack : {currentBeerStack}/{maxBeerStack}");
+
+            if (currentBeerStack == DrunkVoiceStack1)
+                VoiceManager.Instance?.PlayVoice("Voice_Drunk1", VoicePriority.Normal);
+            else if (currentBeerStack >= DrunkVoiceStack2)
+                VoiceManager.Instance?.PlayVoice("Voice_Drunk2", VoicePriority.Normal);
         }
         else
         {
@@ -207,7 +215,7 @@ public class DrunkEffect : MonoBehaviour
         }
 
         UpdateVolumeEffects(1f);
-        Debug.Log($"Effet d'ivresse activé ! Stack : {currentBeerStack}");
+        Debug.Log($"Effet d'ivresse activï¿½ ! Stack : {currentBeerStack}");
     }
 
     private IEnumerator FadeOutEffect()
@@ -239,7 +247,7 @@ public class DrunkEffect : MonoBehaviour
         }
 
         UpdateVolumeEffects(0f);
-        Debug.Log("Effet d'ivresse terminé");
+        Debug.Log("Effet d'ivresse terminï¿½");
     }
 
     private void UpdateVolumeEffects(float blendFactor)

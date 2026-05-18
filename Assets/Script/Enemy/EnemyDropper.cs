@@ -7,32 +7,32 @@ using UnityEngine;
 /// </summary>
 public class EnemyDropper : MonoBehaviour
 {
-    [Header("Bière")]
-    [Tooltip("Probabilité de faire tomber une bière à la mort d'un ennemi (0 = jamais, 1 = toujours)")]
+    [Header("Biï¿½re")]
+    [Tooltip("Probabilitï¿½ de faire tomber une biï¿½re ï¿½ la mort d'un ennemi (0 = jamais, 1 = toujours)")]
     [Range(0f, 1f)]
     public float beerDropChance = 0.2f;
 
-    [Tooltip("Prefab de la bière à instancier")]
+    [Tooltip("Prefab de la biï¿½re ï¿½ instancier")]
     public GameObject beerPrefab;
 
     [Header("Munitions")]
-    [Tooltip("Probabilité de faire tomber des munitions à la mort d'un ennemi (0 = jamais, 1 = toujours)")]
+    [Tooltip("Probabilitï¿½ de faire tomber des munitions ï¿½ la mort d'un ennemi (0 = jamais, 1 = toujours)")]
     [Range(0f, 1f)]
     public float ammoDropChance = 0.3f;
 
-    [Tooltip("Prefab de munitions à instancier")]
+    [Tooltip("Prefab de munitions ï¿½ instancier")]
     public GameObject ammoPrefab;
 
     [Header("Drop Settings")]
-    [Tooltip("Décalage vertical pour que le pickup apparaisse légèrement au-dessus du sol")]
+    [Tooltip("Dï¿½calage vertical pour que le pickup apparaisse lï¿½gï¿½rement au-dessus du sol")]
     public float dropHeightOffset = 0.5f;
 
-    [Tooltip("Rayon de dispersion aléatoire autour de la position de mort")]
+    [Tooltip("Rayon de dispersion alï¿½atoire autour de la position de mort")]
     [Range(0f, 3f)]
     public float scatterRadius = 0.5f;
 
-    [Header("Références")]
-    [Tooltip("L'inventaire du joueur — utilisé pour conditionner le drop de munitions")]
+    [Header("Rï¿½fï¿½rences")]
+    [Tooltip("L'inventaire du joueur ï¿½ utilisï¿½ pour conditionner le drop de munitions")]
     public WeaponInventory playerInventory;
 
     private static readonly WeaponType[] AmmoWeapons = { WeaponType.Shotgun, WeaponType.Pitchfork };
@@ -51,15 +51,27 @@ public class EnemyDropper : MonoBehaviour
     {
         Vector3 dropPosition = deathPosition + Vector3.up * dropHeightOffset;
 
-        TryDrop(beerPrefab, beerDropChance, dropPosition);
+        // Roll a single drop : biÃ¨re OU munitions, jamais les deux en mÃªme temps.
+        // On tire d'abord la biÃ¨re. Si elle Ã©choue et que le joueur a une arme Ã  munitions,
+        // on tente les munitions Ã  la place.
+        float roll = Random.value;
 
-        // Les munitions n'apparaissent que si le joueur possède au moins une arme à munitions
-        if (PlayerHasAmmoWeapon())
-            TryDrop(ammoPrefab, ammoDropChance, dropPosition);
+        if (roll < beerDropChance)
+        {
+            SpawnDrop(beerPrefab, dropPosition);
+        }
+        else if (PlayerHasAmmoWeapon())
+        {
+            // On recalcule la probabilitÃ© sur la portion restante pour conserver
+            // la distribution voulue indÃ©pendamment de l'ordre des checks.
+            float remainingRoll = Random.value;
+            if (remainingRoll < ammoDropChance)
+                SpawnDrop(ammoPrefab, dropPosition);
+        }
     }
 
     /// <summary>
-    /// Retourne true si le joueur possède au moins une arme consommant des munitions.
+    /// Retourne true si le joueur possï¿½de au moins une arme consommant des munitions.
     /// </summary>
     private bool PlayerHasAmmoWeapon()
     {
@@ -75,12 +87,11 @@ public class EnemyDropper : MonoBehaviour
     }
 
     /// <summary>
-    /// Rolls against the given chance and instantiates the prefab at a randomly scattered position.
+    /// Instantiates the given prefab at a randomly scattered position around basePosition.
     /// </summary>
-    private void TryDrop(GameObject prefab, float chance, Vector3 basePosition)
+    private void SpawnDrop(GameObject prefab, Vector3 basePosition)
     {
         if (prefab == null) return;
-        if (Random.value > chance) return;
 
         Vector2 scatter = Random.insideUnitCircle * scatterRadius;
         Vector3 spawnPosition = basePosition + new Vector3(scatter.x, 0f, scatter.y);

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -41,6 +41,8 @@ public class SpawnTeleportVFX : MonoBehaviour
 
     private IEnumerator PlayScaleAnimation()
     {
+        SoundManager.Instance?.PlaySoundAtPosition("Enemy_Teleport", transform.position);
+
         // ── Grow ──────────────────────────────────────────────────────────
         float elapsed = 0f;
         while (elapsed < growDuration)

@@ -1,4 +1,4 @@
-﻿using StarterAssets;
+using StarterAssets;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -129,6 +129,11 @@ public class PauseMenuController : MonoBehaviour, IOptionsHost
             playerInputs.cursorLocked = enabled;
             playerInputs.cursorInputForLook = enabled;
             playerInputs.SetCursorState(enabled);
+
+            // Remet l'entrée look à zéro pour éviter que le personnage continue
+            // de tourner après avoir bougé la souris en dehors de la fenêtre.
+            if (!enabled)
+                playerInputs.look = Vector2.zero;
         }
 
         // Bascule l'action map : "UI" en pause, "Player" en jeu

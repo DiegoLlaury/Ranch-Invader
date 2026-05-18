@@ -70,6 +70,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponPickup
   weaponType: 2
   interactionLabel: Pick up
+  pickupVoiceSoundName: 
+  onPickedUpEvent: {fileID: 0}
 --- !u!114 &6946602041132621678
 MonoBehaviour:
   m_ObjectHideFlags: 0

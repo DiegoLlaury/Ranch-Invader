@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BeerPickup : MonoBehaviour
 {
-    [Header("Propriétés de la Bière")]
+    [Header("Propriï¿½tï¿½s de la Biï¿½re")]
     [SerializeField] private float healthRestore = 20f;
     [SerializeField] private float damageBoost = 10f;
     [SerializeField] private float drunkDuration = 10f;
@@ -31,6 +31,8 @@ public class BeerPickup : MonoBehaviour
     private void PickupBeer(GameObject player)
     {
         SoundManager.Instance.PlaySound2D("BeerCan_Open");
+        SoundManager.Instance.PlaySound2D("Beer_Drink");
+        VoiceManager.Instance?.PlayVoice("Voice_DrinkBeer", VoicePriority.Normal);
 
         if (hasBeenPickedUp) return;
         hasBeenPickedUp = true;
@@ -41,21 +43,21 @@ public class BeerPickup : MonoBehaviour
         if (health != null)
         {
             health.Heal(healthRestore);
-            Debug.Log($"Bière ramassée ! Vie restaurée : +{healthRestore}");
+            Debug.Log($"Biï¿½re ramassï¿½e ! Vie restaurï¿½e : +{healthRestore}");
         }
         else
         {
-            Debug.LogWarning("PlayerHealth non trouvé sur le joueur !");
+            Debug.LogWarning("PlayerHealth non trouvï¿½ sur le joueur !");
         }
 
         if (drunkEffect != null)
         {
             drunkEffect.ApplyDrunkEffect(drunkDuration, damageBoost);
-            Debug.Log($"Effet bourré activé ! Durée : {drunkDuration}s, Bonus dégâts : +{damageBoost}");
+            Debug.Log($"Effet bourrï¿½ activï¿½ ! Durï¿½e : {drunkDuration}s, Bonus dï¿½gï¿½ts : +{damageBoost}");
         }
         else
         {
-            Debug.LogWarning("DrunkEffect non trouvé sur le joueur !");
+            Debug.LogWarning("DrunkEffect non trouvï¿½ sur le joueur !");
         }
 
         Destroy(gameObject);

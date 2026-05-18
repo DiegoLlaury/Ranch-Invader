@@ -220,6 +220,15 @@ MonoBehaviour:
   useBillboard: 1
   positionOffset: {x: 0, y: 0, z: 0}
   directionHysteresis: 8
+  faceWeights:
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
   useStaticFace: 0
   staticFaceIndex: 0
   animatorController: {fileID: 0}
@@ -236,6 +245,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GeneratorObject
   maxHealth: 100
+  generatorGroup: {fileID: 0}
   onDeathEvent: {fileID: 11400000, guid: 7616922ba7f0d8447a15dee65e351859, type: 2}
   deathVfxPrefab: {fileID: 0}
   electricArc: {fileID: 0}
@@ -265,4 +275,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f74830321784fe4282953449c80497f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoundEmitter
-  bindings: []
+  bindings:
+  - eventName: OnHit
+    soundKey: Cow_Hurt
+  - eventName: OnDeath
+    soundKey: Generator_Death

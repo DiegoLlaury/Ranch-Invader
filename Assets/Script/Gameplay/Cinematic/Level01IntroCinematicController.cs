@@ -65,6 +65,17 @@ public class Level01IntroCinematicController : MonoBehaviour
     [Tooltip("Sound name for the player dialogue (registered in SoundDatabase).")]
     [SerializeField] private string playerDialogueSoundName = "PlayerDialogueIntro";
 
+    [Tooltip("Sound name for the cinematic background music (registered in SoundDatabase).")]
+    [SerializeField] private string cinematicMusicSoundName = "CinematicIntroMusic";
+
+    [SerializeField] private GameObject musicTempory;
+
+    [Header("Music")]
+    [Tooltip("Tous les GameObjects portant une AudioSource de musique qui ne doivent démarrer " +
+             "qu'après la cinématique (ou immédiatement si la cinématique est déjà vue).")]
+    [SerializeField] private GameObject[] musicObjects;
+
+
     [Header("Animation")]
     [Tooltip("Easing curve applied to ship and Ranger arrival animations.")]
     [SerializeField] private AnimationCurve arrivalCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
@@ -78,13 +89,23 @@ public class Level01IntroCinematicController : MonoBehaviour
     private const float DeliveryStart = 5.0f;
     private const float DeliveryDuration = 2.0f;
     private const float ForceFieldScaleDuration = 1.5f;
-    private const float CameraReturnDelay = 9.0f;
+    private const float CameraHoldExtraDuration = 1f;
+    private const float CameraReturnDelay = 9.0f + CameraHoldExtraDuration;
     private const float CameraReturnDuration = 1.0f;
+    private Vector3[] _glorpOriginalScales;
+    private Vector3 _ufoOriginalScale;
+    private Vector3[] _forceFieldOriginalScales;
 
     // ————————————————————————————————————————————————————————————————————————
 
     private void Start()
     {
+        if (musicTempory != null)
+            musicTempory.SetActive(false);
+
+        // Désactive toutes les sources de musique — elles ne démarreront qu'après la cinématique.
+        SetMusicObjectsActive(false);
+
         if (CheckpointManager.Instance == null)
         {
             Debug.LogWarning("[Level01IntroCinematic] CheckpointManager not found. Activating all targets.");
@@ -102,6 +123,25 @@ public class Level01IntroCinematicController : MonoBehaviour
         Debug.Log("[Level01IntroCinematic] Cinematic not yet played, starting sequence.");
         inputBlocker.Block();
         StartCoroutine(WaitForLoadingThenPlay());
+    }
+
+    private void CacheOriginalScales()
+    {
+        if (glorpShips != null)
+        {
+            _glorpOriginalScales = new Vector3[glorpShips.Length];
+            for (int i = 0; i < glorpShips.Length; i++)
+                _glorpOriginalScales[i] = glorpShips[i] != null ? glorpShips[i].transform.localScale : Vector3.one;
+        }
+
+        _ufoOriginalScale = ufoShip != null ? ufoShip.transform.localScale : Vector3.one;
+
+        if (forceFields != null)
+        {
+            _forceFieldOriginalScales = new Vector3[forceFields.Length];
+            for (int i = 0; i < forceFields.Length; i++)
+                _forceFieldOriginalScales[i] = forceFields[i] != null ? forceFields[i].transform.localScale : Vector3.one;
+        }
     }
 
     private IEnumerator WaitForLoadingThenPlay()
@@ -124,6 +164,7 @@ public class Level01IntroCinematicController : MonoBehaviour
                 yield return new WaitForEndOfFrame();
         }
 
+        CacheOriginalScales();
         // Deactivate targets right before playing so Impostors had time to capture them
         DeactivateAllTargets();
 
@@ -134,8 +175,11 @@ public class Level01IntroCinematicController : MonoBehaviour
 
     private IEnumerator RunCinematic()
     {
+        SoundManager.Instance.PlaySound2D(cinematicMusicSoundName);
+
         // [0s - 0.2s] Camera looks up at the sky
         yield return StartCoroutine(LerpCameraRotation(skyLookRotation, CameraLookUpDuration));
+
 
         // [0.2s - 2.5s] All Glorp ships arrive from hyperspace simultaneously
         for (int i = 0; i < glorpShips.Length; i++)
@@ -146,7 +190,10 @@ public class Level01IntroCinematicController : MonoBehaviour
             Vector3 endPos = ship.transform.position;
             Vector3 startPos = endPos + glorpStartOffset;
             ship.SetActive(true);
-            StartCoroutine(AnimateShipArrival(ship.transform, startPos, endPos, GlorpArrivalDuration));
+            Vector3 targetScale = (_glorpOriginalScales != null && i < _glorpOriginalScales.Length)
+            ? _glorpOriginalScales[i] : Vector3.one;
+            StartCoroutine(AnimateShipArrival(ship.transform, startPos, endPos, targetScale, GlorpArrivalDuration));
+
         }
 
         yield return new WaitForSeconds(GlorpArrivalDuration);
@@ -156,7 +203,7 @@ public class Level01IntroCinematicController : MonoBehaviour
         Vector3 ufoEnd = ufoShip.transform.position;
         Vector3 ufoStart = ufoEnd + ufoStartOffset;
         ufoShip.SetActive(true);
-        yield return StartCoroutine(AnimateShipArrival(ufoShip.transform, ufoStart, ufoEnd, UfoArrivalDuration));
+        yield return StartCoroutine(AnimateShipArrival(ufoShip.transform, ufoStart, ufoEnd, _ufoOriginalScale, UfoArrivalDuration));
         SoundManager.Instance.PlaySound2D(ufoArrivalSoundName);
 
         // [4.5s - 5s] Camera pivots down toward generators / force fields
@@ -170,11 +217,11 @@ public class Level01IntroCinematicController : MonoBehaviour
 
         for (int i = 0; i < forceFields.Length; i++)
         {
-            StartCoroutine(AnimateScaleIn(forceFields[i].transform, ForceFieldScaleDuration));
+            StartCoroutine(AnimateScaleIn(forceFields[i].transform, _forceFieldOriginalScales[i], ForceFieldScaleDuration));
         }
 
         // [5s - 9s] Player dialogue audio
-        SoundManager.Instance.PlaySound2D(playerDialogueSoundName);
+        VoiceManager.Instance?.PlayVoiceForced(playerDialogueSoundName, VoicePriority.Normal);
 
         // Wait until camera return moment
         float waitForReturn = CameraReturnDelay - DeliveryStart;
@@ -183,32 +230,36 @@ public class Level01IntroCinematicController : MonoBehaviour
         // [9s - 10s] Camera returns to standing rotation
         yield return StartCoroutine(LerpCameraRotation(standingRotation, CameraReturnDuration));
 
+        if (musicTempory != null)
+            musicTempory.SetActive(true);
+        SetMusicObjectsActive(true);
         // [10s] Register event and unblock inputs
-        CheckpointManager.Instance.RegisterEvent(cinematicEventId, transform.position);
+        CheckpointManager.Instance.RegisterEvent(cinematicEventId);
         inputBlocker.Unblock();
     }
 
     // — Helper coroutines ——————————————————————————————————————————————————
 
     /// <summary>Animates a ship from startPos to endPos with scale 0 to 1.</summary>
-    private IEnumerator AnimateShipArrival(Transform ship, Vector3 startPos, Vector3 endPos, float duration)
+    private IEnumerator AnimateShipArrival(Transform ship, Vector3 startPos, Vector3 endPos, Vector3 targetScale, float duration)
     {
-        float elapsed = 0f;
         ship.position = startPos;
         ship.localScale = Vector3.zero;
+        float elapsed = 0f;
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = arrivalCurve.Evaluate(Mathf.Clamp01(elapsed / duration));
             ship.position = Vector3.Lerp(startPos, endPos, t);
-            ship.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, t);
+            ship.localScale = Vector3.Lerp(Vector3.zero, targetScale, t);
             yield return null;
         }
 
         ship.position = endPos;
-        ship.localScale = Vector3.one;
+        ship.localScale = targetScale;
     }
+
 
     /// <summary>Spawns a temporary Ranger that descends from the sky, delivers the generator, then self-destructs.</summary>
     private IEnumerator AnimateRangerDelivery(GameObject generator, float duration)
@@ -239,22 +290,23 @@ public class Level01IntroCinematicController : MonoBehaviour
     }
 
     /// <summary>Scales a target from 0 to 1 over duration.</summary>
-    private IEnumerator AnimateScaleIn(Transform target, float duration)
+    private IEnumerator AnimateScaleIn(Transform target, Vector3 targetScale, float duration)
     {
         target.gameObject.SetActive(true);
         target.localScale = Vector3.zero;
-
         float elapsed = 0f;
+
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = arrivalCurve.Evaluate(Mathf.Clamp01(elapsed / duration));
-            target.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, t);
+            target.localScale = Vector3.Lerp(Vector3.zero, targetScale, t);
             yield return null;
         }
 
-        target.localScale = Vector3.one;
+        target.localScale = targetScale;
     }
+
 
     /// <summary>Lerps the camera target's local rotation toward targetRot over duration.</summary>
     private IEnumerator LerpCameraRotation(Vector3 targetRot, float duration)
@@ -301,6 +353,22 @@ public class Level01IntroCinematicController : MonoBehaviour
             {
                 if (forceFields[i] != null) forceFields[i].SetActive(true);
             }
+        }
+
+        if (musicTempory != null)
+            musicTempory.SetActive(true);
+
+        SetMusicObjectsActive(true);
+    }
+
+    /// <summary>Active ou désactive tous les GameObjects de musique référencés.</summary>
+    private void SetMusicObjectsActive(bool active)
+    {
+        if (musicObjects == null) return;
+        foreach (GameObject musicObj in musicObjects)
+        {
+            if (musicObj != null)
+                musicObj.SetActive(active);
         }
     }
 

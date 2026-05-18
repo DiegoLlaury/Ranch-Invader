@@ -10,8 +10,8 @@ public class HealthValueUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI healthLabel;
     [SerializeField] private PlayerHealth playerHealth;
 
-    [Tooltip("Format d'affichage. Utilisez {0} pour les HP courants et {1} pour les HP maximum.")]
-    [SerializeField] private string displayFormat = "{0} / {1}";
+    [Tooltip("Format d'affichage. Utilisez {0} pour les HP courants.")]
+    [SerializeField] private string displayFormat = "{0}";
 
     private void Start()
     {
@@ -33,13 +33,12 @@ public class HealthValueUI : MonoBehaviour
         Refresh();
     }
 
-    /// <summary>Met à jour le label avec les valeurs entières courantes.</summary>
+    /// <summary>Met à jour le label avec la valeur entière courante des HP.</summary>
     private void Refresh()
     {
         if (healthLabel == null || playerHealth == null) return;
 
         healthLabel.text = string.Format(displayFormat,
-            playerHealth.GetCurrentHealth(),
-            playerHealth.GetMaxHealth());
+            playerHealth.GetCurrentHealth());
     }
 }

@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2164502051352364973
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4929372011234653244}
+  - component: {fileID: 9215721660782721400}
+  - component: {fileID: 150740628431063207}
+  - component: {fileID: 6050532327681012839}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4929372011234653244
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2164502051352364973}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -8.850327, y: -5.29428, z: 22.03189}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9215721660782721400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2164502051352364973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68a4321016ba2dc428538575e9272f2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoundManager
+  soundDatabase: {fileID: 11400000, guid: 54b34ea9d37b18349b4f00f8d13c5d4f, type: 2}
+  sfxMixerGroup: {fileID: 5792419211164592567, guid: 1802345990a0ecc428d222b8cb970103, type: 2}
+  musicMixerGroup: {fileID: 188547198250658503, guid: 1802345990a0ecc428d222b8cb970103, type: 2}
+  poolSize: 20
+  masterVolume: 1
+  sfxVolume: 1
+  musicVolume: 1
+--- !u!114 &150740628431063207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2164502051352364973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 043f07fa73328dc4996546f7cc36ef89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioDebugger
+  debugKey: 282
+--- !u!114 &6050532327681012839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2164502051352364973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21285ccbc6999454b8bbcfc9d7e4c722, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DrunkAudioEffect
+  audioMixer: {fileID: 24100000, guid: 1802345990a0ecc428d222b8cb970103, type: 2}
+  soberSnapshot: {fileID: 0}
+  drunkSnapshot: {fileID: 0}
+  fadeInDuration: 2.5
+  fadeOutDuration: 2.5
+  pitchParam: MainPitch
+  lowPassParam: MainLowPass
+  drunkPitch: 0.88
+  drunkLowPassFreq: 2500

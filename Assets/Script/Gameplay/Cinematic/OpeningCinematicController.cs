@@ -69,29 +69,31 @@ public class OpeningCinematicController : MonoBehaviour
 
     private IEnumerator RunCinematic()
     {
-        // 1 — Brief pause before anything happens
+        // 1 ï¿½ Brief pause before anything happens
         yield return new WaitForSeconds(meowDelay);
 
-        // 2 — Play cat meow
+        // 2 ï¿½ Play cat meow
         SoundManager.Instance.PlaySound2D(catMeowSoundName);
 
         yield return new WaitForSeconds(pauseAfterMeow);
 
-        // 3 — Eyes open: fade from black to clear
+        // 3 â€“ Eyes open: fade from black to clear
         yield return StartCoroutine(FadeScreen(1f, 0f, eyesOpenFadeDuration));
 
-        // 4 — Start dialogue immediately after fade
+        VoiceManager.Instance?.PlayVoiceForced("Voice_CinematicIntro", VoicePriority.Normal);
+
+        // 4 â€“ Start dialogue immediately after fade
         bool dialogueDone = false;
         dialogueDisplay.OnDialogueComplete += () => dialogueDone = true;
         dialogueDisplay.StartDialogue(openingLines);
 
-        // 5 — Rise camera while dialogue runs (both happen concurrently)
+        // 5 ï¿½ Rise camera while dialogue runs (both happen concurrently)
         yield return StartCoroutine(RiseCamera());
 
-        // 6 — Wait for dialogue to finish if camera rose faster
+        // 6 ï¿½ Wait for dialogue to finish if camera rose faster
         yield return new WaitUntil(() => dialogueDone);
 
-        // 7 — Hand control back to the player
+        // 7 ï¿½ Hand control back to the player
         inputBlocker.Unblock();
     }
 

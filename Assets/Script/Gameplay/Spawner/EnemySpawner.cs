@@ -34,13 +34,21 @@ public class EnemySpawner : MonoBehaviour
     public Transform[] spawnPoints;
 
     [Header("Events")]
-    [Tooltip("�v�nements d�clench�s quand TOUTES les vagues sont termin�es")]
+    [Tooltip("Événements déclenchés quand TOUTES les vagues sont terminées")]
     public GameplayEventSO[] onAllWavesCleared;
+
+    [Header("Voice")]
+    [Tooltip("Voix jouée au début de chaque vague (Objective). Laissez vide pour désactiver.")]
+    [SerializeField] private string waveVoiceName = "Voice_NextWave";
+
+    [Tooltip("Voix jouée une seule fois à la première vague de ce spawner. Laissez vide pour désactiver.")]
+    [SerializeField] private string firstSpawnVoiceName = "";
 
     private int currentWaveIndex = -1;
     private int spawnPointIndex = 0;
     private readonly List<GameObject> aliveEnemies = new List<GameObject>();
     private bool allWavesCompleted = false;
+    private bool _firstSpawnVoicePlayed = false;
 
     private const float SpawnOccupancyRadius = 1.2f;
     private const int SpawnMaxAttempts = 8;
@@ -79,6 +87,17 @@ public class EnemySpawner : MonoBehaviour
 
     private IEnumerator SpawnWaveCoroutine(EnemyWave wave)
     {
+        // Play first-spawn voice once per spawner session (e.g. AlienCat first appearance)
+        if (!_firstSpawnVoicePlayed && !string.IsNullOrEmpty(firstSpawnVoiceName))
+        {
+            _firstSpawnVoicePlayed = true;
+            VoiceManager.Instance?.PlayVoiceForced(firstSpawnVoiceName, VoicePriority.Objective);
+        }
+        else if (!string.IsNullOrEmpty(waveVoiceName))
+        {
+            VoiceManager.Instance?.PlayVoiceForced(waveVoiceName, VoicePriority.Objective);
+        }
+
         aliveEnemies.Clear();
 
         foreach (GameObject prefab in wave.enemyPrefabs)

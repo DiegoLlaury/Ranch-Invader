@@ -15,6 +15,7 @@ public abstract class BaseWeapon : MonoBehaviour
     public const string SoundOnHit = "OnHit";     // Projectile/melee connected
     public const string SoundOnEquip = "OnEquip";   // Weapon equipped
     public const string SoundOnEmpty = "OnEmpty";   // No ammo / broken
+    public const string SoundOnReload = "OnReload"; // Weapon reloading
 
     protected float lastAttackTime;
     protected bool isAttacking;
@@ -26,7 +27,7 @@ public abstract class BaseWeapon : MonoBehaviour
         drunkEffect = GetComponentInParent<DrunkEffect>();
         soundEmitter = GetComponent<SoundEmitter>();
 
-        // Mémorise les valeurs d'ammo définies dans l'asset avant toute modification runtime
+        // Mï¿½morise les valeurs d'ammo dï¿½finies dans l'asset avant toute modification runtime
         weaponData?.InitializeRuntimeAmmo();
     }
 
@@ -89,6 +90,6 @@ public abstract class BaseWeapon : MonoBehaviour
 
     public void NotifyAmmoChanged()
     {
-        RaiseAmmoChanged(weaponData.currentAmmo);
+        RaiseAmmoChanged(weaponData.RuntimeCurrentAmmo);
     }
 }

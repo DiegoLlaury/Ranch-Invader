@@ -14,8 +14,8 @@ public struct PlayerDatasStruct
 
     // Checkpoint data
     public List<string> executedEventIds;
-    public Vector3 checkpointPosition;
-    public int checkpointEventIndex;
+    public int checkpointIndex;       // Index du dernier checkpoint activé (-1 = aucun)
+    public bool isFirstPlay;          // true tant que le joueur n'a jamais sauvegardé de progression
 }
 
 public class SaveController
@@ -35,7 +35,12 @@ public class SaveController
             return JsonUtility.FromJson<PlayerDatasStruct>(data);
         }
 
-        var empty = new PlayerDatasStruct();
+        // Aucune sauvegarde existante : c'est la première partie
+        var empty = new PlayerDatasStruct
+        {
+            checkpointIndex = -1,
+            isFirstPlay = true
+        };
         SaveGameData(empty, filename);
         return empty;
     }

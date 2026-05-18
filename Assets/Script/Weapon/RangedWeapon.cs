@@ -61,8 +61,14 @@ public class RangedWeapon : BaseWeapon
 
         yield return null; // laisse l'animation démarrer
 
-        while (cachedUIController != null && cachedUIController.IsAnimating)
+        // Attend la fin de l'animation avec un timeout de sécurité
+        float timeout = 3f;
+        float elapsed = 0f;
+        while (cachedUIController != null && cachedUIController.IsAnimating && elapsed < timeout)
+        {
+            elapsed += Time.deltaTime;
             yield return null;
+        }
 
         isAttacking = false;
     }
@@ -97,6 +103,7 @@ public class RangedWeapon : BaseWeapon
     {
         isReloading = true;
         cachedUIController?.PlayReloadAnimation();
+        soundEmitter?.Play(SoundOnReload);
         yield return new WaitForSeconds(weaponData.reloadTime);
 
         int toReload = Mathf.Min(weaponData.ammoPerReload,

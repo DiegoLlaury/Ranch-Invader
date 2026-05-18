@@ -18,5 +18,5 @@ MonoBehaviour:
     IsPlayerInMiniGame: 0
     MiniGameNumber: 0
     executedEventIds: []
-    checkpointPosition: {x: -123.9, y: 0.97, z: -25.75}
-    checkpointEventIndex: 1
+    checkpointIndex: 0
+    isFirstPlay: 1

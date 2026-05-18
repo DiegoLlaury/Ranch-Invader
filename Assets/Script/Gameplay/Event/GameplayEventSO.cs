@@ -19,6 +19,6 @@ public abstract class GameplayEventSO : ScriptableObject
     protected void NotifyCheckpoint(MonoBehaviour caller)
     {
         if (!string.IsNullOrEmpty(eventId))
-            CheckpointManager.Instance?.RegisterEvent(eventId, caller.transform.position);
+            CheckpointManager.Instance?.RegisterEvent(eventId);
     }
 }

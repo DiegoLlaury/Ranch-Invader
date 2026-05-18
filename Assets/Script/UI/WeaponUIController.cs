@@ -6,8 +6,9 @@ using StarterAssets;
 
 public class WeaponUIController : MonoBehaviour
 {
-    [Header("Références")]
+    [Header("RÃ©fÃ©rences")]
     public WeaponController weaponController;
+    public WeaponInventory weaponInventory;
     public FirstPersonController playerController;
 
     [Header("Affichage de l'arme")]
@@ -37,19 +38,18 @@ public class WeaponUIController : MonoBehaviour
     public float speedMultiplier = 0.5f;
     public float updateRate = 0f;
 
-    [Header("Munitions/Durabilité")]
+    [Header("Munitions/DurabilitÃ©")]
     public GameObject ammoPanel;
     public TextMeshProUGUI ammoText;
     public GameObject durabilityPanel;
     public Slider durabilitySlider;
 
-    [Header("Sélecteur d'armes")]
-    public Image weapon1Slot;
-    public Image weapon2Slot;
-    public Image weapon3Slot;
-    public Image weapon4Slot;
+    [Header("SÃ©lecteur d'armes")]
+    [Tooltip("Slots dans l'ordre : Fist, Shovel, Shotgun, Pitchfork")]
+    public WeaponSlotUI[] weaponSlots;
     public Color selectedColor = Color.white;
-    public Color unselectedColor = Color.gray;
+    public Color unselectedColor = new Color(1f, 1f, 1f, 0.4f);
+    public Color lockedColor = new Color(0f, 0f, 0f, 0f);
 
     private Vector2 weaponIdlePosition;
     private Vector2 leftFistIdlePos;
@@ -63,6 +63,14 @@ public class WeaponUIController : MonoBehaviour
     public bool IsAnimating => isAnimating;
     private FistWeapon currentFistWeapon;
     private float updateTimer = 0f;
+
+    private static readonly WeaponType[] WeaponOrder = new WeaponType[]
+    {
+        WeaponType.Fist,
+        WeaponType.Shovel,
+        WeaponType.Shotgun,
+        WeaponType.Pitchfork
+    };
 
     private void Start()
     {
@@ -98,6 +106,12 @@ public class WeaponUIController : MonoBehaviour
             }
         }
 
+        if (weaponInventory != null)
+        {
+            weaponInventory.OnWeaponAdded += HandleWeaponAdded;
+        }
+
+        RefreshAllSlots();
         UpdateWeaponDisplay(weaponController.GetCurrentWeaponType());
     }
 
@@ -196,6 +210,11 @@ public class WeaponUIController : MonoBehaviour
         currentFistWeapon = newWeapon as FistWeapon;
     }
 
+    private void HandleWeaponAdded(WeaponType addedType)
+    {
+        RefreshAllSlots();
+    }
+
     private void HandleAttackTriggered()
     {
         if (!isAnimating)
@@ -213,6 +232,7 @@ public class WeaponUIController : MonoBehaviour
         }
     }
 
+    /// <summary>Triggers the reload animation on the weapon UI.</summary>
     public void PlayReloadAnimation()
     {
         if (!isAnimating)
@@ -240,21 +260,43 @@ public class WeaponUIController : MonoBehaviour
             weaponSprite.sprite = data.idleSprite;
         }
 
-        UpdateWeaponSlots(weaponType);
+        RefreshAllSlots();
         UpdateAmmoDisplay(weaponType, data);
         UpdateDurabilityDisplay(weaponType, data);
     }
 
-    private void UpdateWeaponSlots(WeaponType currentType)
+    /// <summary>Refreshes every slot icon, key hint, and visibility based on inventory state.</summary>
+    private void RefreshAllSlots()
     {
-        if (weapon1Slot != null)
-            weapon1Slot.color = currentType == WeaponType.Fist ? selectedColor : unselectedColor;
-        if (weapon2Slot != null)
-            weapon2Slot.color = currentType == WeaponType.Shovel ? selectedColor : unselectedColor;
-        if (weapon3Slot != null)
-            weapon3Slot.color = currentType == WeaponType.Shotgun ? selectedColor : unselectedColor;
-        if (weapon4Slot != null)
-            weapon4Slot.color = currentType == WeaponType.Pitchfork ? selectedColor : unselectedColor;
+        if (weaponSlots == null) return;
+
+        WeaponType currentType = weaponController != null
+            ? weaponController.GetCurrentWeaponType()
+            : WeaponType.Fist;
+
+        for (int i = 0; i < weaponSlots.Length; i++)
+        {
+            WeaponSlotUI slot = weaponSlots[i];
+            if (slot == null) continue;
+
+            if (i >= WeaponOrder.Length) continue;
+            WeaponType slotWeaponType = WeaponOrder[i];
+
+            bool isUnlocked = weaponInventory != null && weaponInventory.HasWeapon(slotWeaponType);
+            bool isSelected = isUnlocked && slotWeaponType == currentType;
+
+            slot.SetVisible(isUnlocked);
+
+            if (!isUnlocked) continue;
+
+            WeaponData data = weaponController != null
+                ? weaponController.GetWeaponData(slotWeaponType)
+                : null;
+
+            Sprite icon = data != null ? data.weaponIconSprite : null;
+            slot.SetIcon(icon);
+            slot.SetSelected(isSelected, selectedColor, unselectedColor);
+        }
     }
 
     private void UpdateAmmoDisplay(WeaponType weaponType, WeaponData data)
@@ -515,6 +557,11 @@ public class WeaponUIController : MonoBehaviour
             {
                 UnsubscribeFromWeaponEvents(currentWeapon);
             }
+        }
+
+        if (weaponInventory != null)
+        {
+            weaponInventory.OnWeaponAdded -= HandleWeaponAdded;
         }
     }
 }

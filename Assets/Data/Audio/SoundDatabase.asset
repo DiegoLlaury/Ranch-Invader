@@ -15,8 +15,8 @@ MonoBehaviour:
   sounds:
   - soundName: Cow_Hurt
     clips:
+    - {fileID: 8300000, guid: 223fb121c2df09b4db4fbd41a443a699, type: 3}
     - {fileID: 8300000, guid: 9835e6b07f3e64c428bb2b78d0fc2863, type: 3}
-    - {fileID: 8300000, guid: 1b3a127d06a135240a03819238c237c1, type: 3}
     volume: 0.1
     pitch: 1
     pitchVariation: 0.25
@@ -26,8 +26,7 @@ MonoBehaviour:
     loop: 0
     cooldown: 1.2
   - soundName: Cow_Death
-    clips:
-    - {fileID: 8300000, guid: 37bfeaf3521eddd41805bc60a4845c8a, type: 3}
+    clips: []
     volume: 0.05
     pitch: 1
     pitchVariation: 0.1
@@ -49,7 +48,7 @@ MonoBehaviour:
     cooldown: 0
   - soundName: Projectile_Enemy
     clips:
-    - {fileID: 8300000, guid: d7863e74098f5c8418a6098e66ef8a06, type: 3}
+    - {fileID: 8300000, guid: 21fe8a05091eac040a41f86178ea6d39, type: 3}
     volume: 0.15
     pitch: 1
     pitchVariation: 0.1
@@ -67,6 +66,378 @@ MonoBehaviour:
     volume: 0.08
     pitch: 1
     pitchVariation: 0.1
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: AmmoPickup
+    clips:
+    - {fileID: 8300000, guid: ecdf30d5505751944bc05cebf2cc9d06, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0.05
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0.1
+  - soundName: CatMeow
+    clips:
+    - {fileID: 8300000, guid: 7bf6128cf0055c2498c12121f89a054c, type: 3}
+    volume: 0.1
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: GlorpArrival
+    clips:
+    - {fileID: 8300000, guid: b9b3070be29dba547a454f43cecc9cec, type: 3}
+    volume: 0.1
+    pitch: 1
+    pitchVariation: 0.05
+    is3D: 0
+    minDistance: 0
+    maxDistance: 100
+    loop: 0
+    cooldown: 0
+  - soundName: UFOArrival
+    clips:
+    - {fileID: 8300000, guid: b9b3070be29dba547a454f43cecc9cec, type: 3}
+    volume: 0.1
+    pitch: 0.8
+    pitchVariation: 0.05
+    is3D: 0
+    minDistance: 0
+    maxDistance: 100
+    loop: 0
+    cooldown: 0
+  - soundName: CinematicIntroMusic
+    clips:
+    - {fileID: 8300000, guid: 893a37115330980498cc7892e256f9e8, type: 3}
+    volume: 0.5
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 500
+    loop: 0
+    cooldown: 0
+  - soundName: PlayerDialogueIntro
+    clips: []
+    volume: 0.7
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Player_Jump
+    clips:
+    - {fileID: 8300000, guid: b863c1a7f48262e40865ddd3d900ce28, type: 3}
+    volume: 0.25
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0.3
+  - soundName: Player_Hurt
+    clips:
+    - {fileID: 8300000, guid: e685bc6ba0636f44ca009606d200cbbb, type: 3}
+    - {fileID: 8300000, guid: d54f34dc64cad6349bfd053bd78bbf05, type: 3}
+    - {fileID: 8300000, guid: ab3dc579227d18841a1ecaf44ef6c65e, type: 3}
+    volume: 0.35
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0.5
+  - soundName: Beer_Drink
+    clips:
+    - {fileID: 8300000, guid: 2099fcb1ab35f9c44832ebbeae43bd46, type: 3}
+    - {fileID: 8300000, guid: 0f47709b8ea3b794d81741862bdf1873, type: 3}
+    volume: 0.5
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Enemy_Teleport
+    clips:
+    - {fileID: 8300000, guid: 14d5ef80f61e1fe4aac56768ced857bd, type: 3}
+    volume: 0.5
+    pitch: 1
+    pitchVariation: 0.05
+    is3D: 1
+    minDistance: 0.1
+    maxDistance: 30
+    loop: 0
+    cooldown: 0
+  - soundName: Generator_Death
+    clips:
+    - {fileID: 8300000, guid: 4e1e5e3c47d522142b049f35692bcf24, type: 3}
+    volume: 0.6
+    pitch: 1
+    pitchVariation: 0.05
+    is3D: 1
+    minDistance: 0.1
+    maxDistance: 40
+    loop: 0
+    cooldown: 0
+  - soundName: Enemy_RobotDog_Attack
+    clips:
+    - {fileID: 8300000, guid: 775c33a81a859dc4387de4189ea488ab, type: 3}
+    - {fileID: 8300000, guid: 437d98fdbc0a8324bbb6f1a800526494, type: 3}
+    volume: 0.35
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 1
+    minDistance: 0.1
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Enemy_AlienCat_Attack
+    clips:
+    - {fileID: 8300000, guid: 557d1fa137ff24e469374aadcf248830, type: 3}
+    volume: 0.5
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 1
+    minDistance: 0.1
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Weapon_ShotgunShoot
+    clips:
+    - {fileID: 8300000, guid: a7b3ec23ec87ba549b18d56e4148e3c1, type: 3}
+    volume: 0.35
+    pitch: 1
+    pitchVariation: 0.05
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Weapon_ShotgunReload
+    clips:
+    - {fileID: 8300000, guid: 14346125200083b4e857d95830afeb79, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0.05
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Weapon_ForkThrow
+    clips:
+    - {fileID: 8300000, guid: 55942a6220b831744982ee0e52716740, type: 3}
+    volume: 0.5
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Weapon_ForkPlant
+    clips:
+    - {fileID: 8300000, guid: 2001a231f3ec7d3468de1436eacf7007, type: 3}
+    volume: 0.5
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 1
+    minDistance: 0.1
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Weapon_ShovelHit
+    clips:
+    - {fileID: 8300000, guid: a2f31a146259e324b8d4edf302ff9479, type: 3}
+    volume: 0.5
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Weapon_PunchHit
+    clips:
+    - {fileID: 8300000, guid: 0996a6c832e6a164caa84fbdd745b79f, type: 3}
+    volume: 0.5
+    pitch: 1
+    pitchVariation: 0.1
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Music_GameLoop
+    clips:
+    - {fileID: 8300000, guid: 992ad67a5d6508b4f91c26a762e3c75a, type: 3}
+    volume: 0.3
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 500
+    loop: 1
+    cooldown: 0
+  - soundName: Voice_CinematicIntro
+    clips:
+    - {fileID: 8300000, guid: 56b51c5384eb65640ba7a8639a940d1e, type: 3}
+    volume: 0.5
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Voice_CinematicLevel01
+    clips:
+    - {fileID: 8300000, guid: a43de4ee5cfd90942b44d69b6476db18, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Voice_EndCinematic
+    clips:
+    - {fileID: 8300000, guid: 582a75bc608e3ac44953b0750208a6bf, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Voice_Combat
+    clips:
+    - {fileID: 8300000, guid: eb4c3eea9198df344a541abfc1ec439c, type: 3}
+    - {fileID: 8300000, guid: c00881442eb7e044c8b269ac6bf47c93, type: 3}
+    - {fileID: 8300000, guid: b21ec282ae1e28f4bae172204626db3d, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 5
+  - soundName: Voice_DrinkBeer
+    clips:
+    - {fileID: 8300000, guid: d0fbeb0b4b1d036409fd3a3b10cfc7ac, type: 3}
+    - {fileID: 8300000, guid: 397dd6ed4c8c26f439a0ca60b0cab501, type: 3}
+    - {fileID: 8300000, guid: 3fd4ca04bc377e2449b27ac53d6fe175, type: 3}
+    - {fileID: 8300000, guid: a1ad5050da708944b82944ad67ca7073, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Voice_Drunk1
+    clips:
+    - {fileID: 8300000, guid: 58b4c028524403e4a9bf05dd87585990, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Voice_Drunk2
+    clips:
+    - {fileID: 8300000, guid: e4dca5d4785a068458cf7490750de947, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Voice_Death
+    clips:
+    - {fileID: 8300000, guid: 4c4273db7fb5159428684df79e0f657c, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Voice_AlienCatAppear
+    clips:
+    - {fileID: 8300000, guid: 289a59698cf2b3a4ba2b4a406c7fb772, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Voice_NeedPitchfork
+    clips:
+    - {fileID: 8300000, guid: 23f04c5eb634c264e89d34842d881a93, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Voice_NextWave
+    clips:
+    - {fileID: 8300000, guid: 4dacd110ce2ef4c4bbe630ae3de58131, type: 3}
+    - {fileID: 8300000, guid: d3a281b9cd5a10e4fb5ed66d80e43482, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Voice_RecupShotgun
+    clips:
+    - {fileID: 8300000, guid: dd2908fe5735a8443a52798615ec249d, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0
+    is3D: 0
+    minDistance: 0
+    maxDistance: 20
+    loop: 0
+    cooldown: 0
+  - soundName: Voice_ShovelRecup
+    clips:
+    - {fileID: 8300000, guid: 75e5ab6946ec7c846a74fc2caf920b07, type: 3}
+    volume: 0.4
+    pitch: 1
+    pitchVariation: 0
     is3D: 0
     minDistance: 0
     maxDistance: 20

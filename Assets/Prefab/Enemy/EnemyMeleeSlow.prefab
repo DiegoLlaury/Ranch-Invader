@@ -248,10 +248,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoundEmitter
   bindings:
+  - eventName: OnDetect
+    soundKey: 
   - eventName: OnAttack
-    soundKey: Projectile_Enemy
+    soundKey: 
   - eventName: OnHit
-    soundKey: Cow_Hurt
+    soundKey: 
+  - eventName: OnDeath
+    soundKey: 
 --- !u!114 &-2308567606118293245
 MonoBehaviour:
   m_ObjectHideFlags: 0
