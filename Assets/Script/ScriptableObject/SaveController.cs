@@ -1,5 +1,6 @@
 // Legacy stub — board persistence is now handled by BoardSaveManager + BoardStateSerializer.
 // Kept to avoid breaking existing asset references.
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -10,6 +11,11 @@ public struct PlayerDatasStruct
     public int fleshNumber;
     public bool IsPlayerInMiniGame;
     public int MiniGameNumber;
+
+    // Checkpoint data
+    public List<string> executedEventIds;
+    public Vector3 checkpointPosition;
+    public int checkpointEventIndex;
 }
 
 public class SaveController

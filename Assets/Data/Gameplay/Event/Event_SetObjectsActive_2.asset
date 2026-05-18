@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Event_SetObjectsActive_2
   m_EditorClassIdentifier: Assembly-CSharp::SetObjectsActiveEventSO
   delay: 0.5
+  eventId: ActiveDoor_Field
   targets:
   - gameObjectName: Door_Field
     setActive: 0

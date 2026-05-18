@@ -140,6 +140,9 @@ public class ImpostorEntityAI : MonoBehaviour
 
     private void HandleAttack(EnemyBase attacker)
     {
+        // Guard: this impostor is attached to a non-enemy entity (e.g. cow/RandomMovementAI)
+        // and should never react to the static attack event.
+        if (enemyBase == null) return;
         if (attacker != enemyBase) return;
 
         // Reset first to clear any queued trigger from a previous frame

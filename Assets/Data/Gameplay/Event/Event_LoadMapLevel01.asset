@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Event_LoadMapLevel01
   m_EditorClassIdentifier: Assembly-CSharp::LoadMapEventSO
   delay: 0
+  eventId: LoadLevel01
   sceneName: Level 01

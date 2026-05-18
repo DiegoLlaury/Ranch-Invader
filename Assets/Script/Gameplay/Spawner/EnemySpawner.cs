@@ -129,6 +129,25 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    /// <summary>Marque le spawner comme entièrement terminé sans spawner ni déclencher d'events.</summary>
+    public void ResetToCompleted()
+    {
+        StopAllCoroutines();
+        aliveEnemies.Clear();
+        currentWaveIndex = waves != null ? waves.Length - 1 : 0;
+        allWavesCompleted = true;
+    }
+
+    /// <summary>Remet le spawner dans son état initial sans spawner d'ennemis.</summary>
+    public void ResetToInitial()
+    {
+        StopAllCoroutines();
+        aliveEnemies.Clear();
+        currentWaveIndex = -1;
+        spawnPointIndex = 0;
+        allWavesCompleted = false;
+    }
+
     private Vector3 GetNextSpawnPosition()
     {
         Vector3 basePosition = spawnPoints != null && spawnPoints.Length > 0

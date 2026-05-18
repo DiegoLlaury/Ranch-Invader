@@ -199,7 +199,8 @@ public class RandomMovementAI : MonoBehaviour
     {
         StopAllCoroutines();
         movementCoroutine = null;
-        FacingDirection = Vector3.zero;
+        // FacingDirection is intentionally preserved here so the sprite never shows
+        // a zero-vector frame between the end of knockback and the first MoveToTarget() update.
         StartCoroutine(BehaviourLoop());
     }
 

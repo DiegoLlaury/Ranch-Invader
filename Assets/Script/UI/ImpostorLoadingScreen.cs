@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,31 +18,23 @@ public class ImpostorLoadingScreen : MonoBehaviour
     public Text percentageLabel;
 
     [Header("Settings")]
-    [Tooltip("Seconds to wait after all captures complete before hiding the screen (lets the last frame render).")]
-    public float hideDelay = 0.1f;
+    [Tooltip("Frames à attendre après la fin des captures avant de cacher l'écran. Garantit que le GPU a rendu les impostors.")]
+    public int hideDelayFrames = 3;
 
     private Canvas canvas;
-    private bool allDone;
-    private float hideTimer;
-
-    // ──────────────────────────────────────────────
-    // Lifecycle
-    // ──────────────────────────────────────────────
+    private bool isSubscribed;
 
     void Awake()
     {
         canvas = GetComponent<Canvas>();
         canvas.sortingOrder = 999;
 
-        // Start visible — impostors haven't rendered yet.
         SetVisible(true);
         SetProgress(0f);
     }
 
     void OnEnable()
     {
-        // Hook into the photobooth as soon as it exists.
-        // Using a coroutine-free approach: poll once here, then rely on events.
         SubscribeToPhotoBooth();
     }
 
@@ -50,31 +43,29 @@ public class ImpostorLoadingScreen : MonoBehaviour
         UnsubscribeFromPhotoBooth();
     }
 
+    void Update()
+    {
+        if (!isSubscribed)
+            SubscribeToPhotoBooth();
+    }
+
     // ──────────────────────────────────────────────
     // Subscription helpers
     // ──────────────────────────────────────────────
 
-    private bool isSubscribed;
-
-    /// <summary>
-    /// Subscribes to ImpostorPhotoBooth events.
-    /// Called in OnEnable and retried each frame until the singleton is ready.
-    /// </summary>
     private void SubscribeToPhotoBooth()
     {
         if (isSubscribed) return;
 
-        // Access the property — this will NOT create the singleton if it doesn't exist yet.
-        // We use the backing field check via a try/catch-free method below.
         ImpostorPhotoBooth booth = FindAnyObjectByType<ImpostorPhotoBooth>();
-        if (booth == null) return; // Not ready yet — will retry in Update.
+        if (booth == null) return;
 
         booth.OnCaptureProgressChanged += HandleProgressChanged;
         booth.OnAllCapturesDone += HandleAllDone;
         isSubscribed = true;
 
-        // Sync immediately in case captures already started.
         SetProgress(booth.Progress);
+
         if (booth.IsAllCapturesDone)
             HandleAllDone();
     }
@@ -94,24 +85,6 @@ public class ImpostorLoadingScreen : MonoBehaviour
     }
 
     // ──────────────────────────────────────────────
-    // Update — retry subscription + handle hide delay
-    // ──────────────────────────────────────────────
-
-    void Update()
-    {
-        // Retry subscription each frame until the PhotoBooth singleton has spawned.
-        if (!isSubscribed)
-            SubscribeToPhotoBooth();
-
-        if (allDone)
-        {
-            hideTimer -= Time.deltaTime;
-            if (hideTimer <= 0f)
-                SetVisible(false);
-        }
-    }
-
-    // ──────────────────────────────────────────────
     // Event handlers
     // ──────────────────────────────────────────────
 
@@ -123,8 +96,19 @@ public class ImpostorLoadingScreen : MonoBehaviour
     private void HandleAllDone()
     {
         SetProgress(1f);
-        allDone = true;
-        hideTimer = hideDelay;
+        StartCoroutine(HideAfterFrames());
+    }
+
+    // ──────────────────────────────────────────────
+    // Hide coroutine — attend N fins de frame pour garantir le rendu GPU
+    // ──────────────────────────────────────────────
+
+    private IEnumerator HideAfterFrames()
+    {
+        for (int i = 0; i < hideDelayFrames; i++)
+            yield return new WaitForEndOfFrame();
+
+        SetVisible(false);
     }
 
     // ──────────────────────────────────────────────
@@ -136,16 +120,13 @@ public class ImpostorLoadingScreen : MonoBehaviour
         canvas.enabled = visible;
     }
 
-    /// <summary>
-    /// Updates the progress bar and optional label. Progress is clamped 0–1.
-    /// </summary>
+    /// <summary>Updates the progress bar and optional label. Progress is clamped 0–1.</summary>
     private void SetProgress(float progress)
     {
         progress = Mathf.Clamp01(progress);
 
         if (progressBarFill != null)
         {
-            // Supports both Filled image type and a simple stretched fill rect.
             if (progressBarFill.type == Image.Type.Filled)
                 progressBarFill.fillAmount = progress;
             else

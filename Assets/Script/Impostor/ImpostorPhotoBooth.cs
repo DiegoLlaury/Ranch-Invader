@@ -1,6 +1,7 @@
-using UnityEngine;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ImpostorPhotoBooth : MonoBehaviour
 {
@@ -125,6 +126,32 @@ public class ImpostorPhotoBooth : MonoBehaviour
             return;
         }
         instance = this;
+    }
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ResetCounters();
+    }
+
+    /// <summary>Réinitialise les compteurs de captures pour un nouveau chargement de scène.</summary>
+    public void ResetCounters()
+    {
+        TotalCapturesRequested = 0;
+        TotalCapturesCompleted = 0;
+        captureQueue.Clear();
+        isCapturing = false;
+        isInLoadingPhase = true;
+        remainingGraceFrames = 0;
+        enabled = false;
     }
 
     void Initialize()

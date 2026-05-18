@@ -5,13 +5,14 @@ using UnityEngine.Events;
 [CreateAssetMenu(menuName = "Gameplay/Events/Unity Event", fileName = "Event_UnityEvent")]
 public class UnityEventSO : GameplayEventSO
 {
-    // Les UnityEvent ne peuvent pas être sérialisés dans un SO directement,
-    // on passe par un proxy MonoBehaviour dans la scène.
-    [Tooltip("Nom du GameObject portant un GameplayEventProxy pour cet événement")]
+    // Les UnityEvent ne peuvent pas ï¿½tre sï¿½rialisï¿½s dans un SO directement,
+    // on passe par un proxy MonoBehaviour dans la scï¿½ne.
+    [Tooltip("Nom du GameObject portant un GameplayEventProxy pour cet ï¿½vï¿½nement")]
     public string proxyName;
 
     public override void Execute(MonoBehaviour caller)
     {
+        NotifyCheckpoint(caller);
         CoroutineRunner.Instance.Run(ExecuteDelayed());
     }
 

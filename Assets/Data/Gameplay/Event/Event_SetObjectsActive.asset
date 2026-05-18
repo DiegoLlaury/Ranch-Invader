@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Event_SetObjectsActive
   m_EditorClassIdentifier: Assembly-CSharp::SetObjectsActiveEventSO
   delay: 0.5
+  eventId: ActiveForceField_1
   targets:
   - gameObjectName: ForceField_1
     setActive: 0

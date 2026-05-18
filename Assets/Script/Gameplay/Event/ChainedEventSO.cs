@@ -4,11 +4,12 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Gameplay/Events/Chained Event", fileName = "Event_Chained")]
 public class ChainedEventSO : GameplayEventSO
 {
-    [Tooltip("Événements à exécuter en séquence, dans l'ordre du tableau")]
+    [Tooltip("ï¿½vï¿½nements ï¿½ exï¿½cuter en sï¿½quence, dans l'ordre du tableau")]
     public GameplayEventSO[] chain;
 
     public override void Execute(MonoBehaviour caller)
     {
+        NotifyCheckpoint(caller);
         CoroutineRunner.Instance.Run(ExecuteChain(caller));
     }
 
@@ -23,7 +24,7 @@ public class ChainedEventSO : GameplayEventSO
             if (gameplayEvent != null)
                 gameplayEvent.Execute(caller);
 
-            // Attendre le délai de l'event suivant avant de continuer
+            // Attendre le dï¿½lai de l'event suivant avant de continuer
             float waitTime = gameplayEvent != null ? gameplayEvent.delay : 0f;
             if (waitTime > 0f)
                 yield return new WaitForSeconds(waitTime);

@@ -12,13 +12,14 @@ public class SetObjectsActiveEventSO : GameplayEventSO
         public bool setActive;
     }
 
-    [Tooltip("Liste des GameObjects à activer ou désactiver")]
+    [Tooltip("Liste des GameObjects ï¿½ activer ou dï¿½sactiver")]
     public ObjectActivation[] targets;
 
     public override void Execute(MonoBehaviour caller)
     {
-        // Utilise le CoroutineRunner persistant plutôt que le caller
-        // qui peut être détruit avant la fin du délai.
+        NotifyCheckpoint(caller);
+        // Utilise le CoroutineRunner persistant plutÃ´t que le caller
+        // qui peut Ãªtre dÃ©truit avant la fin du dÃ©lai.
         CoroutineRunner.Instance.Run(ExecuteDelayed());
     }
 

@@ -1,25 +1,25 @@
 using UnityEngine;
 
 /// <summary>
-/// Zone de collision (trigger) qui déclenche des GameplayEventSO
+/// Zone de collision (trigger) qui dï¿½clenche des GameplayEventSO
 /// quand le joueur entre, sort ou reste dans la zone.
-/// Nécessite un BoxCollider en mode trigger sur le même GameObject.
+/// Nï¿½cessite un BoxCollider en mode trigger sur le mï¿½me GameObject.
 /// </summary>
 [RequireComponent(typeof(BoxCollider))]
 public class GameplayTriggerZone : MonoBehaviour
 {
     [Header("Detection")]
-    [Tooltip("Tag du GameObject déclencheur (généralement 'Player')")]
+    [Tooltip("Tag du GameObject dï¿½clencheur (gï¿½nï¿½ralement 'Player')")]
     public string triggerTag = "Player";
 
-    [Tooltip("Si activé, la zone ne se déclenche qu'une seule fois")]
+    [Tooltip("Si activï¿½, la zone ne se dï¿½clenche qu'une seule fois")]
     public bool triggerOnce = true;
 
     [Header("Events")]
-    [Tooltip("Événements déclenchés à l'entrée dans la zone")]
+    [Tooltip("ï¿½vï¿½nements dï¿½clenchï¿½s ï¿½ l'entrï¿½e dans la zone")]
     public GameplayEventSO[] onEnterEvents;
 
-    [Tooltip("Événements déclenchés à la sortie de la zone")]
+    [Tooltip("ï¿½vï¿½nements dï¿½clenchï¿½s ï¿½ la sortie de la zone")]
     public GameplayEventSO[] onExitEvents;
 
     private bool hasTriggered = false;
@@ -52,10 +52,16 @@ public class GameplayTriggerZone : MonoBehaviour
             gameplayEvent?.Execute(this);
     }
 
-    /// <summary>Réinitialise la zone pour qu'elle puisse se déclencher à nouveau.</summary>
+    /// <summary>RÃ©initialise la zone pour qu'elle puisse se dÃ©clencher Ã  nouveau.</summary>
     public void Reset()
     {
         hasTriggered = false;
+    }
+
+    /// <summary>Marque la zone comme dÃ©jÃ  dÃ©clenchÃ©e sans exÃ©cuter les events (post-checkpoint).</summary>
+    public void ResetToCompleted()
+    {
+        hasTriggered = true;
     }
 
 #if UNITY_EDITOR

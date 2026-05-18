@@ -75,7 +75,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMeleeSlow
   playerTransform: {fileID: 0}
-  maxHealth: 90
+  maxHealth: 80
   detectionRange: 20
   attackRange: 1.5
   attackDamage: 10
@@ -108,7 +108,7 @@ MonoBehaviour:
   meshPrefab: {fileID: 919132149155446097, guid: 1c3c3768f7bd18543b48c8e095278c4e, type: 3}
   impostorMaterial: {fileID: 2100000, guid: 72eb5e46e3896b04090d4bf67ff51474, type: 2}
   impostorQuadPrefab: {fileID: 6608268022857075241, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
-  animatedFPS: 8
+  animatedFPS: 4
   animatorController: {fileID: 9100000, guid: 20175518f0b32af4cbd9b5aa8f72f566, type: 2}
   captureScale: 1
   meshRotationOffset: {x: 0, y: 0, z: 0}
@@ -135,6 +135,15 @@ MonoBehaviour:
   useStaticFace: 0
   directionHysteresis: 8
   staticFaceIndex: 0
+  faceWeights:
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
   snapToGround: 1
   groundOffset: 0
   groundLayers:

@@ -74,11 +74,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMeleeFast
   playerTransform: {fileID: 0}
-  maxHealth: 50
-  detectionRange: 40
+  maxHealth: 65
+  detectionRange: 30
   attackRange: 1.5
   attackDamage: 10
-  attackCooldown: 1.5
+  attackCooldown: 1
   navMeshUpdateRate: 0.2
   rotationSpeed: 8
   attackVfxPrefab: {fileID: 4021103657954561961, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
@@ -106,20 +106,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67f43a6755cbb9840853e80f3ebd6112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ImpostorEntityAI
-  meshPrefab: {fileID: 3625932758769810077, guid: e33d2355bee4bd746891c5962a80f943, type: 3}
+  meshPrefab: {fileID: 8128668236925612103, guid: f9cd323c7efba3f4a80fe942e885df80, type: 3}
   impostorMaterial: {fileID: 2100000, guid: 72eb5e46e3896b04090d4bf67ff51474, type: 2}
   impostorQuadPrefab: {fileID: 6608268022857075241, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
   animatedFPS: 2
   animatorController: {fileID: 9100000, guid: 20175518f0b32af4cbd9b5aa8f72f566, type: 2}
   captureScale: 1
   meshRotationOffset: {x: 0, y: 0, z: 0}
-  overrideCameraHeight: 0
-  customCameraHeight: 3
+  overrideCameraHeight: 1
+  customCameraHeight: 0.5
   customLookAtRatio: -1
   customFieldOfView: -1
-  customDistanceMultiplier: -1
-  quadScaleMultiplier: 1
-  quadManualSize: {x: 0, y: 0}
+  customDistanceMultiplier: 2.31
+  quadScaleMultiplier: 1.5
+  quadManualSize: {x: 4, y: 4}
   autoGenerateCollider: 0
   colliderSize: {x: 0, y: 0, z: 0}
   colliderCenter: {x: 0, y: 0, z: 0}
@@ -136,6 +136,15 @@ MonoBehaviour:
   useStaticFace: 0
   directionHysteresis: 8
   staticFaceIndex: 0
+  faceWeights:
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
   snapToGround: 1
   groundOffset: 0
   groundLayers:

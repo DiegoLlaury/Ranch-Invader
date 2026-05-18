@@ -12,4 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: edbd4df0ee8a3734f9ae71c531c7398c, type: 3}
   m_Name: PlayerData
   m_EditorClassIdentifier: 
-  cellNumber: 0
+  Datas:
+    cellNumber: 0
+    fleshNumber: 0
+    IsPlayerInMiniGame: 0
+    MiniGameNumber: 0
+    executedEventIds: []
+    checkpointPosition: {x: -123.9, y: 0.97, z: -25.75}
+    checkpointEventIndex: 1

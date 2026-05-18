@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: Event_SpawnWaveFarmRight
   m_EditorClassIdentifier: Assembly-CSharp::SpawnWaveEventSO
   delay: 1
+  eventId: Spawner_FarmRight
   targetSpawnerName: Spawner_FarmRight
   waveIndex: -1

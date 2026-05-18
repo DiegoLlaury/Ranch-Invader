@@ -84,7 +84,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
 
     private bool hasDetectedPlayer;
     private Quaternion targetSlopeRotation = Quaternion.identity;
-    private const float MinVelocityToRotate = 0.3f;
+    private const float MinVelocityToRotate = 0.05f;
 
 
     public Vector3 FacingDirection { get; private set; }
@@ -232,9 +232,11 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
 
         if (Physics.Raycast(transform.position + Vector3.up * 0.2f, Vector3.down, out RaycastHit hit, 2f, groundLayer))
         {
-            Vector3 forward = Vector3.ProjectOnPlane(transform.forward, hit.normal).normalized;
-            if (forward.sqrMagnitude > 0.001f)
-                targetSlopeRotation = Quaternion.LookRotation(forward, hit.normal);
+            // Preserve the current yaw and apply only the slope tilt on top of it,
+            // so the slope alignment never overwrites the AI's forward direction.
+            Quaternion yawRotation  = Quaternion.Euler(0f, transform.rotation.eulerAngles.y, 0f);
+            Quaternion slopeTilt    = Quaternion.FromToRotation(Vector3.up, hit.normal);
+            targetSlopeRotation     = slopeTilt * yawRotation;
         }
     }
 
@@ -344,6 +346,9 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
         Vector3 velocity = navAgent.velocity;
         velocity.y = 0f;
 
+        // Only update the facing direction when there is meaningful velocity.
+        // If the agent is stopping or stopped, preserve the last valid direction
+        // to prevent it from snapping to zero and causing a backward-facing frame.
         if (velocity.sqrMagnitude > 0.01f)
             FacingDirection = velocity.normalized;
     }

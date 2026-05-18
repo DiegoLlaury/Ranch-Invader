@@ -49,19 +49,23 @@ public class EnemyRanged : EnemyBase
 
         attackRange = 14f;
         attackDamage = 15f;
-        attackCooldown = 2.5f;
+        attackCooldown = 1.2f;
         navAgent.speed = 2.5f;
+
+        // Prevent firing before the enemy has rotated to face the player on the first frame.
+        lastAttackTime = Time.time;
 
         if (playerTransform != null)
             playerCharacterController = playerTransform.GetComponent<CharacterController>();
     }
 
-    // While aiming, override the base rotation to face the player instead of movement direction
+
+    // While aiming, override the base rotation to face the player body center instead of movement direction
     protected override Vector3 GetDesiredForward()
     {
         if (isAiming)
         {
-            Vector3 toPlayer = playerTransform.position - transform.position;
+            Vector3 toPlayer = PlayerBodyCenter - transform.position;
             toPlayer.y = 0f;
             return toPlayer;
         }
@@ -132,11 +136,11 @@ public class EnemyRanged : EnemyBase
 
         Vector3 targetPos = PredictPlayerPosition();
 
-        // Offset the spawn height by navAgent.baseOffset so the projectile originates
-        // at the correct visual height regardless of the agent's baseOffset value.
         float visualHeight = navAgent.baseOffset + projectileSpawnHeight;
         Vector3 enemyCenter = transform.position + Vector3.up * visualHeight;
 
+        // Aim directly at the predicted position in 3D — do NOT flatten Y,
+        // so the projectile trajectory matches the actual height difference.
         Vector3 toTarget = (targetPos - enemyCenter).normalized;
         Vector3 spawnPos = enemyCenter + toTarget * projectileSpawnOffset;
 
@@ -150,6 +154,7 @@ public class EnemyRanged : EnemyBase
         }
     }
 
+
     private Vector3 PredictPlayerPosition()
     {
         Vector3 bodyCenter = PlayerBodyCenter;
@@ -158,7 +163,11 @@ public class EnemyRanged : EnemyBase
             ? playerCharacterController.velocity
             : Vector3.zero;
 
-        float distanceToTarget = Vector3.Distance(transform.position, bodyCenter);
+        // Measure distance from enemyCenter (the true projectile origin) rather than
+        // from the pivot at the ground, to get a more accurate flight time estimate.
+        float visualHeight = navAgent.baseOffset + projectileSpawnHeight;
+        Vector3 enemyCenter = transform.position + Vector3.up * visualHeight;
+        float distanceToTarget = Vector3.Distance(enemyCenter, bodyCenter);
         float timeToReach = distanceToTarget / projectileSpeed;
 
         return bodyCenter + playerVelocity * timeToReach;

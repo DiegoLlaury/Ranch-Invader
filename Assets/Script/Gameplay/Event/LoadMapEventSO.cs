@@ -5,11 +5,12 @@ using UnityEngine.SceneManagement;
 [CreateAssetMenu(menuName = "Gameplay/Events/Load Map", fileName = "Event_LoadMap")]
 public class LoadMapEventSO : GameplayEventSO
 {
-    [Tooltip("Nom exact de la scène à charger (doit être dans les Build Settings)")]
+    [Tooltip("Nom exact de la scï¿½ne ï¿½ charger (doit ï¿½tre dans les Build Settings)")]
     public string sceneName;
 
     public override void Execute(MonoBehaviour caller)
     {
+        NotifyCheckpoint(caller);
         caller.StartCoroutine(ExecuteDelayed());
     }
 
@@ -20,7 +21,7 @@ public class LoadMapEventSO : GameplayEventSO
 
         if (string.IsNullOrEmpty(sceneName))
         {
-            Debug.LogWarning("[LoadMapEventSO] Aucun nom de scène assigné.");
+            Debug.LogWarning("[LoadMapEventSO] Aucun nom de scï¿½ne assignï¿½.");
             yield break;
         }
 

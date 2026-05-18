@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -56,6 +56,9 @@ namespace StarterAssets
 
         // Offset pour les effets externes (comme l'ivresse)
         [HideInInspector] public Vector3 externalRotationOffset = Vector3.zero;
+
+        // Désactive tout mouvement et rotation (ex: mort du joueur)
+        [HideInInspector] public bool IsControlEnabled = true;
 
         // player
         private float _speed;
@@ -119,6 +122,7 @@ namespace StarterAssets
 
 		private void Update()
 		{
+            if (!IsControlEnabled) return;
             GroundedCheck();
             JumpAndGravity();
 			Move();
@@ -126,6 +130,7 @@ namespace StarterAssets
 
 		private void LateUpdate()
 		{
+            if (!IsControlEnabled) return;
 			CameraRotation();
 		}
 

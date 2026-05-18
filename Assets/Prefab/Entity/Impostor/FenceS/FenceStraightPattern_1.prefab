@@ -112,6 +112,14 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5095935713051859064, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
+      propertyPath: m_Size.y
+      value: 1.86
+      objectReference: {fileID: 0}
+    - target: {fileID: 5095935713051859064, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
+      propertyPath: m_Size.z
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 6608268022857075241, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_Name
       value: Impostor_Fence

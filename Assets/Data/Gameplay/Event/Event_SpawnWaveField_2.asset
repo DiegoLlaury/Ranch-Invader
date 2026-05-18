@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: Event_SpawnWaveField_2
   m_EditorClassIdentifier: Assembly-CSharp::SpawnWaveEventSO
   delay: 1
+  eventId: Spawner_Field_2
   targetSpawnerName: Spawner_Field_2
   waveIndex: -1

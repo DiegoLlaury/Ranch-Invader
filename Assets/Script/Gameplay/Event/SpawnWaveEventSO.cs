@@ -3,14 +3,16 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Gameplay/Events/Spawn Wave", fileName = "Event_SpawnWave")]
 public class SpawnWaveEventSO : GameplayEventSO
 {
-    [Tooltip("Spawner cible. Si null, cherche un EnemySpawner dans la scène par son nom.")]
+    [Tooltip("Spawner cible. Si null, cherche un EnemySpawner dans la scÃ¨ne par son nom.")]
     public string targetSpawnerName;
 
-    [Tooltip("Index de la vague à déclencher (laisser -1 = prochaine vague automatique)")]
+    [Tooltip("Index de la vague Ã  dÃ©clencher (laisser -1 = prochaine vague automatique)")]
     public int waveIndex = -1;
 
     public override void Execute(MonoBehaviour caller)
     {
+        // Ne pas notifier le checkpoint ici â€” la vague n'est pas encore terminÃ©e.
+        // C'est le GameplayEventSO dans onWaveCleared de l'EnemySpawner qui doit le faire.
         caller.StartCoroutine(ExecuteDelayed(caller));
     }
 

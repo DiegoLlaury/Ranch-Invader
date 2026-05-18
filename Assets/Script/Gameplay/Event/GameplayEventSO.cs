@@ -1,14 +1,24 @@
 using UnityEngine;
 
 /// <summary>
-/// Classe de base pour tous les événements gameplay configurables.
-/// Hériter de cette classe pour créer un nouveau type d'événement.
+/// Classe de base pour tous les ï¿½vï¿½nements gameplay configurables.
+/// Hï¿½riter de cette classe pour crï¿½er un nouveau type d'ï¿½vï¿½nement.
 /// </summary>
 public abstract class GameplayEventSO : ScriptableObject
 {
-    [Tooltip("Délai en secondes avant l'exécution de cet événement")]
+    [Tooltip("DÃ©lai en secondes avant l'exÃ©cution de cet Ã©vÃ©nement")]
     public float delay = 0f;
 
-    /// <summary>Déclenche l'événement depuis le MonoBehaviour appelant.</summary>
+    [Tooltip("Identifiant unique de cet Ã©vÃ©nement. Doit Ãªtre renseignÃ© manuellement dans l'Inspector.")]
+    public string eventId;
+
+    /// <summary>DÃ©clenche l'Ã©vÃ©nement depuis le MonoBehaviour appelant.</summary>
     public abstract void Execute(MonoBehaviour caller);
+
+    /// <summary>Notifie le CheckpointManager que cet Ã©vÃ©nement a Ã©tÃ© exÃ©cutÃ©.</summary>
+    protected void NotifyCheckpoint(MonoBehaviour caller)
+    {
+        if (!string.IsNullOrEmpty(eventId))
+            CheckpointManager.Instance?.RegisterEvent(eventId, caller.transform.position);
+    }
 }

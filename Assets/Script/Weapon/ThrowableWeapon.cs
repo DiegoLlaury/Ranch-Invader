@@ -10,7 +10,7 @@ public class ThrowableWeapon : BaseWeapon
     public Camera playerCamera;
 
     [Header("Visuel en main")]
-    [Tooltip("Le mesh de la fourche tenu en main — masqué quand les munitions sont épuisées")]
+    [Tooltip("Le mesh de la fourche tenu en main ï¿½ masquï¿½ quand les munitions sont ï¿½puisï¿½es")]
     public GameObject handMeshObject;
 
     private WeaponUIController cachedUIController;
@@ -47,12 +47,12 @@ public class ThrowableWeapon : BaseWeapon
     }
 
     /// <summary>
-    /// Override : bloque isAttacking jusqu'à la fin de l'animation UI,
-    /// empêchant tout lancer pendant qu'elle joue.
+    /// Override : bloque isAttacking jusqu'ï¿½ la fin de l'animation UI,
+    /// empï¿½chant tout lancer pendant qu'elle joue.
     /// </summary>
     protected override void ResetAttackState()
     {
-        // Ne remet pas isAttacking à false immédiatement — attend la fin de l'anim UI
+        // Ne remet pas isAttacking ï¿½ false immï¿½diatement ï¿½ attend la fin de l'anim UI
         StartCoroutine(WaitForAnimationThenReset());
     }
 
@@ -61,10 +61,10 @@ public class ThrowableWeapon : BaseWeapon
         if (cachedUIController == null)
             cachedUIController = Object.FindAnyObjectByType<WeaponUIController>();
 
-        // Attend une frame pour laisser l'animation démarrer
+        // Attend une frame pour laisser l'animation dï¿½marrer
         yield return null;
 
-        // Attend que l'animation UI soit terminée
+        // Attend que l'animation UI soit terminï¿½e
         while (cachedUIController != null && cachedUIController.IsAnimating)
             yield return null;
 
@@ -78,7 +78,12 @@ public class ThrowableWeapon : BaseWeapon
         if (playerCamera == null)
             playerCamera = Camera.main;
 
-        Vector3 throwDirection = playerCamera.transform.forward;
+        // Compute the aim direction from the screen center outward, then redirect
+        // it from throwPoint toward that far target â€” consistent with RangedWeapon.Shoot().
+        Ray cameraRay = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Vector3 targetPoint    = cameraRay.GetPoint(100f);
+        Vector3 throwDirection = (targetPoint - throwPoint.position).normalized;
+
         GameObject projectile = Instantiate(
             projectilePrefab,
             throwPoint.position,

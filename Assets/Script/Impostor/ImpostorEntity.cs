@@ -126,6 +126,8 @@ public class ImpostorEntity : MonoBehaviour
     private RenderTexture atlas;
     private int currentDirectionIndex = 0;
     private float[] faceBoundaries;
+    private Camera mainCamera;
+    private bool isVisibleToCamera = true;
 
     // Transform du root ennemi (parent du quad) — utilisé pour le calcul de direction
     private Transform enemyRootTransform;
@@ -177,6 +179,7 @@ public class ImpostorEntity : MonoBehaviour
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
                 playerTransform = player.transform;
+            mainCamera = Camera.main;
         }
 
         quadRenderer = GetComponentInChildren<MeshRenderer>();
@@ -213,6 +216,12 @@ public class ImpostorEntity : MonoBehaviour
 
                 if (meshAnimator.runtimeAnimatorController == null)
                     Debug.LogWarning($"[ImpostorEntity] L'Animator de '{meshPrefab.name}' n'a pas de AnimatorController. Assignez-en un dans ImpostorEntityIA ou sur le prefab.");
+            }
+            
+            if (isAnimated && (meshAnimator == null || meshAnimator.runtimeAnimatorController == null))
+            {
+                Debug.Log($"[ImpostorEntity] '{meshPrefab.name}' marqué animé mais sans AnimatorController valide. Bascule en atlas statique.");
+                isAnimated = false;
             }
         }
 
@@ -276,7 +285,18 @@ public class ImpostorEntity : MonoBehaviour
 
     void Update()
     {
-        // Recapture uniquement pour les impostors anim�s (les statiques capturent une seule fois � l'init)
+        // Vérifie la visibilité par rapport à la caméra
+        bool wasVisible = isVisibleToCamera;
+        isVisibleToCamera = IsVisibleByCamera();
+
+        // Active/désactive le renderer du quad sans toucher au reste
+        if (quadRenderer != null && quadRenderer.enabled != isVisibleToCamera)
+            quadRenderer.enabled = isVisibleToCamera;
+
+        // Si hors écran, skip capture et calcul de direction
+        if (!isVisibleToCamera) return;
+
+        // Recapture uniquement pour les impostors animés
         if (isAnimated && Time.time >= nextUpdateTime)
         {
             CaptureImpostor();
@@ -287,12 +307,27 @@ public class ImpostorEntity : MonoBehaviour
             nextUpdateTime = Time.time + updateInterval;
         }
 
-        // Throttle du calcul de direction : inutile � 60 Hz pour un billboard statique
+        // Throttle du calcul de direction
         if (Time.time >= nextQuadTextureUpdateTime)
         {
             UpdateQuadTexture();
             nextQuadTextureUpdateTime = Time.time + QuadTextureUpdateInterval;
         }
+    }
+
+    private bool IsVisibleByCamera()
+    {
+        if (mainCamera == null) return true;
+
+        // Utilise la position du quad (pas du mesh caché)
+        Vector3 viewportPoint = mainCamera.WorldToViewportPoint(transform.position);
+
+        // viewportPoint.z < 0 = derrière la caméra
+        // On ajoute une marge pour éviter le pop-in
+        const float margin = 0.1f;
+        return viewportPoint.z > 0f
+            && viewportPoint.x > -margin && viewportPoint.x < 1f + margin
+            && viewportPoint.y > -margin && viewportPoint.y < 1f + margin;
     }
 
     void CaptureImpostor()
@@ -515,7 +550,12 @@ public class ImpostorEntity : MonoBehaviour
     /// </summary>
     public void TriggerAttack()
     {
-        if (meshAnimator == null || meshAnimator.runtimeAnimatorController == null) return;
+        if (meshAnimator == null || meshAnimator.runtimeAnimatorController == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] TriggerAttack: meshAnimator is null or has no controller. " +
+                             "Ensure ForceInitialize() completed successfully and the AnimatorController is assigned.");
+            return;
+        }
         meshAnimator.SetTrigger(AttackHash);
     }
 
@@ -524,7 +564,12 @@ public class ImpostorEntity : MonoBehaviour
     /// </summary>
     public void ResetAttackTrigger()
     {
-        if (meshAnimator == null || meshAnimator.runtimeAnimatorController == null) return;
+        if (meshAnimator == null || meshAnimator.runtimeAnimatorController == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] ResetAttackTrigger: meshAnimator is null or has no controller. " +
+                             "Ensure ForceInitialize() completed successfully and the AnimatorController is assigned.");
+            return;
+        }
         meshAnimator.ResetTrigger(AttackHash);
     }
 

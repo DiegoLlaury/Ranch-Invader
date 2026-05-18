@@ -78,7 +78,7 @@ public class EnemyProjectile : MonoBehaviour
                 Instantiate(impactVfxPrefab, hit.point, Quaternion.LookRotation(hit.normal));
 
 
-            PlayerHealth playerHealth = hit.collider.GetComponent<PlayerHealth>();
+            PlayerHealth playerHealth = hit.collider.GetComponentInParent<PlayerHealth>();
             if (playerHealth != null)
                 playerHealth.TakeDamage(damage);
 

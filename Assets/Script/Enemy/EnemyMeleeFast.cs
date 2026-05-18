@@ -24,12 +24,6 @@ public class EnemyMeleeFast : EnemyBase
     {
         base.Start();
 
-        attackRange = 1.2f;
-        attackDamage = 6f;
-        attackCooldown = 0.6f;
-        navAgent.speed = 5f;
-        navAgent.acceleration = 12f;
-
         lastPosition = transform.position;
     }
 

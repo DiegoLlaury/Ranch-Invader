@@ -21,12 +21,6 @@ public class EnemyMeleeSlow : EnemyBase
     {
         base.Start();
 
-        // Slow melee defaults
-        attackRange = 2.5f;
-        attackDamage = 25f;
-        attackCooldown = 2f;
-        navAgent.speed = 1.8f;
-
         lastMoveDecisionTime = -moveDecisionInterval;
     }
 

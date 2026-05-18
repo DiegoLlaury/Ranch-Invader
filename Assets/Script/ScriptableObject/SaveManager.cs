@@ -5,7 +5,7 @@ public class SaveManager : MonoBehaviour
     [SerializeField] private PlayerDatas playerDatas;
     private SaveController saveController;
 
-    private void Start()
+    private void Awake()
     {
         saveController = new SaveController();
     }
