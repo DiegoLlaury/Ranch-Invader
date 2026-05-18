@@ -123,6 +123,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6608268022857075241, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7400385054941164776}
+    - targetCorrespondingSourceObject: {fileID: 6608268022857075241, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8629205108386756898}
+    - targetCorrespondingSourceObject: {fileID: 6608268022857075241, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8018602801260089528}
   m_SourcePrefab: {fileID: 100100000, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
 --- !u!1 &1968229753128302889 stripped
 GameObject:
@@ -162,6 +168,7 @@ MonoBehaviour:
   meshRotationOffset: {x: 0, y: 0, z: 0}
   followParentRotation: 0
   captureScale: 1.9
+  overrideCameraHeight: 0
   customCameraHeight: 1
   customLookAtRatio: -1
   customFieldOfView: -1
@@ -173,9 +180,50 @@ MonoBehaviour:
   useBillboard: 0
   positionOffset: {x: 0, y: 0, z: 0}
   directionHysteresis: 8
+  faceWeights:
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
   useStaticFace: 1
   staticFaceIndex: 2
   animatorController: {fileID: 0}
+--- !u!208 &8629205108386756898
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1968229753128302889}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.455, y: 0.355, z: 0.17}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
+--- !u!114 &8018602801260089528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1968229753128302889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd3482776f9b621459da133b78b6e89e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ImpostorNavMeshObstacle
+  carving: 1
+  carveOnlyStationary: 1
+  manualSize: {x: 0.91, y: 0.71, z: 0.34}
+  manualCenter: {x: 0, y: 0, z: 0}
 --- !u!4 &6451382646423075857 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}

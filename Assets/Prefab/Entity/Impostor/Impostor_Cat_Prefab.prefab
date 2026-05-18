@@ -207,6 +207,7 @@ MonoBehaviour:
   meshRotationOffset: {x: 0, y: 0, z: 0}
   followParentRotation: 1
   captureScale: 1.5
+  overrideCameraHeight: 0
   customCameraHeight: 0.4
   customLookAtRatio: 0.25
   customFieldOfView: 65.5
@@ -215,8 +216,21 @@ MonoBehaviour:
   parallaxStrength: 0.03
   parallaxMinSamples: 12
   parallaxMaxSamples: 32
+  useBillboard: 1
+  positionOffset: {x: 0, y: 0, z: 0}
+  directionHysteresis: 8
+  faceWeights:
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
   useStaticFace: 0
   staticFaceIndex: 0
+  animatorController: {fileID: 0}
 --- !u!208 &7816729078943138930
 NavMeshObstacle:
   m_ObjectHideFlags: 0

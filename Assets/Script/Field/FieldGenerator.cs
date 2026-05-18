@@ -6,107 +6,59 @@ using UnityEngine.Rendering;
 using UnityEditor;
 #endif
 
-/// <summary>
-/// Génère un champ de blés selon une forme choisie : grille, disque plein ou anneau.
-/// Tous les blés sont fusionnés en un seul mesh combiné pour minimiser les draw calls.
-/// </summary>
 [ExecuteInEditMode]
 public class FieldGenerator : MonoBehaviour
 {
-    public enum FieldShape
-    {
-        Grid,
-        Disc,
-        Ring
-    }
+    public enum FieldShape { Grid, Disc, Ring }
+
+    private const string MeshChildName = "__WheatMesh__";
 
     [Header("Sprite")]
-    [Tooltip("Sprite de blé à afficher")]
     public Sprite wheatSprite;
-
-    [Tooltip("Matériau à utiliser (doit avoir la texture du sprite assignée)")]
     public Material wheatMaterial;
 
     [Header("Field Shape")]
-    [Tooltip("Forme de la zone de génération")]
     public FieldShape shape = FieldShape.Grid;
 
-    // --- Grille ---
     [Header("Grid Settings")]
-    [Tooltip("Nombre de blés sur l'axe X (Grid uniquement)")]
     public int countX = 10;
-
-    [Tooltip("Nombre de blés sur l'axe Z (Grid uniquement)")]
     public int countZ = 10;
-
-    [Tooltip("Espacement entre chaque blé")]
     public float spacing = 1f;
 
-    // --- Disque / Anneau ---
     [Header("Circle Settings")]
-    [Tooltip("Rayon extérieur du disque ou de l'anneau")]
-    public float radius = 5f;
-
+    public float radius = 1f;
+    [Tooltip("Nombre cible de blés dans le disque ou l'anneau")]
+    [Min(1)] public int circleCount = 30;
     [Tooltip("Épaisseur de l'anneau en nombre de rangées (Ring uniquement)")]
-    [Min(1)]
-    public int ringRows = 1;
+    [Min(1)] public int ringRows = 1;
 
     [Header("Wheat Size")]
-    [Tooltip("Taille de base d'un blé (largeur, hauteur)")]
-    public Vector2 wheatSize = new Vector2(1f, 2f);
-
-    [Tooltip("Variation aléatoire de taille (0 = aucune, 1 = ±100%)")]
-    [Range(0f, 1f)]
-    public float sizeVariation = 0.2f;
+    public Vector2 wheatSize = new Vector2(0.2f, 0.4f);
+    [Range(0f, 1f)] public float sizeVariation = 0.2f;
 
     [Header("Wheat Offset")]
-    [Tooltip("Décalage vertical du pivot (0 = centré, >0 = décalé vers le haut)")]
-    [Range(-5f, 5f)]
-    public float pivotOffsetY = 0f;
-
-    [Tooltip("Variation aléatoire de position horizontale (rayon max)")]
+    [Range(-5f, 5f)] public float pivotOffsetY = 0f;
     public float positionJitter = 0.2f;
 
     [Header("Color Variation")]
-    [Tooltip("Couleur de base du blé")]
     public Color baseColor = Color.white;
-
-    [Tooltip("Applique une légère variation de luminosité aléatoire")]
     public bool useColorVariation = true;
-
-    [Tooltip("Amplitude de la variation de luminosité")]
-    [Range(0f, 0.5f)]
-    public float brightnessVariation = 0.15f;
+    [Range(0f, 0.5f)] public float brightnessVariation = 0.15f;
 
     [Header("Generation")]
-    [Tooltip("Graine aléatoire (même graine = même champ)")]
     public int randomSeed = 42;
-
-    [Tooltip("Régénère le champ automatiquement quand un paramètre change")]
     public bool autoRefresh = true;
 
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
-
-    // Nombre de blés générés (pour l'Inspector)
     private int lastGeneratedCount;
 
-    // --- Cache des paramètres pour autoRefresh ---
     private FieldShape lastShape;
-    private int lastCountX;
-    private int lastCountZ;
-    private float lastSpacing;
-    private float lastRadius;
-    private int lastRingRows;
+    private int lastCountX, lastCountZ, lastCircleCount, lastRingRows, lastRandomSeed;
+    private float lastSpacing, lastRadius, lastSizeVariation, lastPivotOffsetY, lastPositionJitter, lastBrightnessVariation;
     private Vector2 lastWheatSize;
-    private float lastSizeVariation;
-    private float lastPivotOffsetY;
-    private float lastPositionJitter;
-    private int lastRandomSeed;
     private bool lastUseColorVariation;
-    private float lastBrightnessVariation;
 
-    // Données d'une instance de blé à inscrire dans le mesh
     private struct WheatInstance
     {
         public Vector3 localPosition;
@@ -115,439 +67,265 @@ public class FieldGenerator : MonoBehaviour
         public float verticalOffset;
     }
 
-    void Awake()
-    {
-        FetchComponents();
-    }
-
-    void OnEnable()
-    {
-        FetchComponents();
-        Generate();
-    }
-
-    void OnDisable()
-    {
-        Clear();
-    }
+    void Awake() => FetchComponents();
+    void OnEnable() { FetchComponents(); Generate(); }
+    void OnDisable() => Clear();
 
     void Update()
     {
         if (!Application.isPlaying && autoRefresh && HasParametersChanged())
-        {
             Generate();
-        }
     }
 
     void FetchComponents()
     {
-        // Vérifie si plusieurs FieldGenerator coexistent sur ce GameObject
-        FieldGenerator[] siblings = GetComponents<FieldGenerator>();
-        if (siblings.Length > 1)
+        if (GetComponents<FieldGenerator>().Length > 1)
         {
-            Debug.LogError($"[FieldGenerator] Plusieurs FieldGenerator détectés sur '{gameObject.name}'. " +
-                           "Chaque forme doit être sur un GameObject séparé.");
+            Debug.LogError($"[FieldGenerator] Plusieurs FieldGenerator sur '{gameObject.name}'. Chaque forme doit être sur un GameObject séparé.");
             return;
         }
 
-        if (meshFilter == null)
-            meshFilter = gameObject.GetComponent<MeshFilter>() ?? gameObject.AddComponent<MeshFilter>();
+        Transform meshChild = transform.Find(MeshChildName);
+        if (meshChild == null)
+        {
+            var go = new GameObject(MeshChildName);
+            go.transform.SetParent(transform, worldPositionStays: false);
+            meshChild = go.transform;
+#if UNITY_EDITOR
+            GameObjectUtility.SetStaticEditorFlags(go, 0);
+#endif
+        }
 
-        if (meshRenderer == null)
-            meshRenderer = gameObject.GetComponent<MeshRenderer>() ?? gameObject.AddComponent<MeshRenderer>();
+        if (!meshChild.TryGetComponent(out meshFilter))
+            meshFilter = meshChild.gameObject.AddComponent<MeshFilter>();
+        if (!meshChild.TryGetComponent(out meshRenderer))
+            meshRenderer = meshChild.gameObject.AddComponent<MeshRenderer>();
     }
 
-    bool HasParametersChanged()
-    {
-        return lastShape != shape
-            || lastCountX != countX
-            || lastCountZ != countZ
-            || lastSpacing != spacing
-            || lastRadius != radius
-            || lastRingRows != ringRows
-            || lastWheatSize != wheatSize
-            || lastSizeVariation != sizeVariation
-            || lastPivotOffsetY != pivotOffsetY
-            || lastPositionJitter != positionJitter
-            || lastRandomSeed != randomSeed
-            || lastUseColorVariation != useColorVariation
-            || lastBrightnessVariation != brightnessVariation;
-    }
+    bool HasParametersChanged() =>
+        lastShape != shape || lastCountX != countX || lastCountZ != countZ ||
+        lastSpacing != spacing || lastRadius != radius || lastCircleCount != circleCount ||
+        lastRingRows != ringRows || lastWheatSize != wheatSize || lastSizeVariation != sizeVariation ||
+        lastPivotOffsetY != pivotOffsetY || lastPositionJitter != positionJitter ||
+        lastRandomSeed != randomSeed || lastUseColorVariation != useColorVariation ||
+        lastBrightnessVariation != brightnessVariation;
 
     void CacheParameters()
     {
-        lastShape = shape;
-        lastCountX = countX;
-        lastCountZ = countZ;
-        lastSpacing = spacing;
-        lastRadius = radius;
-        lastRingRows = ringRows;
-        lastWheatSize = wheatSize;
-        lastSizeVariation = sizeVariation;
-        lastPivotOffsetY = pivotOffsetY;
-        lastPositionJitter = positionJitter;
-        lastRandomSeed = randomSeed;
-        lastUseColorVariation = useColorVariation;
+        lastShape = shape; lastCountX = countX; lastCountZ = countZ;
+        lastSpacing = spacing; lastRadius = radius; lastCircleCount = circleCount; lastRingRows = ringRows;
+        lastWheatSize = wheatSize; lastSizeVariation = sizeVariation;
+        lastPivotOffsetY = pivotOffsetY; lastPositionJitter = positionJitter;
+        lastRandomSeed = randomSeed; lastUseColorVariation = useColorVariation;
         lastBrightnessVariation = brightnessVariation;
     }
 
     /// <summary>Efface le mesh combiné.</summary>
     public void Clear()
     {
-        if (meshFilter == null)
-            FetchComponents();
-
-        if (meshFilter.sharedMesh != null)
+        if (meshFilter == null) FetchComponents();
+        if (meshFilter != null && meshFilter.sharedMesh != null)
         {
             DestroyImmediate(meshFilter.sharedMesh, true);
             meshFilter.sharedMesh = null;
         }
-
         lastGeneratedCount = 0;
     }
 
     /// <summary>Génère le champ complet en un seul mesh combiné.</summary>
     public void Generate()
     {
-        if (wheatSprite == null)
-        {
-            Debug.LogWarning($"[FieldGenerator] Aucun sprite assigné sur {gameObject.name}.");
-            return;
-        }
-
-        if (meshFilter == null)
-            FetchComponents();
+        if (wheatSprite == null) { Debug.LogWarning($"[FieldGenerator] Aucun sprite sur '{gameObject.name}'."); return; }
+        if (GetComponents<FieldGenerator>().Length > 1) { Debug.LogError($"[FieldGenerator] Conflit multi-composants sur '{gameObject.name}'."); return; }
+        if (meshFilter == null) FetchComponents();
 
         Clear();
         CacheParameters();
         ApplyMaterial();
 
-        Random.State previousState = Random.state;
+        Random.State prev = Random.state;
         Random.InitState(randomSeed);
 
-        List<WheatInstance> instances = CollectInstances();
-        lastGeneratedCount = instances.Count;
-
-        if (instances.Count > 0)
-            BuildCombinedMesh(instances);
-
-        Random.state = previousState;
-    }
-
-    // -------------------------------------------------------------------------
-    // Collecte des positions selon la forme
-    // -------------------------------------------------------------------------
-
-    List<WheatInstance> CollectInstances()
-    {
-        switch (shape)
+        List<WheatInstance> instances = shape switch
         {
-            case FieldShape.Grid:  return CollectGrid();
-            case FieldShape.Disc:  return CollectDisc();
-            case FieldShape.Ring:  return CollectRing();
-            default:               return new List<WheatInstance>();
-        }
+            FieldShape.Grid => CollectGrid(),
+            FieldShape.Disc => CollectDisc(),
+            FieldShape.Ring => CollectRing(),
+            _ => new List<WheatInstance>()
+        };
+
+        lastGeneratedCount = instances.Count;
+        if (instances.Count > 0) BuildCombinedMesh(instances);
+
+        Random.state = prev;
     }
 
     List<WheatInstance> CollectGrid()
     {
-        var instances = new List<WheatInstance>(countX * countZ);
-
-        float totalWidth = (countX - 1) * spacing;
-        float totalDepth = (countZ - 1) * spacing;
-        Vector3 originLocal = new Vector3(-totalWidth * 0.5f, 0f, -totalDepth * 0.5f);
-
+        var list = new List<WheatInstance>(countX * countZ);
+        Vector3 origin = new Vector3(-(countX - 1) * spacing * 0.5f, 0f, -(countZ - 1) * spacing * 0.5f);
         for (int x = 0; x < countX; x++)
-        {
             for (int z = 0; z < countZ; z++)
-            {
-                Vector3 localPos = originLocal + new Vector3(
-                    x * spacing + Random.Range(-positionJitter, positionJitter),
-                    0f,
-                    z * spacing + Random.Range(-positionJitter, positionJitter)
-                );
-
-                instances.Add(BuildInstance(localPos));
-            }
-        }
-
-        return instances;
+                list.Add(BuildInstance(origin + new Vector3(
+                    x * spacing + Random.Range(-positionJitter, positionJitter), 0f,
+                    z * spacing + Random.Range(-positionJitter, positionJitter))));
+        return list;
     }
 
     List<WheatInstance> CollectDisc()
     {
-        float safeSpacing = Mathf.Max(0.01f, spacing);
-        int half = Mathf.CeilToInt(radius / safeSpacing);
-        var instances = new List<WheatInstance>();
-
+        float area = Mathf.PI * radius * radius;
+        float s = Mathf.Max(0.01f, Mathf.Sqrt(area / Mathf.Max(1, circleCount)));
+        int half = Mathf.CeilToInt(radius / s);
+        float rSq = radius * radius;
+        var list = new List<WheatInstance>();
         for (int x = -half; x <= half; x++)
-        {
             for (int z = -half; z <= half; z++)
             {
-                float px = x * safeSpacing;
-                float pz = z * safeSpacing;
-
-                if (px * px + pz * pz <= radius * radius)
-                {
-                    Vector3 localPos = new Vector3(
-                        px + Random.Range(-positionJitter, positionJitter),
-                        0f,
-                        pz + Random.Range(-positionJitter, positionJitter)
-                    );
-
-                    instances.Add(BuildInstance(localPos));
-                }
+                float px = x * s, pz = z * s;
+                if (px * px + pz * pz <= rSq)
+                    list.Add(BuildInstance(new Vector3(
+                        px + Random.Range(-positionJitter, positionJitter), 0f,
+                        pz + Random.Range(-positionJitter, positionJitter))));
             }
-        }
-
-        return instances;
+        return list;
     }
 
     List<WheatInstance> CollectRing()
     {
-        float safeSpacing = Mathf.Max(0.01f, spacing);
-        int half = Mathf.CeilToInt(radius / safeSpacing);
-
-        float effectiveInner = Mathf.Max(0f, radius - ringRows * safeSpacing);
+        float innerRadius = Mathf.Max(0f, radius - ringRows * Mathf.Max(0.01f, spacing));
+        float ringArea = Mathf.PI * (radius * radius - innerRadius * innerRadius);
+        float s = Mathf.Max(0.01f, Mathf.Sqrt(ringArea / Mathf.Max(1, circleCount)));
+        int half = Mathf.CeilToInt(radius / s);
         float outerSq = radius * radius;
-        float innerSq = effectiveInner * effectiveInner;
-
-        var instances = new List<WheatInstance>();
-
+        float innerSq = innerRadius * innerRadius;
+        var list = new List<WheatInstance>();
         for (int x = -half; x <= half; x++)
-        {
             for (int z = -half; z <= half; z++)
             {
-                float px = x * safeSpacing;
-                float pz = z * safeSpacing;
-                float distSq = px * px + pz * pz;
-
-                if (distSq <= outerSq && distSq >= innerSq)
-                {
-                    Vector3 localPos = new Vector3(
-                        px + Random.Range(-positionJitter, positionJitter),
-                        0f,
-                        pz + Random.Range(-positionJitter, positionJitter)
-                    );
-
-                    instances.Add(BuildInstance(localPos));
-                }
+                float px = x * s, pz = z * s, dSq = px * px + pz * pz;
+                if (dSq <= outerSq && dSq >= innerSq)
+                    list.Add(BuildInstance(new Vector3(
+                        px + Random.Range(-positionJitter, positionJitter), 0f,
+                        pz + Random.Range(-positionJitter, positionJitter))));
             }
-        }
-
-        return instances;
+        return list;
     }
 
-    WheatInstance BuildInstance(Vector3 localPosition)
+    WheatInstance BuildInstance(Vector3 pos)
     {
-        float sizeFactor = 1f + Random.Range(-sizeVariation, sizeVariation);
-        Vector2 finalSize = wheatSize * sizeFactor;
-
-        Color finalColor = baseColor;
+        float f = 1f + Random.Range(-sizeVariation, sizeVariation);
+        Vector2 sz = wheatSize * f;
+        Color c = baseColor;
         if (useColorVariation)
         {
-            float brightness = 1f + Random.Range(-brightnessVariation, brightnessVariation);
-            finalColor = new Color(
-                Mathf.Clamp01(baseColor.r * brightness),
-                Mathf.Clamp01(baseColor.g * brightness),
-                Mathf.Clamp01(baseColor.b * brightness),
-                baseColor.a
-            );
+            float b = 1f + Random.Range(-brightnessVariation, brightnessVariation);
+            c = new Color(Mathf.Clamp01(baseColor.r * b), Mathf.Clamp01(baseColor.g * b), Mathf.Clamp01(baseColor.b * b), baseColor.a);
         }
-
-        return new WheatInstance
-        {
-            localPosition = localPosition,
-            size = finalSize,
-            color = finalColor,
-            verticalOffset = finalSize.y * Mathf.Abs(pivotOffsetY)
-        };
+        return new WheatInstance { localPosition = pos, size = sz, color = c, verticalOffset = sz.y * Mathf.Abs(pivotOffsetY) };
     }
-
-    // -------------------------------------------------------------------------
-    // Construction du mesh combiné
-    // -------------------------------------------------------------------------
 
     void BuildCombinedMesh(List<WheatInstance> instances)
     {
-        // Chaque blé = 2 quads double-face = 2 × 4 verts = 8 verts
-        // Chaque quad double-face = 2 triangles × 2 faces = 4 triangles = 12 indices
-        int totalVerts = instances.Count * 8;
-        int totalIndices = instances.Count * 24;
+        var verts = new List<Vector3>(instances.Count * 8);
+        var uvs = new List<Vector2>(instances.Count * 8);
+        var cols = new List<Color>(instances.Count * 8);
+        var tris = new List<int>(instances.Count * 24);
 
-        var vertices  = new List<Vector3>(totalVerts);
-        var uvs       = new List<Vector2>(totalVerts);
-        var colors    = new List<Color>(totalVerts);
-        var triangles = new List<int>(totalIndices);
+        Rect tr = wheatSprite.textureRect;
+        Vector2 uvMin = new Vector2(tr.xMin / wheatSprite.texture.width, tr.yMin / wheatSprite.texture.height);
+        Vector2 uvMax = new Vector2(tr.xMax / wheatSprite.texture.width, tr.yMax / wheatSprite.texture.height);
 
-        // Calcul des UVs depuis le sprite
-        Rect texRect = wheatSprite.textureRect;
-        float texW = wheatSprite.texture.width;
-        float texH = wheatSprite.texture.height;
-        Vector2 uvMin = new Vector2(texRect.xMin / texW, texRect.yMin / texH);
-        Vector2 uvMax = new Vector2(texRect.xMax / texW, texRect.yMax / texH);
+        // Compensation de la scale du parent : wheatSize est en world units
+        Vector3 ls = transform.lossyScale;
+        float iX = ls.x != 0f ? 1f / Mathf.Abs(ls.x) : 1f;
+        float iY = ls.y != 0f ? 1f / Mathf.Abs(ls.y) : 1f;
+        float iZ = ls.z != 0f ? 1f / Mathf.Abs(ls.z) : 1f;
 
-        foreach (WheatInstance inst in instances)
+        foreach (var inst in instances)
         {
-            float halfW = inst.size.x * 0.5f;
-            float yBot  = inst.verticalOffset;
-            float yTop  = inst.verticalOffset + inst.size.y;
-            Vector3 p   = inst.localPosition;
+            float hwX = inst.size.x * 0.5f * iX;
+            float hwZ = inst.size.x * 0.5f * iZ;
+            float yBot = inst.verticalOffset * iY;
+            float yTop = yBot + inst.size.y * iY;
+            Vector3 p = inst.localPosition;
 
-            // Quad A — face à Z
-            AddDoubleQuad(
-                p + new Vector3(-halfW, yBot, 0f),
-                p + new Vector3( halfW, yBot, 0f),
-                p + new Vector3(-halfW, yTop, 0f),
-                p + new Vector3( halfW, yTop, 0f),
-                uvMin, uvMax, inst.color,
-                vertices, uvs, colors, triangles
-            );
+            AddDoubleQuad(p + new Vector3(-hwX, yBot, 0), p + new Vector3(hwX, yBot, 0),
+                          p + new Vector3(-hwX, yTop, 0), p + new Vector3(hwX, yTop, 0),
+                          uvMin, uvMax, inst.color, verts, uvs, cols, tris);
 
-            // Quad B — face à X (croisé à 90°)
-            AddDoubleQuad(
-                p + new Vector3(0f, yBot, -halfW),
-                p + new Vector3(0f, yBot,  halfW),
-                p + new Vector3(0f, yTop, -halfW),
-                p + new Vector3(0f, yTop,  halfW),
-                uvMin, uvMax, inst.color,
-                vertices, uvs, colors, triangles
-            );
+            AddDoubleQuad(p + new Vector3(0, yBot, -hwZ), p + new Vector3(0, yBot, hwZ),
+                          p + new Vector3(0, yTop, -hwZ), p + new Vector3(0, yTop, hwZ),
+                          uvMin, uvMax, inst.color, verts, uvs, cols, tris);
         }
 
-        Mesh mesh = new Mesh
-        {
-            name = "FieldCombinedMesh",
-            indexFormat = IndexFormat.UInt32
-        };
-
-        mesh.SetVertices(vertices);
-        mesh.SetUVs(0, uvs);
-        mesh.SetColors(colors);
-        mesh.SetTriangles(triangles, 0);
-        mesh.RecalculateBounds();
-
+        var mesh = new Mesh { name = "FieldCombinedMesh", indexFormat = IndexFormat.UInt32 };
+        mesh.SetVertices(verts); mesh.SetUVs(0, uvs); mesh.SetColors(cols);
+        mesh.SetTriangles(tris, 0); mesh.RecalculateBounds();
         meshFilter.sharedMesh = mesh;
     }
 
-    /// <summary>
-    /// Ajoute un quad double-face (4 sommets) dans les listes du mesh combiné.
-    /// Les 4 sommets sont : bas-gauche, bas-droite, haut-gauche, haut-droite.
-    /// </summary>
-    void AddDoubleQuad(
-        Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3,
-        Vector2 uvMin, Vector2 uvMax,
-        Color color,
-        List<Vector3> verts, List<Vector2> uvs, List<Color> colors, List<int> tris)
+    void AddDoubleQuad(Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3,
+        Vector2 uvMin, Vector2 uvMax, Color color,
+        List<Vector3> verts, List<Vector2> uvs, List<Color> cols, List<int> tris)
     {
         int b = verts.Count;
-
         verts.Add(v0); verts.Add(v1); verts.Add(v2); verts.Add(v3);
-
-        uvs.Add(new Vector2(uvMin.x, uvMin.y));
-        uvs.Add(new Vector2(uvMax.x, uvMin.y));
-        uvs.Add(new Vector2(uvMin.x, uvMax.y));
-        uvs.Add(new Vector2(uvMax.x, uvMax.y));
-
-        colors.Add(color); colors.Add(color); colors.Add(color); colors.Add(color);
-
-        // Face avant
-        tris.Add(b);     tris.Add(b + 2); tris.Add(b + 1);
-        tris.Add(b + 1); tris.Add(b + 2); tris.Add(b + 3);
-
-        // Face arrière
-        tris.Add(b);     tris.Add(b + 1); tris.Add(b + 2);
-        tris.Add(b + 1); tris.Add(b + 3); tris.Add(b + 2);
+        uvs.Add(new Vector2(uvMin.x, uvMin.y)); uvs.Add(new Vector2(uvMax.x, uvMin.y));
+        uvs.Add(new Vector2(uvMin.x, uvMax.y)); uvs.Add(new Vector2(uvMax.x, uvMax.y));
+        cols.Add(color); cols.Add(color); cols.Add(color); cols.Add(color);
+        tris.Add(b); tris.Add(b + 2); tris.Add(b + 1); tris.Add(b + 1); tris.Add(b + 2); tris.Add(b + 3);
+        tris.Add(b); tris.Add(b + 1); tris.Add(b + 2); tris.Add(b + 1); tris.Add(b + 3); tris.Add(b + 2);
     }
-
-    // -------------------------------------------------------------------------
-    // Matériau
-    // -------------------------------------------------------------------------
 
     void ApplyMaterial()
     {
-        if (wheatMaterial != null)
-        {
-            meshRenderer.sharedMaterial = wheatMaterial;
-            return;
-        }
-
-        // Fallback : créer un matériau unlit avec la texture du sprite
-        Shader fallbackShader = Shader.Find("Universal Render Pipeline/Unlit");
-        if (fallbackShader == null)
-            fallbackShader = Shader.Find("Sprites/Default");
-
-        if (fallbackShader != null)
-        {
-            Material mat = new Material(fallbackShader);
-            mat.mainTexture = wheatSprite.texture;
-            meshRenderer.sharedMaterial = mat;
-        }
-        else
-        {
-            Debug.LogWarning("[FieldGenerator] Aucun shader fallback trouvé. Assignez un matériau manuellement.");
-        }
+        if (wheatMaterial != null) { meshRenderer.sharedMaterial = wheatMaterial; return; }
+        Shader fb = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Sprites/Default");
+        if (fb != null) meshRenderer.sharedMaterial = new Material(fb) { mainTexture = wheatSprite.texture };
+        else Debug.LogWarning("[FieldGenerator] Aucun shader fallback. Assignez un matériau.");
     }
 
 #if UNITY_EDITOR
     void OnValidate()
     {
-        countX    = Mathf.Max(1, countX);
-        countZ    = Mathf.Max(1, countZ);
-        spacing   = Mathf.Max(0.01f, spacing);
-        radius    = Mathf.Max(0.1f, radius);
-        ringRows  = Mathf.Max(1, ringRows);
-        wheatSize.x = Mathf.Max(0.01f, wheatSize.x);
-        wheatSize.y = Mathf.Max(0.01f, wheatSize.y);
+        countX = Mathf.Max(1, countX); countZ = Mathf.Max(1, countZ);
+        spacing = Mathf.Max(0.01f, spacing); radius = Mathf.Max(0.01f, radius);
+        circleCount = Mathf.Max(1, circleCount); ringRows = Mathf.Max(1, ringRows);
+        wheatSize.x = Mathf.Max(0.01f, wheatSize.x); wheatSize.y = Mathf.Max(0.01f, wheatSize.y);
     }
 
     void OnDrawGizmosSelected()
     {
-        switch (shape)
+        if (shape == FieldShape.Grid)
         {
-            case FieldShape.Grid: DrawGridGizmo();  break;
-            case FieldShape.Disc: DrawDiscGizmo();  break;
-            case FieldShape.Ring: DrawRingGizmo();  break;
+            Gizmos.color = new Color(0.2f, 0.8f, 0.2f, 0.4f);
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawWireCube(Vector3.zero, new Vector3((countX - 1) * spacing + spacing, 0.1f, (countZ - 1) * spacing + spacing));
+            Gizmos.matrix = Matrix4x4.identity;
+        }
+        else
+        {
+            Gizmos.color = new Color(0.2f, 0.8f, 0.2f, 0.5f);
+            DrawCircleWorld(radius);
+            if (shape == FieldShape.Ring)
+            {
+                Gizmos.color = new Color(0.8f, 0.4f, 0.1f, 0.4f);
+                DrawCircleWorld(Mathf.Max(0f, radius - ringRows * Mathf.Max(0.01f, spacing)));
+            }
         }
     }
 
-    void DrawGridGizmo()
+    void DrawCircleWorld(float r)
     {
-        float totalWidth = (countX - 1) * spacing;
-        float totalDepth = (countZ - 1) * spacing;
-
-        Gizmos.color = new Color(0.2f, 0.8f, 0.2f, 0.4f);
-        Gizmos.DrawWireCube(transform.position,
-            new Vector3(totalWidth + spacing, 0.1f, totalDepth + spacing));
-    }
-
-    void DrawDiscGizmo()
-    {
-        Gizmos.color = new Color(0.2f, 0.8f, 0.2f, 0.5f);
-        DrawWireCircle(transform.position, radius, 64);
-    }
-
-    void DrawRingGizmo()
-    {
-        float effectiveInner = Mathf.Max(0f, radius - ringRows * Mathf.Max(0.01f, spacing));
-
-        Gizmos.color = new Color(0.2f, 0.8f, 0.2f, 0.5f);
-        DrawWireCircle(transform.position, radius, 64);
-
-        Gizmos.color = new Color(0.8f, 0.4f, 0.1f, 0.4f);
-        DrawWireCircle(transform.position, effectiveInner, 64);
-    }
-
-    void DrawWireCircle(Vector3 center, float r, int segments)
-    {
-        float step = 2f * Mathf.PI / segments;
-        Vector3 prev = center + new Vector3(r, 0f, 0f);
-        for (int i = 1; i <= segments; i++)
+        const int seg = 64;
+        float step = 2f * Mathf.PI / seg;
+        Vector3 prev = transform.TransformPoint(new Vector3(r, 0, 0));
+        for (int i = 1; i <= seg; i++)
         {
-            float angle = i * step;
-            Vector3 next = center + new Vector3(Mathf.Cos(angle) * r, 0f, Mathf.Sin(angle) * r);
-            Gizmos.DrawLine(prev, next);
-            prev = next;
+            float a = i * step;
+            Vector3 next = transform.TransformPoint(new Vector3(Mathf.Cos(a) * r, 0, Mathf.Sin(a) * r));
+            Gizmos.DrawLine(prev, next); prev = next;
         }
     }
 #endif
@@ -560,54 +338,28 @@ public class FieldGeneratorEditor : Editor
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
-
-        FieldGenerator generator = (FieldGenerator)target;
+        var gen = (FieldGenerator)target;
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
-
         EditorGUILayout.BeginHorizontal();
-
-        if (GUILayout.Button("Régénérer"))
-        {
-            generator.Generate();
-            EditorUtility.SetDirty(generator);
-        }
-
-        if (GUILayout.Button("Effacer"))
-        {
-            generator.Clear();
-            EditorUtility.SetDirty(generator);
-        }
-
+        if (GUILayout.Button("Régénérer")) { gen.Generate(); EditorUtility.SetDirty(gen); }
+        if (GUILayout.Button("Effacer")) { gen.Clear(); EditorUtility.SetDirty(gen); }
         EditorGUILayout.EndHorizontal();
-
         EditorGUILayout.Space();
-        EditorGUILayout.HelpBox(BuildInfoText(generator), MessageType.Info);
-    }
 
-    static string BuildInfoText(FieldGenerator gen)
-    {
-        MeshFilter mf = gen.GetComponent<MeshFilter>();
-        int verts = (mf != null && mf.sharedMesh != null) ? mf.sharedMesh.vertexCount : 0;
-        int tris  = (mf != null && mf.sharedMesh != null) ? mf.sharedMesh.triangles.Length / 3 : 0;
-        string meshInfo = $"Draw calls : 1\nSommets : {verts}  |  Triangles : {tris}";
-
-        switch (gen.shape)
+        if (gen.GetComponents<FieldGenerator>().Length > 1)
+            EditorGUILayout.HelpBox("⚠ Plusieurs FieldGenerator sur ce GameObject.\nChaque forme doit être sur un GameObject séparé.", MessageType.Error);
+        else
         {
-            case FieldGenerator.FieldShape.Grid:
-                int total = gen.countX * gen.countZ;
-                return $"Forme : Grille  |  Blés : {total} ({gen.countX} × {gen.countZ})\n{meshInfo}";
-
-            case FieldGenerator.FieldShape.Disc:
-                return $"Forme : Disque plein  |  Rayon : {gen.radius}  |  Espacement : {gen.spacing}\n{meshInfo}";
-
-            case FieldGenerator.FieldShape.Ring:
-                float eff = Mathf.Max(0f, gen.radius - gen.ringRows * Mathf.Max(0.01f, gen.spacing));
-                return $"Forme : Anneau  |  Ext. : {gen.radius}  |  Int. : {eff:F2}  |  Rangées : {gen.ringRows}\n{meshInfo}";
-
-            default:
-                return meshInfo;
+            Transform child = gen.transform.Find("__WheatMesh__");
+            MeshFilter mf = child != null ? child.GetComponent<MeshFilter>() : null;
+            int v = mf?.sharedMesh != null ? mf.sharedMesh.vertexCount : 0;
+            int t = mf?.sharedMesh != null ? mf.sharedMesh.triangles.Length / 3 : 0;
+            string info = gen.shape == FieldGenerator.FieldShape.Ring
+                ? $"Rayon int. calculé : {Mathf.Max(0f, gen.radius - gen.ringRows * Mathf.Max(0.01f, gen.spacing)):F2}\n"
+                : "";
+            EditorGUILayout.HelpBox($"Draw calls : 1  |  Blés : {v / 8}  |  Sommets : {v}  |  Tris : {t}\n{info}NavMesh : ignoré (enfant non-statique)", MessageType.Info);
         }
     }
 }

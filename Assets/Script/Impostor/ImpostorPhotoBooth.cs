@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class ImpostorPhotoBooth : MonoBehaviour
 {
@@ -17,6 +18,30 @@ public class ImpostorPhotoBooth : MonoBehaviour
             return instance;
         }
     }
+
+    // ──────────────────────────────────────────────
+    // Loading tracking
+    // ──────────────────────────────────────────────
+
+    /// <summary>Total number of captures requested since scene start.</summary>
+    public int TotalCapturesRequested { get; private set; }
+
+    /// <summary>Number of captures completed so far.</summary>
+    public int TotalCapturesCompleted { get; private set; }
+
+    /// <summary>Progress from 0 to 1. Returns 1 if no captures were ever requested.</summary>
+    public float Progress => TotalCapturesRequested == 0 ? 1f
+        : (float)TotalCapturesCompleted / TotalCapturesRequested;
+
+    /// <summary>True when all requested captures have been completed.</summary>
+    public bool IsAllCapturesDone => TotalCapturesRequested > 0
+        && TotalCapturesCompleted >= TotalCapturesRequested;
+
+    /// <summary>Fired every time a capture completes. Parameter is current Progress (0–1).</summary>
+    public event Action<float> OnCaptureProgressChanged;
+
+    /// <summary>Fired once when every pending capture has been processed.</summary>
+    public event Action OnAllCapturesDone;
 
     [Header("Booth Configuration")]
     public Camera boothCamera;
@@ -57,8 +82,18 @@ public class ImpostorPhotoBooth : MonoBehaviour
     //public RenderTexture[] depthTextures;
 
     [Header("Performance")]
-    [Tooltip("Nombre maximum de captures traitées par frame (1 recommandé)")]
+    [Tooltip("Nombre maximum de captures traitées par frame en mode normal (après le chargement).")]
     public int maxCapturesPerFrame = 1;
+
+    [Tooltip("Captures par frame pendant le chargement initial. 8–16 = chargement rapide, pics de frame acceptables.")]
+    [Range(1, 32)]
+    public int maxCapturesPerFrameDuringLoading = 8;
+
+    [Tooltip("Frames de grâce après vidage de la queue avant de quitter le mode loading.")]
+    public int loadingGracePeriodFrames = 10;
+
+    private int remainingGraceFrames;
+    private bool isInLoadingPhase = true;
 
     private Queue<ImpostorRequest> captureQueue = new Queue<ImpostorRequest>();
     private bool isCapturing = false;
@@ -179,6 +214,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
             cachedRenderers = meshObject.GetComponentsInChildren<Renderer>()
         };
 
+        TotalCapturesRequested++;
         captureQueue.Enqueue(request);
         isCapturing = true;
         enabled = true;
@@ -189,13 +225,31 @@ public class ImpostorPhotoBooth : MonoBehaviour
     {
         if (!isCapturing || captureQueue.Count == 0)
         {
+            // La queue est vide — gestion de la fin du mode loading.
+            if (isInLoadingPhase)
+            {
+                if (remainingGraceFrames > 0)
+                {
+                    remainingGraceFrames--;
+                }
+                else
+                {
+                    isInLoadingPhase = false;
+                }
+            }
+
             isCapturing = false;
-            enabled = false; // Désactive le composant, plus de Update() tant qu'il n'y a rien
+            enabled = false;
             return;
         }
 
+        // Réinitialise la grâce si de nouvelles captures arrivent encore.
+        remainingGraceFrames = loadingGracePeriodFrames;
+
+        int capturesThisFrame = isInLoadingPhase ? maxCapturesPerFrameDuringLoading : maxCapturesPerFrame;
+
         int processed = 0;
-        while (captureQueue.Count > 0 && processed < maxCapturesPerFrame)
+        while (captureQueue.Count > 0 && processed < capturesThisFrame)
         {
             ProcessNextCapture();
             processed++;
@@ -207,6 +261,7 @@ public class ImpostorPhotoBooth : MonoBehaviour
             enabled = false;
         }
     }
+
 
     void ProcessNextCapture()
     {
@@ -240,6 +295,12 @@ public class ImpostorPhotoBooth : MonoBehaviour
         }
 
         request.onComplete?.Invoke();
+
+        TotalCapturesCompleted++;
+        OnCaptureProgressChanged?.Invoke(Progress);
+
+        if (IsAllCapturesDone)
+            OnAllCapturesDone?.Invoke();
     }
 
     void CaptureAtlas(ImpostorRequest request)

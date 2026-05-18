@@ -2,7 +2,7 @@
 - Project name: Ranch-Invader
 - Unity version: Unity 6000.4.0f1
 - Active game object:
-  - Name: EnemyRanged
+  - Name: __WheatMesh__
   - Tag: Untagged
-  - Layer: Enemy
+  - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
