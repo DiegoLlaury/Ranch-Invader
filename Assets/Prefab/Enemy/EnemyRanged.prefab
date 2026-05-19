@@ -233,7 +233,7 @@ MonoBehaviour:
   - eventName: OnDetect
     soundKey: Enemy_AlienCat_Attack
   - eventName: OnAttack
-    soundKey: Enemy_AlienCat_Attack
+    soundKey: 
   - eventName: OnHit
     soundKey: Enemy_AlienCat_Attack
   - eventName: OnDeath

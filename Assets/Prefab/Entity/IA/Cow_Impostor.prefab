@@ -140,6 +140,15 @@ MonoBehaviour:
   useStaticFace: 0
   directionHysteresis: 8
   staticFaceIndex: 0
+  faceWeights:
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
   snapToGround: 1
   groundOffset: 0.75
   groundLayers:
@@ -173,7 +182,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a711e07ad056a14fb5c6c5f8c5b33a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CowKnockback
-  knockbackDistance: 3
+  knockbackDistance: 10
   knockbackDuration: 0.25
   knockbackCurve:
     serializedVersion: 2

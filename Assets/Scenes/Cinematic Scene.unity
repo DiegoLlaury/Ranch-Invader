@@ -436,7 +436,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.108
+      value: -2.486
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -956,7 +956,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Impostor_kitchen
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2632246656403067629, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -2038,7 +2039,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3.87
+      value: -2.36
       objectReference: {fileID: 0}
     - target: {fileID: 1829072912255258385, guid: 2a0a42f9bb840854b94f6489f203aca7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2329,9 +2330,17 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1790641246236712801, guid: 680ce4070c0f9574aaf72bb94f4a37a3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1881640242741587459, guid: 680ce4070c0f9574aaf72bb94f4a37a3, type: 3}
       propertyPath: m_Name
       value: HUDCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 2706744863788540277, guid: 680ce4070c0f9574aaf72bb94f4a37a3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3749669025367175152, guid: 680ce4070c0f9574aaf72bb94f4a37a3, type: 3}
       propertyPath: interactionSystem
@@ -2568,7 +2577,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1218612142
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3262,7 +3271,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3560165255587856717, guid: 6216cdcd867861a44855b415962ab764, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.2
+      value: 1.671
       objectReference: {fileID: 0}
     - target: {fileID: 3560165255587856717, guid: 6216cdcd867861a44855b415962ab764, type: 3}
       propertyPath: m_LocalPosition.y

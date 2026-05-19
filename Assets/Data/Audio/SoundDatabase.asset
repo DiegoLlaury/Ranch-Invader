@@ -198,7 +198,7 @@ MonoBehaviour:
     clips:
     - {fileID: 8300000, guid: 775c33a81a859dc4387de4189ea488ab, type: 3}
     - {fileID: 8300000, guid: 437d98fdbc0a8324bbb6f1a800526494, type: 3}
-    volume: 0.35
+    volume: 0.3
     pitch: 1
     pitchVariation: 0.1
     is3D: 1
@@ -209,7 +209,7 @@ MonoBehaviour:
   - soundName: Enemy_AlienCat_Attack
     clips:
     - {fileID: 8300000, guid: 557d1fa137ff24e469374aadcf248830, type: 3}
-    volume: 0.5
+    volume: 0.25
     pitch: 1
     pitchVariation: 0.1
     is3D: 1
@@ -264,7 +264,7 @@ MonoBehaviour:
   - soundName: Weapon_ShovelHit
     clips:
     - {fileID: 8300000, guid: a2f31a146259e324b8d4edf302ff9479, type: 3}
-    volume: 0.5
+    volume: 0.25
     pitch: 1
     pitchVariation: 0.1
     is3D: 0
@@ -424,7 +424,7 @@ MonoBehaviour:
   - soundName: Voice_RecupShotgun
     clips:
     - {fileID: 8300000, guid: dd2908fe5735a8443a52798615ec249d, type: 3}
-    volume: 0.4
+    volume: 0.6
     pitch: 1
     pitchVariation: 0
     is3D: 0

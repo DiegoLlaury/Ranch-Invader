@@ -1,5 +1,7 @@
+using StarterAssets;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Orchestrates the Level 01 intro cinematic: enemy ships arrive from hyperspace,
@@ -14,6 +16,10 @@ public class Level01IntroCinematicController : MonoBehaviour
     [Header("Player")]
     [Tooltip("The player GameObject that holds CinematicInputBlocker.")]
     [SerializeField] private CinematicInputBlocker inputBlocker;
+
+    [Header("Player")]
+    [Tooltip("StarterAssetsInputs du joueur")]
+    [SerializeField] private StarterAssetsInputs playerInputs;
 
     [Header("Camera")]
     [Tooltip("The Cinemachine camera target (PlayerCameraRoot child of the player).")]
@@ -235,6 +241,19 @@ public class Level01IntroCinematicController : MonoBehaviour
         SetMusicObjectsActive(true);
         // [10s] Register event and unblock inputs
         CheckpointManager.Instance.RegisterEvent(cinematicEventId);
+
+        if (playerInputs != null)
+        {
+            playerInputs.cursorLocked = enabled;
+            playerInputs.cursorInputForLook = enabled;
+            playerInputs.SetCursorState(enabled);
+
+            // Remet l'entrée look à zéro pour éviter que le personnage continue
+            // de tourner après avoir bougé la souris en dehors de la fenêtre.
+            if (!enabled)
+                playerInputs.look = Vector2.zero;
+        }
+
         inputBlocker.Unblock();
     }
 

@@ -230,7 +230,7 @@ MonoBehaviour:
   - eventName: OnDetect
     soundKey: Enemy_RobotDog_Attack
   - eventName: OnAttack
-    soundKey: Enemy_RobotDog_Attack
+    soundKey: 
   - eventName: OnHit
     soundKey: Enemy_RobotDog_Attack
   - eventName: OnDeath
