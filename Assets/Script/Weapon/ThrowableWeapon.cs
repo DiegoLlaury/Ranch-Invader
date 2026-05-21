@@ -27,6 +27,13 @@ public class ThrowableWeapon : BaseWeapon
         RefreshHandMesh();
     }
 
+    public override void OnAmmoRestored()
+    {
+        base.OnAmmoRestored();
+
+        RefreshHandMesh();
+    }
+
     public override void Attack()
     {
         if (weaponData.RuntimeCurrentAmmo <= 0)

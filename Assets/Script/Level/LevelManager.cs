@@ -9,14 +9,7 @@ public class LevelManager : MonoBehaviour
     {
         //TODO : Charger la dernière sauvegarde
         GetComponent<SaveManager>().LoadGame();
-        //TODO : Charge le dernier niveau joué
-        if (gameDatas.Datas.IsPlayerInMiniGame)
-        {
-            SceneManager.LoadScene(gameDatas.Datas.MiniGameNumber);
-        }
-        else
-        {
+
             SceneManager.LoadScene(1);
-        }
     }
 }

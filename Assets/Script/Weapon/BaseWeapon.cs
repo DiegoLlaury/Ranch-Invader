@@ -75,6 +75,11 @@ public abstract class BaseWeapon : MonoBehaviour
         soundEmitter?.Play(SoundOnEquip);
     }
 
+    public virtual void OnAmmoRestored()
+    {
+        isAttacking = false;
+    }
+
     public virtual void OnUnequip() { }
 
     public WeaponType GetWeaponType() => weaponData.weaponType;

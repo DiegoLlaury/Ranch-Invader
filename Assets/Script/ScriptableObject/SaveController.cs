@@ -2,20 +2,17 @@
 // Kept to avoid breaking existing asset references.
 using System.Collections.Generic;
 using System.IO;
+using System;
 using UnityEngine;
 
 [System.Serializable]
 public struct PlayerDatasStruct
 {
-    public int cellNumber;
-    public int fleshNumber;
-    public bool IsPlayerInMiniGame;
-    public int MiniGameNumber;
-
     // Checkpoint data
     public List<string> executedEventIds;
+    public List<string> unclockWeaponSave;
     public int checkpointIndex;       // Index du dernier checkpoint activé (-1 = aucun)
-    public bool isFirstPlay;          // true tant que le joueur n'a jamais sauvegardé de progression
+    public bool isFirstPlay;          // true tant que le joueur n'a jamais sauvegardé de progression    
 }
 
 public class SaveController

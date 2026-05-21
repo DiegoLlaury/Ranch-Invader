@@ -56,6 +56,7 @@ public class AmmoPickup : MonoBehaviour
                 if (controller.GetCurrentWeaponType() == weaponType)
                 {
                     BaseWeapon weapon = controller.GetCurrentWeapon();
+                    weapon?.OnAmmoRestored();
                     weapon?.NotifyAmmoChanged();
                 }
             }

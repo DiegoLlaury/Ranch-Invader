@@ -172,10 +172,7 @@ public class WeaponController : MonoBehaviour
 
     public void Attack()
     {
-        if (currentWeapon != null && currentWeapon.CanAttack())
-        {
-            currentWeapon.Attack();
-        }
+        currentWeapon?.Attack();
     }
 
     public void NextWeapon()

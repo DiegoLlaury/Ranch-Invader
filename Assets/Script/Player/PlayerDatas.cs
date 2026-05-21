@@ -15,11 +15,8 @@ public class PlayerDatas : ScriptableObject
     {
         Datas = new PlayerDatasStruct
         {
-            cellNumber        = 0,
-            fleshNumber       = 0,
-            IsPlayerInMiniGame = false,
-            MiniGameNumber    = 0,
             executedEventIds  = new List<string>(),
+            unclockWeaponSave = new List<string>(),
             checkpointIndex   = -1,
             isFirstPlay       = true
         };

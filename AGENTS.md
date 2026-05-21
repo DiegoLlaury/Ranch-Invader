@@ -2,7 +2,7 @@
 - Project name: Ranch-Invader
 - Unity version: Unity 6000.4.0f1
 - Active game object:
-  - Name: LoadingScreen
+  - Name: EnemyMeleeSlow
   - Tag: Untagged
-  - Layer: Default
+  - Layer: Enemy
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

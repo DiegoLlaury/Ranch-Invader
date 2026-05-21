@@ -44,13 +44,28 @@ public class EnemyKnockback : MonoBehaviour
         direction.Normalize();
 
         if (knockbackCoroutine != null)
+        {
             StopCoroutine(knockbackCoroutine);
+
+            if (navAgent != null &&
+                navAgent.isActiveAndEnabled &&
+                navAgent.isOnNavMesh)
+            {
+                navAgent.updatePosition = true;
+                navAgent.isStopped = false;
+            }
+        }
 
         knockbackCoroutine = StartCoroutine(KnockbackRoutine(direction));
     }
 
     private IEnumerator KnockbackRoutine(Vector3 direction)
     {
+        if (navAgent == null || !navAgent.isActiveAndEnabled || !navAgent.isOnNavMesh)
+        {
+            yield break;
+        }
+
         navAgent.isStopped = true;
         navAgent.updatePosition = false;
 
@@ -64,19 +79,47 @@ public class EnemyKnockback : MonoBehaviour
             float stepDistance = (knockbackDistance / knockbackDuration) * speedMultiplier * Time.deltaTime;
 
             // Déplace directement le transform — contourne les problèmes de baseOffset du NavMeshAgent.
-            transform.position += direction * stepDistance;
+            Vector3 nextPosition = transform.position + direction * stepDistance;
 
-            // Resynchronise l'agent à chaque frame pour qu'il reste ancré sur le NavMesh.
-            if (navAgent.isOnNavMesh)
-                navAgent.Warp(transform.position);
+            if (TryGetValidNavMeshPosition(nextPosition, out Vector3 validPosition))
+            {
+                transform.position = validPosition;
+
+                if (navAgent.isOnNavMesh)
+                    navAgent.Warp(validPosition);
+            }
+            else
+            {
+                break;
+            }
 
             yield return null;
         }
 
-        navAgent.updatePosition = true;
-        navAgent.isStopped = false;
+        if (navAgent != null &&
+        navAgent.isActiveAndEnabled &&
+        navAgent.isOnNavMesh)
+        {
+            navAgent.updatePosition = true;
+            navAgent.isStopped = false;
+        }
 
         knockbackCoroutine = null;
+    }
+
+    private bool TryGetValidNavMeshPosition(Vector3 targetPosition, out Vector3 validPosition)
+    {
+        if (NavMesh.SamplePosition(targetPosition,
+                                   out NavMeshHit hit,
+                                   1f,
+                                   NavMesh.AllAreas))
+        {
+            validPosition = hit.position;
+            return true;
+        }
+
+        validPosition = transform.position;
+        return false;
     }
 
 }

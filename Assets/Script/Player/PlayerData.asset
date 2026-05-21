@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: PlayerData
   m_EditorClassIdentifier: 
   Datas:
-    cellNumber: 0
-    fleshNumber: 0
-    IsPlayerInMiniGame: 0
-    MiniGameNumber: 0
-    executedEventIds: []
-    checkpointIndex: 0
-    isFirstPlay: 1
+    executedEventIds:
+    - level01_intro
+    - ActiveForceField_1
+    unclockWeaponSave:
+    - Pitchfork
+    - Fist
+    checkpointIndex: 1
+    isFirstPlay: 0
