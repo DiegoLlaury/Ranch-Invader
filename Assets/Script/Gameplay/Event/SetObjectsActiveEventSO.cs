@@ -1,5 +1,4 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Gameplay/Events/Set Objects Active", fileName = "Event_SetObjectsActive")]
@@ -12,15 +11,21 @@ public class SetObjectsActiveEventSO : GameplayEventSO
         public bool setActive;
     }
 
-    [Tooltip("Liste des GameObjects � activer ou d�sactiver")]
+    [Tooltip("Liste des GameObjects à activer ou désactiver")]
     public ObjectActivation[] targets;
 
     public override void Execute(MonoBehaviour caller)
     {
         NotifyCheckpoint(caller);
-        // Utilise le CoroutineRunner persistant plutôt que le caller
-        // qui peut être détruit avant la fin du délai.
+
+        // Gameplay live
         CoroutineRunner.Instance.Run(ExecuteDelayed());
+    }
+
+    public override void RestoreState(Object instigator)
+    {
+        // Reconstruction instantanée silencieuse
+        ApplyState();
     }
 
     private IEnumerator ExecuteDelayed()
@@ -28,14 +33,29 @@ public class SetObjectsActiveEventSO : GameplayEventSO
         if (delay > 0f)
             yield return new WaitForSeconds(delay);
 
+        ApplyState();
+    }
+
+    /// <summary>
+    /// Applique réellement l'état des objets.
+    /// Utilisé par Execute() ET RestoreState().
+    /// </summary>
+    private void ApplyState()
+    {
         foreach (ObjectActivation target in targets)
         {
             GameObject obj = GameObject.Find(target.gameObjectName);
 
             if (obj != null)
+            {
                 obj.SetActive(target.setActive);
+            }
             else
-                Debug.LogWarning($"[SetObjectsActiveEventSO] '{target.gameObjectName}' introuvable.");
+            {
+                Debug.LogWarning(
+                    $"[SetObjectsActiveEventSO] '{target.gameObjectName}' introuvable."
+                );
+            }
         }
     }
 }

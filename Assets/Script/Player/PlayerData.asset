@@ -13,11 +13,8 @@ MonoBehaviour:
   m_Name: PlayerData
   m_EditorClassIdentifier: 
   Datas:
-    executedEventIds:
-    - level01_intro
-    - ActiveForceField_1
+    executedEventIds: []
     unclockWeaponSave:
-    - Pitchfork
     - Fist
-    checkpointIndex: 1
-    isFirstPlay: 0
+    checkpointIndex: 0
+    isFirstPlay: 1

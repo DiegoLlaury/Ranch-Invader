@@ -21,4 +21,8 @@ public abstract class GameplayEventSO : ScriptableObject
         if (!string.IsNullOrEmpty(eventId))
             CheckpointManager.Instance?.RegisterEvent(eventId);
     }
+
+    public virtual void RestoreState(Object instigator)
+    {
+    }
 }

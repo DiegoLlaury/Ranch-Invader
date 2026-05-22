@@ -4,7 +4,7 @@ using UnityEngine;
 /// Place this component on a weapon pickup object in the world.
 /// When the player interacts with it, the weapon is added to their WeaponInventory,
 /// its ammo is reset to initial values, and it is equipped immediately.
-/// Fires a GameplayEventSO on pickup and optionally plays a voice line via SoundManager.
+/// Fires one or more GameplayEventSO on pickup and optionally plays a voice line.
 /// </summary>
 public class WeaponPickup : MonoBehaviour, IInteractable
 {
@@ -16,20 +16,25 @@ public class WeaponPickup : MonoBehaviour, IInteractable
     [Tooltip("Nom du son enregistré dans la SoundDatabase à jouer au ramassage (voix)")]
     [SerializeField] private string pickupVoiceSoundName = "";
 
-    [Header("Événement au ramassage")]
-    [Tooltip("GameplayEventSO déclenché après que le joueur ait ramassé l'arme")]
-    [SerializeField] private GameplayEventSO onPickedUpEvent;
+    [Header("Événements au ramassage")]
+    [Tooltip("GameplayEventSO déclenchés après que le joueur ait ramassé l'arme")]
+    [SerializeField] private GameplayEventSO[] onPickedUpEvents;
 
     public string InteractionLabel => interactionLabel;
 
-    /// <summary>Returns true only if the player does not already own this weapon.</summary>
+    /// <summary>
+    /// Returns true only if the player does not already own this weapon.
+    /// </summary>
     public bool CanInteract(GameObject interactor)
     {
         WeaponInventory inventory = interactor.GetComponent<WeaponInventory>();
         return inventory != null && !inventory.HasWeapon(weaponType);
     }
 
-    /// <summary>Adds the weapon to inventory, equips it, plays the voice line, and fires the pickup event.</summary>
+    /// <summary>
+    /// Adds the weapon to inventory, equips it,
+    /// plays the voice line, and fires pickup events.
+    /// </summary>
     public void OnInteract(GameObject interactor)
     {
         WeaponInventory inventory = interactor.GetComponent<WeaponInventory>();
@@ -53,23 +58,53 @@ public class WeaponPickup : MonoBehaviour, IInteractable
 
         PlayPickupVoice();
 
-        // On passe un MonoBehaviour persistant (depuis le joueur) comme caller
-        // pour que l'event puisse s'exécuter même après la destruction du pickup.
-        MonoBehaviour eventCaller = interactor.GetComponent<WeaponController>() as MonoBehaviour
+        // Caller persistant pour les events async/coroutines
+        MonoBehaviour eventCaller =
+            interactor.GetComponent<WeaponController>() as MonoBehaviour
             ?? interactor.GetComponent<MonoBehaviour>();
-        onPickedUpEvent?.Execute(eventCaller);
+
+        ExecutePickupEvents(eventCaller);
 
         Destroy(gameObject);
     }
 
-    /// <summary>Plays the configured voice sound through VoiceManager with Objective priority.</summary>
+    /// <summary>
+    /// Exécute tous les GameplayEventSO configurés.
+    /// </summary>
+    private void ExecutePickupEvents(MonoBehaviour caller)
+    {
+        if (onPickedUpEvents == null || onPickedUpEvents.Length == 0)
+            return;
+
+        foreach (GameplayEventSO gameplayEvent in onPickedUpEvents)
+        {
+            if (gameplayEvent == null)
+                continue;
+
+            gameplayEvent.Execute(caller);
+        }
+    }
+
+    /// <summary>
+    /// Plays the configured voice sound through VoiceManager.
+    /// </summary>
     private void PlayPickupVoice()
     {
-        if (string.IsNullOrEmpty(pickupVoiceSoundName)) return;
+        if (string.IsNullOrEmpty(pickupVoiceSoundName))
+            return;
 
         if (VoiceManager.Instance != null)
-            VoiceManager.Instance.PlayVoiceForced(pickupVoiceSoundName, VoicePriority.Objective);
+        {
+            VoiceManager.Instance.PlayVoiceForced(
+                pickupVoiceSoundName,
+                VoicePriority.Objective
+            );
+        }
         else
-            Debug.LogWarning("[WeaponPickup] VoiceManager introuvable — impossible de jouer la voix.");
+        {
+            Debug.LogWarning(
+                "[WeaponPickup] VoiceManager introuvable — impossible de jouer la voix."
+            );
+        }
     }
 }

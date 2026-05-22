@@ -34,9 +34,20 @@ public class SceneStateRestorer : MonoBehaviour
             bool allEventsExecuted = AreAllZoneEventsExecuted(zone);
 
             if (allEventsExecuted)
+            {
                 zone.ResetToCompleted();
+
+                foreach (GameplayEventSO ev in zone.onEnterEvents)
+                {
+                    if (ev == null) continue;
+
+                    ev.RestoreState(zone);
+                }
+            }
             else
+            {
                 zone.Reset();
+            }
         }
     }
 
@@ -73,9 +84,25 @@ public class SceneStateRestorer : MonoBehaviour
             bool allWavesExecuted = AreAllSpawnerWavesExecuted(spawner);
 
             if (allWavesExecuted)
+            {
                 spawner.ResetToCompleted();
+
+                foreach (EnemySpawner.EnemyWave wave in spawner.waves)
+                {
+                    if (wave == null) continue;
+
+                    foreach (GameplayEventSO ev in wave.onWaveCleared)
+                    {
+                        if (ev == null) continue;
+
+                        ev.RestoreState(spawner);
+                    }
+                }
+            }
             else
+            {
                 spawner.ResetToInitial();
+            }
         }
     }
 

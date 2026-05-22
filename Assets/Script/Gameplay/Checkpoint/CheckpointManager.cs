@@ -29,10 +29,7 @@ public class CheckpointManager : MonoBehaviour
             return;
         }
         Instance = this;
-    }
 
-    private void Start()
-    {
         LoadFromSave();
     }
 
