@@ -59,12 +59,14 @@ public class RangedWeapon : BaseWeapon
         if (cachedUIController == null)
             cachedUIController = Object.FindAnyObjectByType<WeaponUIController>();
 
-        yield return null; // laisse l'animation démarrer
+        yield return null;
 
-        // Attend la fin de l'animation avec un timeout de sécurité
-        float timeout = 3f;
+        float timeout = Mathf.Max(weaponData.animationDuration + 0.5f, 1f);
         float elapsed = 0f;
-        while (cachedUIController != null && cachedUIController.IsAnimating && elapsed < timeout)
+
+        while (cachedUIController != null &&
+               cachedUIController.IsAnimating &&
+               elapsed < timeout)
         {
             elapsed += Time.deltaTime;
             yield return null;

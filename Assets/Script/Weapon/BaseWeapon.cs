@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections;
 
 public abstract class BaseWeapon : MonoBehaviour
 {
@@ -59,7 +60,14 @@ public abstract class BaseWeapon : MonoBehaviour
         PerformAttack();
         RaiseAttackPerformed();
 
-        Invoke(nameof(ResetAttackState), weaponData.animationDuration);
+        StartCoroutine(ResetAttackStateDelayed());
+    }
+
+    private IEnumerator ResetAttackStateDelayed()
+    {
+        yield return new WaitForSeconds(weaponData.animationDuration);
+
+        ResetAttackState();
     }
 
     protected abstract void PerformAttack();
