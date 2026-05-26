@@ -18,7 +18,6 @@ MonoBehaviour:
     - WeaponDrop_PitchFork
     - ActiveForceField_1
     - WeaponDrop_Shovel
-    - ActiveDoor_Field
     unclockWeaponSave:
     - Fist
     - Pitchfork

@@ -23,6 +23,9 @@ public abstract class BaseWeapon : MonoBehaviour
     protected DrunkEffect drunkEffect;
     protected SoundEmitter soundEmitter;
 
+    private Coroutine resetCoroutine;
+    private int attackVersion;
+
     protected virtual void Awake()
     {
         drunkEffect = GetComponentInParent<DrunkEffect>();
@@ -51,16 +54,32 @@ public abstract class BaseWeapon : MonoBehaviour
     {
         if (!CanAttack()) return;
 
+        attackVersion++; // invalide toutes anciennes coroutines
+        int localVersion = attackVersion;
+
         lastAttackTime = Time.time;
         isAttacking = true;
 
-        // Feedback: swing sound
         soundEmitter?.Play(SoundOnSwing);
 
         PerformAttack();
         RaiseAttackPerformed();
 
-        StartCoroutine(ResetAttackStateDelayed());
+        if (resetCoroutine != null)
+            StopCoroutine(resetCoroutine);
+
+        resetCoroutine = StartCoroutine(ResetAttackStateDelayed(localVersion));
+    }
+
+    private IEnumerator ResetAttackStateDelayed(int version)
+    {
+        yield return new WaitForSeconds(weaponData.animationDuration);
+
+        // si une nouvelle attaque a commencé entre temps → on ignore
+        if (version != attackVersion)
+            yield break;
+
+        ResetAttackState();
     }
 
     private IEnumerator ResetAttackStateDelayed()
@@ -88,7 +107,16 @@ public abstract class BaseWeapon : MonoBehaviour
         isAttacking = false;
     }
 
-    public virtual void OnUnequip() { }
+    public virtual void OnUnequip()
+    {
+        isAttacking = false;
+
+        if (resetCoroutine != null)
+        {
+            StopCoroutine(resetCoroutine);
+            resetCoroutine = null;
+        }
+    }
 
     public WeaponType GetWeaponType() => weaponData.weaponType;
 

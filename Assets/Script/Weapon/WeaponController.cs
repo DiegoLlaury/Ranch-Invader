@@ -154,6 +154,7 @@ public class WeaponController : MonoBehaviour
 
         if (currentWeapon != null)
         {
+            currentWeapon.StopAllCoroutines(); 
             currentWeapon.OnUnequip();
             currentWeapon.gameObject.SetActive(false);
         }

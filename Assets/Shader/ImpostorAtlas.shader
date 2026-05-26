@@ -11,10 +11,9 @@ Shader "Custom/ImpostorAtlas"
 
     SubShader
     {
-        Tags { "RenderType"="Transparent" "Queue"="Transparent" }
-
-        Blend SrcAlpha OneMinusSrcAlpha
-        ZWrite Off
+        Tags { "RenderType"="Opaque" "Queue"="AlphaTest" }
+        ZWrite On
+        Blend Off
         ZTest LEqual 
         Cull Off
 
