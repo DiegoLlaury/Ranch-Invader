@@ -13,8 +13,15 @@ MonoBehaviour:
   m_Name: PlayerData
   m_EditorClassIdentifier: 
   Datas:
-    executedEventIds: []
+    executedEventIds:
+    - level01_intro
+    - WeaponDrop_PitchFork
+    - ActiveForceField_1
+    - WeaponDrop_Shovel
+    - ActiveDoor_Field
     unclockWeaponSave:
     - Fist
-    checkpointIndex: 0
-    isFirstPlay: 1
+    - Pitchfork
+    - Shovel
+    checkpointIndex: 1
+    isFirstPlay: 0

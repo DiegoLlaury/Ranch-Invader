@@ -89,6 +89,7 @@ public class Level01IntroCinematicController : MonoBehaviour
     // — Timing constants ——————————————————————————————————————————————————————
 
     private const float CameraLookUpDuration = 0.2f;
+    private const float PlayerDialogueDuration = 2.5f;
     private const float GlorpArrivalDuration = 2.3f;
     private const float UfoArrivalDuration = 2.0f;
     private const float CameraLookDownDuration = 0.5f;
@@ -181,10 +182,15 @@ public class Level01IntroCinematicController : MonoBehaviour
 
     private IEnumerator RunCinematic()
     {
+        // [5s - 9s] Player dialogue audio
+        VoiceManager.Instance?.PlayVoiceForced(playerDialogueSoundName, VoicePriority.Normal);
+
         SoundManager.Instance.PlaySound2D(cinematicMusicSoundName);
 
         // [0s - 0.2s] Camera looks up at the sky
         yield return StartCoroutine(LerpCameraRotation(skyLookRotation, CameraLookUpDuration));
+
+        yield return new WaitForSeconds(PlayerDialogueDuration);
 
 
         // [0.2s - 2.5s] All Glorp ships arrive from hyperspace simultaneously
@@ -225,9 +231,6 @@ public class Level01IntroCinematicController : MonoBehaviour
         {
             StartCoroutine(AnimateScaleIn(forceFields[i].transform, _forceFieldOriginalScales[i], ForceFieldScaleDuration));
         }
-
-        // [5s - 9s] Player dialogue audio
-        VoiceManager.Instance?.PlayVoiceForced(playerDialogueSoundName, VoicePriority.Normal);
 
         // Wait until camera return moment
         float waitForReturn = CameraReturnDelay - DeliveryStart;
